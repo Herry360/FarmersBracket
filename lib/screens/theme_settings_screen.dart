@@ -42,6 +42,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       _themeMode = mode;
       _isLoading = false;
     });
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Theme mode set to ${_themeMode.name}')),
     );
@@ -55,6 +56,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       _useDynamicColor = value;
       _isLoading = false;
     });
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Dynamic color ${value ? 'enabled' : 'disabled'}')),
     );

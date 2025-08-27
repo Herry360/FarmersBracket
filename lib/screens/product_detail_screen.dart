@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/farm_model.dart';
@@ -44,11 +42,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   : () async {
                       if (isFavorite) {
                         await favoritesNotifier.removeFavorite(userId, widget.product.id);
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Removed from favourites')),
                         );
                       } else {
                         await favoritesNotifier.addFavorite(userId, widget.product.id);
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Added to favourites')),
                         );
@@ -215,6 +215,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 unit: widget.product.unit,
                               );
                               await cartNotifier.addToCart(userId, cartItem);
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Added to cart')),
                               );

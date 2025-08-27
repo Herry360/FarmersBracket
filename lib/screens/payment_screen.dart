@@ -150,10 +150,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               // Example: Upload file to backend (replace with your API call)
                               try {
                                 // await uploadProofOfPayment(file);
+                                if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('File uploaded: ${file.name}')),
                                 );
                               } catch (e) {
+                                if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Upload failed: $e')),
                                 );

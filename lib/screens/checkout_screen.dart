@@ -149,6 +149,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   ];
   // For offline support
   bool _isOffline = false;
+  Position? _userPosition;
   
   @override
   void initState() {
@@ -167,7 +168,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   
   Future<void> _getUserLocation() async {
     try {
-  await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _userPosition = position;
+      });
     } catch (e) {
       // Handle location error
     }
@@ -261,8 +265,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             _buildSectionHeader('Delivery Address'),
             const SizedBox(height: 8),
             // Address selection with map
-            // TODO: Pass userPosition to AddressCard if supported
-            const AddressCard(),
+            AddressCard(userPosition: _userPosition),
             const SizedBox(height: 24),
 
             _buildSectionHeader('Delivery Time'),
@@ -280,11 +283,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               firstDate: DateTime.now(),
                               lastDate: DateTime.now().add(const Duration(days: 7)),
                             );
+                            if (!mounted) return;
                             if (picked != null) {
                               final time = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay.now(),
                               );
+                              if (!mounted) return;
                               if (time != null) {
                                 setState(() {
                                   _selectedDeliveryTime = DateTime(

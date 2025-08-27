@@ -35,7 +35,7 @@ class _SupportScreenState extends State<SupportScreen> {
     setState(() {
       _isSubmitting = false;
     });
-
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Support request submitted!')),
     );

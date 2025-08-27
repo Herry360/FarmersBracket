@@ -86,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
                 Navigator.of(context).pop();
                 Future.delayed(const Duration(milliseconds: 500), () {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Password reset link sent to $email')),
                   );

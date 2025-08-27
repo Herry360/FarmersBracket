@@ -6,10 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) => AuthProvider());
 
+
 class AuthProvider with ChangeNotifier {
-  final SupabaseClient _supabase = Supabase.instance.client;
-  final Box _authBox = Hive.box('auth');
-  
+  final SupabaseClient _supabase;
+  final Box _authBox;
+
   User? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
@@ -18,7 +19,9 @@ class AuthProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  AuthProvider() {
+  AuthProvider({SupabaseClient? supabase, Box? authBox})
+      : _supabase = supabase ?? Supabase.instance.client,
+        _authBox = authBox ?? Hive.box('auth') {
     _loadStoredAuth();
   }
 

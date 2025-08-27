@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class AddressCard extends StatefulWidget {
   final VoidCallback? onEditPressed;
   final Map<String, dynamic>? initialAddress;
+  final dynamic userPosition; // Accepts Position? if available
 
   const AddressCard({
     super.key,
     this.onEditPressed,
     this.initialAddress,
+    this.userPosition,
   });
 
   @override
@@ -23,6 +25,7 @@ class _AddressCardState extends State<AddressCard> {
   void initState() {
     super.initState();
     _address = widget.initialAddress;
+    // Example usage: you can use widget.userPosition here if needed
   }
 
   @override
