@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/favorites_provider.dart';
-import '../providers/auth_provider.dart';
+// import '../providers/auth_provider.dart';
 import '../models/farm_model.dart';
 import '../providers/cart_provider.dart' as cart_data;
 import '../widgets/product_card.dart';
@@ -15,7 +15,7 @@ class FavoritesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
   final favorites = ref.watch(favoritesProvider).favorites;
   final cartItems = ref.watch(cart_data.cartProvider).items;
-  final isSignedIn = ref.watch(authProvider).currentUser != null;
+  // final isSignedIn = authProvider.currentUser != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -25,53 +25,15 @@ class FavoritesScreen extends ConsumerWidget {
             icon: const Icon(Icons.shopping_cart),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CartScreen()),
+              MaterialPageRoute(builder: (context) => CartScreen()),
             ),
           ),
         ],
       ),
-      body: !isSignedIn
-          ? _buildNotSignedInState(context)
-          : (favorites.isEmpty
-              ? _buildEmptyState(context)
-              : _buildFavoritesGrid(
-                  context, favorites, ref, cartItems)),
-    );
-  }
-
-  Widget _buildNotSignedInState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.favorite_border,
-            size: 64,
-            color: Theme.of(context).colorScheme.secondary.withAlpha(128),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Sign in to save favorites',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).hintColor,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Your wishlist will be saved to your account',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).hintColor,
-                ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              // Add your sign-in navigation logic here
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
-      ),
+    body: (favorites.isEmpty
+        ? _buildEmptyState(context)
+        : _buildFavoritesGrid(
+          context, favorites, ref, cartItems)),
     );
   }
 
@@ -155,19 +117,15 @@ class FavoritesScreen extends ConsumerWidget {
               isInCart: cartItems.any((item) => item.productId == favorites[index].id),
               isFavorite: true,
               onFavoritePressed: () {
-                final userId = ref.read(authProvider).currentUser?.id;
-                if (userId == null) return;
                 final favNotifier = ref.read(favoritesProvider.notifier);
                 final isFav = favNotifier.isFavorite(favorites[index].id);
                 if (isFav) {
-                  favNotifier.removeFavorite(userId, favorites[index].id);
+                  favNotifier.removeFavorite(favorites[index].id);
                 } else {
-                  favNotifier.addFavorite(userId, favorites[index].id);
+                  favNotifier.addFavorite(favorites[index]);
                 }
               },
               onAddToCart: () {
-                final userId = ref.read(authProvider).currentUser?.id;
-                if (userId == null) return;
                 final product = favorites[index];
                 final cartItem = cart_data.CartItem(
                   id: product.id,
@@ -175,12 +133,12 @@ class FavoritesScreen extends ConsumerWidget {
                   name: product.title,
                   price: product.price,
                   imageUrl: product.imageUrl,
-                  farmId: '', // Add farmId if available
-                  farmName: '', // Add farmName if available
+                  farmId: product.farmId,
+                  farmName: product.farmName,
                   quantity: 1,
-                  unit: '', // Add unit if available
+                  unit: product.unit,
                 );
-                ref.read(cart_data.cartProvider.notifier).addToCart(userId, cartItem);
+                ref.read(cart_data.cartProvider.notifier).addToCart(cartItem);
                 _showAddedToCartSnackbar(context, product);
               },
             ),
@@ -204,10 +162,7 @@ class FavoritesScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              final userId = ref.read(authProvider).currentUser?.id;
-              if (userId != null) {
-                ref.read(favoritesProvider.notifier).clearFavorites(userId);
-              }
+              ref.read(favoritesProvider.notifier).clearFavorites();
               Navigator.pop(context);
             },
             child: Text(
@@ -230,7 +185,7 @@ class FavoritesScreen extends ConsumerWidget {
           label: 'View Cart',
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const CartScreen()),
+            MaterialPageRoute(builder: (context) => CartScreen()),
           ),
         ),
       ),

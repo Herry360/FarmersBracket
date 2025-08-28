@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({Key? key}) : super(key: key);
@@ -9,17 +10,21 @@ class OrderHistoryScreen extends StatefulWidget {
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   late Future<List<Order>> _ordersFuture;
+  String _selectedStatus = 'All';
+  bool _isRefreshing = false;
 
   @override
   void initState() {
-    super.initState();
-    _ordersFuture = fetchOrders();
+  super.initState();
+  _ordersFuture = fetchOrders();
   }
 
   Future<List<Order>> fetchOrders() async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 2));
     // Replace with actual API call
+    // Add error simulation for demonstration
+    // throw Exception('Network error');
     return [
       Order(
         id: 'ORD123',
@@ -40,6 +45,15 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           OrderItem(name: 'Carrots', quantity: 3, price: 7.0),
         ],
       ),
+      Order(
+        id: 'ORD125',
+        date: DateTime.now().subtract(const Duration(days: 2)),
+        status: OrderStatus.pending,
+        total: 19.99,
+        items: [
+          OrderItem(name: 'Lettuce', quantity: 1, price: 5.0),
+        ],
+      ),
     ];
   }
 
@@ -48,28 +62,139 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order History'),
-      ),
-      body: FutureBuilder<List<Order>>(
-        future: _ordersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error loading orders: ${snapshot.error}'),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No orders found.'));
-          }
-          final orders = snapshot.data!;
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return OrderCard(order: order);
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: _isRefreshing ? null : () async {
+              setState(() => _isRefreshing = true);
+              _ordersFuture = fetchOrders();
+              await Future.delayed(const Duration(milliseconds: 500));
+              setState(() => _isRefreshing = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Order history refreshed!')),
+              );
             },
-          );
-        },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                const Text('Filter:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(width: 8),
+                DropdownButton<String>(
+                  value: _selectedStatus,
+                  items: ['All', 'Delivered', 'Cancelled', 'Pending']
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(status),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedStatus = value!;
+                    });
+                  },
+                  underline: Container(),
+                  style: const TextStyle(fontSize: 16),
+                  icon: const Icon(Icons.filter_list),
+                  dropdownColor: Colors.white,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Order>>(
+              future: _ordersFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error, color: Colors.red, size: 48),
+                        const SizedBox(height: 8),
+                        Text('Error loading orders: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red)),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                          onPressed: () {
+                            setState(() {
+                              _ordersFuture = fetchOrders();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.inbox, size: 48, color: Colors.grey),
+                        SizedBox(height: 8),
+                        Text('No orders found.', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  );
+                }
+                List<Order> orders = snapshot.data!;
+                // Filter orders by status
+                if (_selectedStatus != 'All') {
+                  orders = orders.where((order) {
+                    switch (_selectedStatus) {
+                      case 'Delivered':
+                        return order.status == OrderStatus.delivered;
+                      case 'Cancelled':
+                        return order.status == OrderStatus.cancelled;
+                      case 'Pending':
+                        return order.status == OrderStatus.pending;
+                      default:
+                        return true;
+                    }
+                  }).toList();
+                }
+                if (orders.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.inbox, size: 48, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text('No $_selectedStatus orders found.', style: const TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      _ordersFuture = fetchOrders();
+                    });
+                    await Future.delayed(const Duration(milliseconds: 500));
+                  },
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      final order = orders[index];
+                      return OrderCard(order: order);
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -81,6 +206,9 @@ class Order {
   final OrderStatus status;
   final double total;
   final List<OrderItem> items;
+  final String? shipmentStatus;
+  final String? trackingNumber;
+  final DateTime? estimatedDelivery;
 
   Order({
     required this.id,
@@ -88,6 +216,9 @@ class Order {
     required this.status,
     required this.total,
     required this.items,
+    this.shipmentStatus,
+    this.trackingNumber,
+    this.estimatedDelivery,
   });
 }
 
@@ -110,71 +241,134 @@ class OrderCard extends StatelessWidget {
 
   const OrderCard({Key? key, required this.order}) : super(key: key);
 
-  Color _statusColor(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.delivered:
-        return Colors.green;
-      case OrderStatus.cancelled:
-        return Colors.red;
-      case OrderStatus.pending:
-        return Colors.orange;
-    }
-  }
-
-  String _statusText(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.delivered:
-        return 'Delivered';
-      case OrderStatus.cancelled:
-        return 'Cancelled';
-      case OrderStatus.pending:
-        return 'Pending';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 3,
-      child: ExpansionTile(
-        title: Text(
-          'Order #${order.id}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          order.date.toLocal().toString().split(' ')[0],
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _statusText(order.status),
-              style: TextStyle(
-                color: _statusColor(order.status),
-                fontWeight: FontWeight.bold,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Order ID: ${order.id}'),
+                    Text('Date: ${order.date.toLocal()}'.split(' ')[0]),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Status: ${order.status.toString().split('.').last}'),
+                    Text('Total: \$${order.total.toStringAsFixed(2)}'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Items:', style: TextStyle(fontWeight: FontWeight.bold)),
+            ...order.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(item.name),
+                    Text('${item.quantity} x \$${item.price.toStringAsFixed(2)}'),
+                  ],
+                ),
               ),
             ),
-            Text(
-              '\$${order.total.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 12),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.receipt),
+                  label: const Text('View Receipt'),
+                  onPressed: () {
+                    // Navigate to receipt view
+                  },
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.report_problem),
+                  label: const Text('Report Issue'),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return Padding(
+                          padding: MediaQuery.of(context).viewInsets,
+                          child: StatefulBuilder(
+                            builder: (context, setModalState) {
+                              final ImagePicker picker = ImagePicker();
+                              XFile? pickedImage;
+                              return Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Describe the issue', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 8),
+                                    const TextField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Issue Description',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      maxLines: 3,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const SizedBox.shrink(),
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.photo_camera),
+                                      label: const Text('Upload Photo'),
+                                      onPressed: () async {
+                                        final image = await picker.pickImage(source: ImageSource.gallery);
+                                        if (image != null) {
+                                          setModalState(() {
+                                            pickedImage = image;
+                                          });
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Photo selected for issue report!')),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    if (pickedImage != null) ...[
+                                      const SizedBox(height: 8),
+                                      Text('Photo selected: ${pickedImage?.name}', style: const TextStyle(color: Colors.green)),
+                                    ],
+                                    const SizedBox(height: 8),
+                                    ElevatedButton(
+                                      child: const Text('Submit Issue'),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Issue reported!')),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: order.items
-                  .map((item) => ListTile(
-                        title: Text(item.name),
-                        subtitle: Text('Qty: ${item.quantity}'),
-                        trailing: Text('\$${item.price.toStringAsFixed(2)}'),
-                      ))
-                  .toList(),
-            ),
-          ),
-        ],
       ),
     );
   }

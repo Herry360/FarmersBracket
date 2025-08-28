@@ -4,10 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:intl/intl.dart';
+
 import '../providers/cart_provider.dart';
 import '../widgets/payment_method_card.dart';
 import '../widgets/address_card.dart';
-import '../providers/auth_provider.dart';
+import 'map_picker_screen.dart';
+import '../services/notification_service.dart';
+
+// If you need to use AuthProvider, uncomment and import as needed
+// import '../providers/auth_provider.dart';
 
 // Order state notifier
 final orderProvider = StateNotifierProvider<OrderNotifier, OrderState>((ref) {
@@ -55,11 +60,15 @@ class OrderNotifier extends StateNotifier<OrderState> {
 
       await Future.delayed(const Duration(seconds: 2));
 
+      // Send notification for order placed
+      final notificationService = NotificationService();
+      await notificationService.sendNotification(
+        'Order Placed',
+        'Your order ${order.id} has been placed and is being processed.',
+      );
+
       // Clear cart using riverpod
-  final userId = ref.read(authProvider.notifier).currentUser?.id;
-      if (userId != null) {
-        await ref.read(cartProvider.notifier).clearCart(userId);
-      }
+      ref.read(cartProvider.notifier).clearCart();
 
       state = state.copyWith(
         isProcessing: false,
@@ -150,7 +159,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   // For offline support
   bool _isOffline = false;
   Position? _userPosition;
+  int _loyaltyPoints = 0;
+  double _loyaltyCredit = 0.0;
+  final double _loyaltyConversionRate = 0.1; // 1 point = R0.10
   
+  String _couponCode = '';
+  double _discount = 0.0;
+  final Map<String, double> _validCoupons = {
+    'SAVE10': 10.0,
+    'FARM5': 5.0,
+    'WELCOME': 15.0,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -173,17 +193,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         _userPosition = position;
       });
     } catch (e) {
-      // Handle location error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to get location: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
-
-  String _couponCode = '';
-  double _discount = 0.0;
-  final Map<String, double> _validCoupons = {
-    'SAVE10': 10.0,
-    'FARM5': 5.0,
-    'WELCOME': 15.0,
-  };
 
   void _applyCoupon() {
     setState(() {
@@ -212,209 +228,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     if (_selectedDeliveryTime == null) return 1;
     if (_selectedPaymentMethod == 0) return 2;
     return 3;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cartProviderValue = ref.watch(cartProvider);
-    // Ensure cartItems is always a List<CartItem>
-    final List<CartItem> cartItems = cartProviderValue.items;
-    final orderState = ref.watch(orderProvider);
-    final orderNotifier = ref.read(orderProvider.notifier);
-    final theme = Theme.of(context);
-    final subtotal = cartItems.fold<double>(0.0, (sum, item) => sum + item.totalPrice);
-    const shippingFee = 5.0;
-    final tax = subtotal * 0.1;
-    final total = subtotal + shippingFee + tax - _discount;
-    // Use Africa/Johannesburg timezone for all date/time
-    // Africa/Johannesburg timezone is used via intl for formatting
-
-    // Show success dialog if order was placed
-    if (orderState.lastOrder != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showOrderSuccessDialog(context, orderState.lastOrder!);
-        orderNotifier.resetOrderState();
-      });
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Checkout'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: orderState.isProcessing ? null : () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Progress Stepper
-            Stepper(
-              currentStep: _getCurrentStep(cartItems),
-              controlsBuilder: (context, details) => const SizedBox.shrink(),
-              steps: const [
-                Step(title: Text('Cart'), content: SizedBox.shrink(), isActive: true),
-                Step(title: Text('Delivery'), content: SizedBox.shrink(), isActive: true),
-                Step(title: Text('Payment'), content: SizedBox.shrink(), isActive: true),
-                Step(title: Text('Confirm'), content: SizedBox.shrink(), isActive: true),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildSectionHeader('Delivery Address'),
-            const SizedBox(height: 8),
-            // Address selection with map
-            AddressCard(userPosition: _userPosition),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Delivery Time'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: orderState.isProcessing
-                        ? null
-                        : () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(const Duration(days: 7)),
-                            );
-                            if (!mounted) return;
-                            if (picked != null) {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-                              if (!mounted) return;
-                              if (time != null) {
-                                setState(() {
-                                  _selectedDeliveryTime = DateTime(
-                                    picked.year,
-                                    picked.month,
-                                    picked.day,
-                                    time.hour,
-                                    time.minute,
-                                  );
-                                });
-                              }
-                            }
-                          },
-                    child: Text(_selectedDeliveryTime == null
-                        ? 'Select Delivery Time'
-                        : DateFormat('EEE, MMM d yyyy - hh:mm a').format(_selectedDeliveryTime!)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Special Instructions'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _instructionsController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                hintText: 'Add any delivery notes or instructions',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Payment Method'),
-            const SizedBox(height: 8),
-            Column(
-              children: List.generate(
-                _paymentMethods.length,
-                (index) => PaymentMethodCard(
-                  method: _paymentMethods[index],
-                  isSelected: _selectedPaymentMethod == index,
-                  onSelected: orderState.isProcessing 
-                      ? null 
-                      : () => setState(() => _selectedPaymentMethod = index),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Coupon Code'),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Enter coupon code',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (val) => _couponCode = val,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _applyCoupon,
-                  child: const Text('Apply'),
-                ),
-              ],
-            ),
-            if (_discount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text('Discount applied: R${_discount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green)),
-              ),
-            const SizedBox(height: 24),
-
-            _buildSectionHeader('Order Summary'),
-            const SizedBox(height: 8),
-            ExpansionTile(
-              title: const Text('Review Cart & Cost Summary', style: TextStyle(fontWeight: FontWeight.bold)),
-              initiallyExpanded: false,
-              children: [
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildSummaryRow('Subtotal', subtotal),
-                        _buildSummaryRow('Shipping', shippingFee),
-                        _buildSummaryRow('Tax (10%)', tax),
-                        if (_discount > 0) _buildSummaryRow('Discount', -_discount),
-                        const Divider(height: 24),
-                        _buildSummaryRow('Total', total, isTotal: true),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            
-            if (_isOffline)
-              const Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text('You are offline. Showing cached data.', style: TextStyle(color: Colors.orange)),
-              ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildCheckoutButton(
-        cartItems,
-        total,
-        theme,
-        orderState,
-        () => orderNotifier.placeOrder(
-          cartItems,
-          _paymentMethods[_selectedPaymentMethod],
-          deliveryTime: _selectedDeliveryTime,
-          instructions: _instructionsController.text,
-        ),
-      ),
-    );
   }
 
   Widget _buildSectionHeader(String title) {
@@ -466,42 +279,48 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ],
       ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: Semantics(
+        button: true,
+        label: orderState.isProcessing ? 'Processing order' : 'Place order',
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: theme.primaryColor,
+            foregroundColor: theme.colorScheme.onPrimary,
           ),
-          backgroundColor: theme.primaryColor,
-          foregroundColor: theme.colorScheme.onPrimary,
-        ),
-        onPressed: orderState.isProcessing || cartItems.isEmpty
-            ? null
-            : onPlaceOrder,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (orderState.isProcessing)
-              const Padding(
-                padding: EdgeInsets.only(right: 8),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
+          onPressed: orderState.isProcessing || cartItems.isEmpty
+              ? null
+              : () {
+                  onPlaceOrder();
+                },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (orderState.isProcessing)
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            Text(orderState.isProcessing ? 'Processing...' : 'Place Order'),
-            if (!orderState.isProcessing) ...[
-              const SizedBox(width: 8),
-              Text(
-                'R${total.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text(orderState.isProcessing ? 'Processing...' : 'Place Order'),
+              if (!orderState.isProcessing) ...[
+                const SizedBox(width: 8),
+                Text(
+                  'R${total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -532,6 +351,317 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             child: const Text('Back to Home'),
           ),
         ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cartProviderValue = ref.watch(cartProvider);
+    // Ensure cartItems is always a List<CartItem>
+    final List<CartItem> cartItems = cartProviderValue.items;
+    final orderState = ref.watch(orderProvider);
+    final orderNotifier = ref.read(orderProvider.notifier);
+    final theme = Theme.of(context);
+    final subtotal = cartItems.fold<double>(0.0, (sum, item) => sum + item.totalPrice);
+    const shippingFee = 5.0;
+    final tax = subtotal * 0.1;
+    final total = subtotal + shippingFee + tax - _discount - _loyaltyCredit;
+    // Use Africa/Johannesburg timezone for all date/time
+    // Africa/Johannesburg timezone is used via intl for formatting
+
+    // Show success dialog if order was placed
+    if (orderState.lastOrder != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOrderSuccessDialog(context, orderState.lastOrder!);
+        orderNotifier.resetOrderState();
+      });
+    }
+    // Accessibility: Announce errors
+    // Error feedback is handled via UI, accessibility announce removed for compatibility.
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Checkout'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: orderState.isProcessing ? null : () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: cartItems.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Progress Stepper
+                  Semantics(
+                    label: 'Checkout progress',
+                    child: Stepper(
+                      currentStep: _getCurrentStep(cartItems),
+                      controlsBuilder: (context, details) => const SizedBox.shrink(),
+                      steps: const [
+                        Step(title: Text('Cart'), content: SizedBox.shrink(), isActive: true),
+                        Step(title: Text('Delivery'), content: SizedBox.shrink(), isActive: true),
+                        Step(title: Text('Payment'), content: SizedBox.shrink(), isActive: true),
+                        Step(title: Text('Confirm'), content: SizedBox.shrink(), isActive: true),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSectionHeader('Delivery Address'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          label: 'Delivery address',
+                          child: _userPosition == null
+                              ? const Center(child: CircularProgressIndicator())
+                              : AddressCard(userPosition: _userPosition),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.location_on),
+                        tooltip: 'Pick Delivery Location',
+                        onPressed: () async {
+                          final pickedLocation = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MapPickerScreen(),
+                            ),
+                          );
+                          if (pickedLocation != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Picked location: ${pickedLocation.latitude}, ${pickedLocation.longitude}')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Delivery Time'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: orderState.isProcessing
+                              ? null
+                              : () async {
+                                  try {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now().add(const Duration(days: 7)),
+                                    );
+                                    if (!mounted) return;
+                                    if (picked != null) {
+                                      final time = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.now(),
+                                      );
+                                      if (!mounted) return;
+                                      if (time != null) {
+                                        setState(() {
+                                          _selectedDeliveryTime = DateTime(
+                                            picked.year,
+                                            picked.month,
+                                            picked.day,
+                                            time.hour,
+                                            time.minute,
+                                          );
+                                        });
+                                      }
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error selecting delivery time: $e'), backgroundColor: Colors.red),
+                                    );
+                                  }
+                                },
+                          child: Text(_selectedDeliveryTime == null
+                              ? 'Select Delivery Time'
+                              : DateFormat('EEE, MMM d yyyy - hh:mm a').format(_selectedDeliveryTime!)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Special Instructions'),
+                  const SizedBox(height: 8),
+                  Semantics(
+                    label: 'Special instructions',
+                    child: TextField(
+                      controller: _instructionsController,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        hintText: 'Add any delivery notes or instructions',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Payment Method'),
+                  const SizedBox(height: 8),
+                  Column(
+                    children: List.generate(
+                      _paymentMethods.length,
+                      (index) => Semantics(
+                        label: 'Payment method ${_paymentMethods[index]}',
+                        child: PaymentMethodCard(
+                          method: _paymentMethods[index],
+                          isSelected: _selectedPaymentMethod == index,
+                          onSelected: orderState.isProcessing 
+                              ? null 
+                              : () => setState(() => _selectedPaymentMethod = index),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Coupon Code'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            hintText: 'Enter coupon code',
+                            border: OutlineInputBorder(),
+                          ),
+                          onChanged: (val) => _couponCode = val,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _applyCoupon,
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                  if (_discount > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text('Discount applied: R${_discount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green)),
+                    ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Loyalty Points & Credits'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            hintText: 'Enter loyalty points to redeem',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (val) {
+                            setState(() {
+                              _loyaltyPoints = int.tryParse(val) ?? 0;
+                              _loyaltyCredit = _loyaltyPoints * _loyaltyConversionRate;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('Credit: R${_loyaltyCredit.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  _buildSectionHeader('Order Summary'),
+                  const SizedBox(height: 24),
+                  _buildSectionHeader('Track Delivery Driver'),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Driver Location (stub):'),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 120,
+                            color: Colors.grey[200],
+                            child: const Center(child: Text('Map/driver location will appear here')), 
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ExpansionTile(
+                    title: const Text('Review Cart & Cost Summary', style: TextStyle(fontWeight: FontWeight.bold)),
+                    initiallyExpanded: false,
+                    children: [
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _buildSummaryRow('Subtotal', subtotal),
+                              _buildSummaryRow('Shipping', shippingFee),
+                              _buildSummaryRow('Tax (10%)', tax),
+                              if (_discount > 0) _buildSummaryRow('Discount', -_discount),
+                              const Divider(height: 24),
+                              _buildSummaryRow('Total', total, isTotal: true),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  if (_isOffline)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('You are offline. Showing cached data.', style: TextStyle(color: Colors.orange)),
+                    ),
+                  if (orderState.error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('Error: ${orderState.error}', style: const TextStyle(color: Colors.red)),
+                    ),
+                ],
+              ),
+            ),
+      bottomNavigationBar: _buildCheckoutButton(
+        cartItems,
+        total,
+        theme,
+        orderState,
+        () => orderNotifier.placeOrder(
+          cartItems,
+          _paymentMethods[_selectedPaymentMethod],
+          deliveryTime: _selectedDeliveryTime,
+          instructions: _instructionsController.text,
+        ),
       ),
     );
   }

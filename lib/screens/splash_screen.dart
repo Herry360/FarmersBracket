@@ -51,41 +51,45 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Center(
-        child: FadeTransition(
-          opacity: _animation,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Replace with your logo asset
-              Image.asset(
-                'assets/images/app_logo.png',
-                width: 120,
-                height: 120,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.agriculture,
-                  size: 120,
-                  color: theme.colorScheme.primary,
+        child: Semantics(
+          label: 'Splash screen with app logo, loading indicator, and tagline',
+          child: FadeTransition(
+            opacity: _animation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.agriculture,
+                    size: 120,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'FarmBracket',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                const SizedBox(height: 24),
+                Text(
+                  'FarmBracket',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Empowering Smart Farming',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.secondary,
+                const SizedBox(height: 12),
+                Text(
+                  'Empowering Smart Farming',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              const CircularProgressIndicator(),
-            ],
+                const SizedBox(height: 32),
+                const CircularProgressIndicator(),
+                const SizedBox(height: 8),
+                Text('Loading...', style: theme.textTheme.bodyMedium),
+              ],
+            ),
           ),
         ),
       ),

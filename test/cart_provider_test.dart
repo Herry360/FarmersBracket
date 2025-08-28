@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:farm_bracket/providers/cart_provider.dart';
 
@@ -91,6 +90,16 @@ void main() {
       cartNotifier.state = CartState(items: [testItem]);
       cartNotifier.state.items.first.quantity = 5;
       expect(cartNotifier.state.items.first.quantity, 5);
+    });
+
+    test('CartNotifier exposes loading and error states', () {
+      cartNotifier.loadCart();
+      expect(cartNotifier.state.isLoading, isFalse); // loadCart is sync, so isLoading should be false
+      expect(cartNotifier.state.error, isNull);
+
+      // Simulate error
+      cartNotifier.state = CartState(items: [], isLoading: false, error: 'Test error');
+      expect(cartNotifier.state.error, 'Test error');
     });
   });
 }

@@ -75,27 +75,36 @@ class _ProfileRegistrationScreenState extends State<ProfileRegistrationScreen> {
             children: [
               const Text('Create your profile to get started!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: _validateName,
-                textInputAction: TextInputAction.next,
+              Semantics(
+                label: 'Full Name field',
+                child: TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Full Name'),
+                  validator: _validateName,
+                  textInputAction: TextInputAction.next,
+                ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: _validateEmail,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
+              Semantics(
+                label: 'Email field',
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  validator: _validateEmail,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: _validatePhone,
-                keyboardType: TextInputType.phone,
-                textInputAction: TextInputAction.done,
+              Semantics(
+                label: 'Phone Number field',
+                child: TextFormField(
+                  controller: _phoneController,
+                  decoration: const InputDecoration(labelText: 'Phone Number'),
+                  validator: _validatePhone,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                ),
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -103,7 +112,17 @@ class _ProfileRegistrationScreenState extends State<ProfileRegistrationScreen> {
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
-                        onPressed: _submit,
+                        onPressed: () async {
+                          try {
+                            await _submit();
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error submitting profile: $e'), backgroundColor: Colors.red),
+                              );
+                            }
+                          }
+                        },
                         child: const Text('Register & Continue'),
                       ),
               ),

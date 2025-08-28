@@ -12,40 +12,50 @@ class Product {
   final bool isOrganic;
   final bool isFeatured;
   final bool isSeasonal;
+  final bool isOnSale;
+  final bool isNewArrival;
   final double rating;
   final int reviewCount;
   final DateTime? harvestDate;
-  final double stock;
-  int quantity;
+  final int stock;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final bool isOutOfSeason;
+  final String title;
+  final String certification;
+  final double latitude;
+  final double longitude;
 
-  Product({
-  required this.id,
-  required this.name,
-  required this.description,
-  required this.price,
-  required this.imageUrl,
-  this.images = const [],
-  this.farmId = '',
-  this.farmName = '',
-  this.category = '',
-  this.unit = '',
-  this.isOrganic = false,
-  this.isFeatured = false,
-  this.isSeasonal = false,
-  this.rating = 0.0,
-  this.reviewCount = 0,
-  this.harvestDate,
-  this.stock = 0.0,
-  this.quantity = 1,
-  this.createdAt,
-  this.updatedAt,
-  this.isOutOfSeason = false, required title,
+  const Product({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
+    required this.images,
+    required this.farmId,
+    required this.farmName,
+    required this.category,
+    required this.unit,
+    required this.isOrganic,
+    required this.isFeatured,
+    required this.isSeasonal,
+    required this.isOnSale,
+    required this.isNewArrival,
+    required this.rating,
+    required this.reviewCount,
+    this.harvestDate,
+    required this.stock,
+    this.createdAt,
+    this.updatedAt,
+    required this.isOutOfSeason,
+    required this.title,
+    required this.certification,
+    required this.latitude,
+    required this.longitude, required int quantity,
   });
 
-  String get title => name;
+  String get displayTitle => title.isNotEmpty ? title : name;
 }
 
 class Farm {
@@ -55,8 +65,18 @@ class Farm {
   final String imageUrl;
   final double rating;
   final double distance;
-  /// Location of the farm (always Mpumalanga)
-  final String location;
+  /// Location of the farm (lat/lng)
+  final double latitude;
+  final double longitude;
+  final String story;
+  final List<String> practiceLabels;
+  final List<String> imageUrls;
+
+  // Getter for practices (for compatibility with farm_profile_screen.dart)
+  List<String> get practices => practiceLabels;
+
+  // Getter for images (for compatibility with farm_profile_screen.dart)
+  List<String> get images => imageUrls;
   final String category;
   final List<Product> products;
   final double price;
@@ -69,10 +89,14 @@ class Farm {
     required this.imageUrl,
     required this.rating,
     required this.distance,
-    required this.location,
+    required this.latitude,
+    required this.longitude,
+    required this.story,
+    required this.practiceLabels,
+    required this.imageUrls,
     required this.category,
     this.products = const [],
     this.price = 0.0,
-    this.isFavorite = false,
+    this.isFavorite = false, required location,
   });
 }

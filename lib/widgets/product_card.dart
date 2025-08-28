@@ -26,8 +26,10 @@ class ProductCard extends StatefulWidget {
     }
 
 class _ProductCardState extends State<ProductCard> with SingleTickerProviderStateMixin {
-      late AnimationController _controller;
-      late Animation<double> _scaleAnimation;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late AnimationController _cartController;
+  late Animation<double> _cartScaleAnimation;
 
       @override
       void initState() {
@@ -39,18 +41,31 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
         _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2)
             .chain(CurveTween(curve: Curves.elasticOut))
             .animate(_controller);
+        _cartController = AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 350),
+        );
+        _cartScaleAnimation = Tween<double>(begin: 1.0, end: 1.1)
+            .chain(CurveTween(curve: Curves.elasticOut))
+            .animate(_cartController);
       }
 
       @override
       void dispose() {
-        _controller.dispose();
-        super.dispose();
+  _controller.dispose();
+  _cartController.dispose();
+  super.dispose();
       }
 
-      void _handleFavoritePressed() {
-        _controller.forward(from: 0);
-        widget.onFavoritePressed();
-      }
+  void _handleFavoritePressed() {
+    _controller.forward(from: 0);
+    widget.onFavoritePressed();
+  }
+
+  void _handleAddToCartPressed() {
+    _cartController.forward(from: 0);
+    widget.onAddToCart();
+  }
 
       @override
       Widget build(BuildContext context) {
@@ -183,7 +198,10 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
               const SizedBox(height: 8),
 
               // Add to Cart Button
-              _buildAddToCartButton(context),
+              ScaleTransition(
+                scale: _cartScaleAnimation,
+                child: _buildAddToCartButton(context),
+              ),
             ],
           ),
         );
@@ -210,7 +228,7 @@ class _ProductCardState extends State<ProductCard> with SingleTickerProviderStat
               return SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: widget.isInCart ? null : widget.onAddToCart,
+                  onPressed: widget.isInCart ? null : _handleAddToCartPressed,
                   icon: widget.isInCart 
                       ? const Icon(Icons.check)
                       : const Icon(Icons.shopping_cart, size: 18),

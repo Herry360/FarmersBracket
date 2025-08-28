@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import '../widgets/default_profile_placeholder.dart';
+import '../services/image_picker_service.dart';
 import 'package:intl/intl.dart';
 import 'order_history_screen.dart'; // Import the Order History screen
 
@@ -34,12 +35,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final List<String> _genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
+  final ImagePickerService _imagePickerService = ImagePickerService();
+
   Future<void> _pickImage() async {
-    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      setState(() {
-        _profileImage = File(pickedImage.path);
-      });
+    try {
+      final pickedPath = await _imagePickerService.pickImage();
+      if (pickedPath != null) {
+        setState(() {
+          _profileImage = File(pickedPath);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile image updated!')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -86,6 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (!_isEditing)
             IconButton(
               icon: const Icon(Icons.edit),
+              tooltip: 'Edit profile',
               onPressed: () => setState(() => _isEditing = true),
             ),
           if (_isEditing)
@@ -104,11 +117,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _profileImage != null
-                        ? FileImage(_profileImage!)
-                        : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+                  Semantics(
+                    label: 'Profile picture',
+                    child: _profileImage != null
+                        ? CircleAvatar(
+                            radius: 60,
+                            backgroundImage: FileImage(_profileImage!),
+                          )
+                        : const DefaultProfilePlaceholder(size: 60),
                   ),
                   if (_isEditing)
                     Positioned(
@@ -125,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: const Icon(Icons.camera_alt, size: 24, color: Colors.white),
                         ),
                       ),
-                    )
+                    ),
                 ],
               ),
             ),
@@ -297,7 +313,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Loyalty Program Section
             const Text('Loyalty Program', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            
             _buildEditableField(
               label: 'Loyalty Card Number',
               controller: _loyaltyNumberController,
@@ -305,7 +320,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 24),
-            
+
+            // Communication Preferences
+            const Text('Communication Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildEditableField(
+              label: 'Preferred Communication Methods (e.g. Email, SMS)',
+              controller: TextEditingController(),
+              isEditing: _isEditing,
+            ),
+            const SizedBox(height: 24),
+
+            // Dietary Preferences
+            const Text('Dietary Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildEditableField(
+              label: 'Dietary Preferences (e.g. Vegan, Halal)',
+              controller: TextEditingController(),
+              isEditing: _isEditing,
+            ),
+            const SizedBox(height: 24),
+
+            // Allergies
+            const Text('Allergies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildEditableField(
+              label: 'Allergies (e.g. Nuts, Dairy)',
+              controller: TextEditingController(),
+              isEditing: _isEditing,
+            ),
+            const SizedBox(height: 24),
+
+            // Favorite Farms
+            const Text('Favorite Farms', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _buildEditableField(
+              label: 'Favorite Farm IDs (comma separated)',
+              controller: TextEditingController(),
+              isEditing: _isEditing,
+            ),
+            const SizedBox(height: 24),
+
             // Order History Navigation
             ListTile(
               leading: const Icon(Icons.history),
@@ -321,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
             const SizedBox(height: 24),
-            
+
             // Save Button
             if (_isEditing)
               SizedBox(
@@ -357,15 +412,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     int maxLines = 1,
   }) {
     return isEditing
-        ? TextFormField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: label,
-              border: const OutlineInputBorder(),
+        ? Semantics(
+            label: '$label field',
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                border: const OutlineInputBorder(),
+              ),
+              validator: validator,
+              keyboardType: keyboardType,
+              maxLines: maxLines,
             ),
-            validator: validator,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
           )
         : ListTile(
             title: Text(label, style: const TextStyle(color: Colors.grey)),

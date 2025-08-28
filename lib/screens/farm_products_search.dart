@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/farm_model.dart';
+import '../widgets/product_card.dart';
 
 class FarmProductsSearch extends StatefulWidget {
   const FarmProductsSearch({super.key});
@@ -68,28 +70,48 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
       appBar: AppBar(
         title: const Text('Farm Products Search'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              _searchController.clear();
-              setState(() {
-                _selectedCategory = 'All';
-                _filteredProducts = List.from(_allProducts);
-              });
-            },
+          Semantics(
+            button: true,
+            label: 'Refresh products',
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                _searchController.clear();
+                setState(() {
+                  _selectedCategory = 'All';
+                  _filteredProducts = List.from(_allProducts);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Products refreshed!')),
+                );
+              },
+            ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildSearchBar(),
-            const SizedBox(height: 12),
-            _buildCategoryDropdown(),
-            const SizedBox(height: 12),
-            Expanded(child: _buildProductList()),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Semantics(
+                label: 'Search products',
+                child: _buildSearchBar(),
+              ),
+              const SizedBox(height: 12),
+              Semantics(
+                label: 'Category dropdown',
+                child: _buildCategoryDropdown(),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Semantics(
+                  label: 'Product list',
+                  child: _buildProductList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -128,24 +150,60 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
 
   Widget _buildProductList() {
     if (_filteredProducts.isEmpty) {
-      return const Center(child: Text('No products found.'));
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No products found.', style: TextStyle(fontSize: 18, color: Colors.grey)),
+          ],
+        ),
+      );
     }
     return ListView.builder(
       itemCount: _filteredProducts.length,
       itemBuilder: (context, index) {
-        final product = _filteredProducts[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          child: ListTile(
-            leading: CircleAvatar(
-              child: Text(product['name'][0]),
-            ),
-            title: Text(product['name']),
-            subtitle: Text('${product['category']} • \$${product['price']}'),
-            trailing: const Icon(Icons.shopping_cart),
-            onTap: () {
+        final p = _filteredProducts[index];
+        final product = Product(
+          id: p['id'] ?? '',
+          name: p['name'] ?? '',
+          description: p['description'] ?? '',
+          price: p['price']?.toDouble() ?? 0.0,
+          imageUrl: p['imageUrl'] ?? '',
+          images: [],
+          farmId: p['farmId'] ?? '',
+          farmName: p['farmName'] ?? '',
+          category: p['category'] ?? '',
+          unit: p['unit'] ?? '',
+          isOrganic: false,
+          isFeatured: false,
+          isSeasonal: false,
+          rating: 0.0,
+          reviewCount: 0,
+          harvestDate: null,
+          stock: 0,
+          quantity: 1,
+          createdAt: null,
+          updatedAt: null,
+          isOutOfSeason: false,
+          title: p['name'] ?? '', isOnSale: false, isNewArrival: false, certification: '', latitude: p['latitude']?.toDouble(), longitude: p['longitude']?.toDouble(),
+        );
+        return Semantics(
+          label: 'Product card for ${product.name}',
+          child: ProductCard(
+            product: product,
+            isFavorite: false,
+            isInCart: false,
+            onFavoritePressed: () {},
+            onAddToCart: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Selected ${product['name']}')),
+                SnackBar(content: Text('Added ${product.name} to cart!')),
+              );
+            },
+            onProductTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Selected ${product.name}')),
               );
             },
           ),

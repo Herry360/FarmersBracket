@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cart_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);
@@ -49,6 +50,16 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       body: _screens[_selectedIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => CartScreen()),
+          );
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.shopping_cart),
+        tooltip: 'Go to Cart',
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

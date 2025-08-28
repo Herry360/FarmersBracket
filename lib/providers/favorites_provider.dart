@@ -1,132 +1,55 @@
 // import removed: flutter/foundation.dart
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../services/supabase_service.dart';
+// ...existing code...
+// ...existing code...
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/farm_model.dart';
 
-final favoritesProvider = StateNotifierProvider<FavoritesNotifier, FavoritesState>((ref) => FavoritesNotifier());
+final favoritesProvider = StateNotifierProvider<FavoritesNotifier, FavoritesState>((ref) {
+  // Inject dependencies here if needed
+  return FavoritesNotifier();
+});
 
 class FavoritesState {
   final List<Product> favorites;
   final bool isLoading;
-  FavoritesState({required this.favorites, required this.isLoading});
+  final String? error;
+  FavoritesState({required this.favorites, required this.isLoading, this.error});
 }
 
 class FavoritesNotifier extends StateNotifier<FavoritesState> {
-  final SupabaseService _supabaseService = SupabaseService();
-  FavoritesNotifier() : super(FavoritesState(favorites: [], isLoading: false));
+  // ...existing code...
+  FavoritesNotifier() : super(FavoritesState(favorites: [], isLoading: false, error: null));
 
-  Future<void> loadFavorites(String userId) async {
-    state = FavoritesState(favorites: state.favorites, isLoading: true);
-    final data = await _supabaseService.fetchFavorites(userId);
-    final favorites = data.map((item) => Product(
-      id: item['product_id'],
-      name: item['name'] ?? '',
-      description: item['description'] ?? '',
-      price: (item['price'] ?? 0.0).toDouble(),
-      imageUrl: item['imageUrl'] ?? '',
-      farmId: item['farmId'] ?? '',
-      farmName: item['farmName'] ?? '',
-      category: item['category'] ?? '',
-      unit: item['unit'] ?? '',
-      isOrganic: item['isOrganic'] ?? false,
-      isSeasonal: item['isSeasonal'] ?? false,
-      rating: (item['rating'] ?? 0.0).toDouble(),
-      reviewCount: item['reviewCount'] ?? 0,
-      harvestDate: item['harvestDate'] != null ? DateTime.tryParse(item['harvestDate']) : null,
-      stock: (item['stock'] ?? 0.0).toDouble(),
-      quantity: 1,
-      isOutOfSeason: false,
-      title: item['name'] ?? '',
-    )).toList();
-    state = FavoritesState(favorites: favorites, isLoading: false);
+  Future<void> loadFavorites() async {
+    state = FavoritesState(favorites: state.favorites, isLoading: true, error: null);
+    try {
+      await Future.delayed(const Duration(milliseconds: 300));
+      // UI only: mock favorites
+      state = FavoritesState(favorites: [], isLoading: false, error: null);
+    } catch (e) {
+      state = FavoritesState(favorites: state.favorites, isLoading: false, error: 'Error loading favorites: $e');
+    }
   }
 
-  Future<void> addFavorite(String userId, String productId) async {
-    await Supabase.instance.client.from('favorites').insert({
-      'user_id': userId,
-      'product_id': productId,
-    });
-    await loadFavorites(userId);
+  // UI only: add/remove favorite locally
+  void addFavorite(Product product) {
+  final updatedFavorites = List<Product>.from(state.favorites)..add(product);
+  state = FavoritesState(favorites: updatedFavorites, isLoading: false, error: null);
   }
 
-  Future<void> removeFavorite(String userId, String productId) async {
-    await Supabase.instance.client.from('favorites')
-      .delete()
-      .eq('user_id', userId)
-      .eq('product_id', productId);
-    await loadFavorites(userId);
+  void removeFavorite(String productId) {
+  final updatedFavorites = state.favorites.where((p) => p.id != productId).toList();
+  state = FavoritesState(favorites: updatedFavorites, isLoading: false, error: null);
   }
 
-  Future<void> clearFavorites(String userId) async {
-    await Supabase.instance.client.from('favorites')
-      .delete()
-      .eq('user_id', userId);
-    await loadFavorites(userId);
+  void clearFavorites() {
+  state = FavoritesState(favorites: [], isLoading: false, error: null);
   }
 
   bool isFavorite(String productId) {
     return state.favorites.any((product) => product.id == productId);
   }
 }
-  final SupabaseService _supabaseService = SupabaseService();
-  List<Product> _favorites = [];
-  bool _isLoading = false;
-
-  List<Product> get favorites => List.unmodifiable(_favorites);
-  bool get isLoading => _isLoading;
-  int get count => _favorites.length;
-
-  Future<void> loadFavorites(String userId) async {
-    _isLoading = true;
-    final data = await _supabaseService.fetchFavorites(userId);
-    _favorites = data.map((item) => Product(
-      id: item['product_id'],
-      name: item['name'] ?? '',
-      description: item['description'] ?? '',
-      price: (item['price'] ?? 0.0).toDouble(),
-      imageUrl: item['imageUrl'] ?? '',
-      farmId: item['farmId'] ?? '',
-      farmName: item['farmName'] ?? '',
-      category: item['category'] ?? '',
-      unit: item['unit'] ?? '',
-      isOrganic: item['isOrganic'] ?? false,
-      isSeasonal: item['isSeasonal'] ?? false,
-      rating: (item['rating'] ?? 0.0).toDouble(),
-      reviewCount: item['reviewCount'] ?? 0,
-      harvestDate: item['harvestDate'] != null ? DateTime.tryParse(item['harvestDate']) : null,
-      stock: (item['stock'] ?? 0.0).toDouble(),
-      quantity: 1,
-      isOutOfSeason: false,
-      title: item['name'] ?? '',
-    )).toList();
-    _isLoading = false;
-  }
-
-  Future<void> addFavorite(String userId, String productId) async {
-    await Supabase.instance.client.from('favorites').insert({
-      'user_id': userId,
-      'product_id': productId,
-    });
-    await loadFavorites(userId);
-  }
-
-  Future<void> removeFavorite(String userId, String productId) async {
-    await Supabase.instance.client.from('favorites')
-      .delete()
-      .eq('user_id', userId)
-      .eq('product_id', productId);
-    await loadFavorites(userId);
-  }
-
-  Future<void> clearFavorites(String userId) async {
-    await Supabase.instance.client.from('favorites')
-      .delete()
-      .eq('user_id', userId);
-    await loadFavorites(userId);
-  }
-
-  bool isFavorite(String productId) {
-    return _favorites.any((product) => product.id == productId);
-  }
+  // UI only: local favorites implementation
+  // ...existing code...
 // End of FavoritesNotifier

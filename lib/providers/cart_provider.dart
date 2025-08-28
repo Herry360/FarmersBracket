@@ -1,5 +1,5 @@
 // import removed: flutter/foundation.dart
-import '../services/supabase_service.dart';
+// ...existing code...
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,20 +57,45 @@ class CartItem {
   double get totalPrice => price * quantity;
 }
 
-final cartProvider = StateNotifierProvider<CartNotifier, CartState>((ref) => CartNotifier());
+final cartProvider = StateNotifierProvider<CartNotifier, CartState>((ref) {
+  // Inject dependencies here if needed
+  return CartNotifier();
+});
 
 class CartState {
   final List<CartItem> items;
+  final List<CartItem> savedForLater;
   final double deliveryFee;
   final double serviceFee;
-  CartState({required this.items, this.deliveryFee = 0, this.serviceFee = 15.0});
+  final bool isLoading;
+  final String? error;
+  CartState({required this.items, this.savedForLater = const [], this.deliveryFee = 0, this.serviceFee = 15.0, this.isLoading = false, this.error});
   double get subtotal => items.fold(0, (total, item) => total + item.totalPrice);
   double get total => subtotal + deliveryFee + serviceFee;
 }
 
 class CartNotifier extends StateNotifier<CartState> {
-  final SupabaseService _supabaseService = SupabaseService();
-  CartNotifier() : super(CartState(items: []));
+  // Removed SupabaseService for UI-only refactor
+  CartNotifier() : super(CartState(items: [], savedForLater: [], isLoading: false, error: null));
+  // Save item for later
+  void saveForLater(String cartItemId) {
+    final item = state.items.where((i) => i.id == cartItemId).toList();
+    if (item.isNotEmpty) {
+      final updatedItems = state.items.where((i) => i.id != cartItemId).toList();
+      final updatedSaved = List<CartItem>.from(state.savedForLater)..add(item.first);
+      state = CartState(items: updatedItems, savedForLater: updatedSaved, isLoading: false, error: null);
+    }
+  }
+
+  // Move item from saved for later back to cart
+  void moveToCart(String cartItemId) {
+    final item = state.savedForLater.where((i) => i.id == cartItemId).toList();
+    if (item.isNotEmpty) {
+      final updatedSaved = state.savedForLater.where((i) => i.id != cartItemId).toList();
+      final updatedItems = List<CartItem>.from(state.items)..add(item.first);
+      state = CartState(items: updatedItems, savedForLater: updatedSaved, isLoading: false, error: null);
+    }
+  }
 
   String formatPrice(double price) {
     return NumberFormat.currency(
@@ -80,47 +105,53 @@ class CartNotifier extends StateNotifier<CartState> {
     ).format(price);
   }
 
-  Future<void> loadCart(String userId) async {
-    final data = await _supabaseService.client
-      .from('cart')
-      .select()
-      .eq('user_id', userId);
-    final items = <CartItem>[];
-    for (var item in data) {
-      items.add(CartItem.fromMap(item));
+  // UI only: load cart from local state
+  void loadCart() {
+    state = CartState(items: state.items, isLoading: true, error: null);
+    try {
+      // Simulate async load if needed
+      state = CartState(items: state.items, isLoading: false, error: null);
+    } catch (e) {
+      state = CartState(items: state.items, isLoading: false, error: 'Error loading cart: $e');
     }
-    state = CartState(items: items);
   }
 
-  Future<void> addToCart(String userId, CartItem item) async {
-    await _supabaseService.client.from('cart').insert({
-      'user_id': userId,
-      ...item.toMap(),
-    });
-    await loadCart(userId);
+  // UI only: add item to local cart
+  void addToCart(CartItem item) {
+  final updatedItems = List<CartItem>.from(state.items)..add(item);
+  state = CartState(items: updatedItems, isLoading: false, error: null);
   }
 
-  Future<void> removeFromCart(String userId, String cartItemId) async {
-    await _supabaseService.client.from('cart')
-      .delete()
-      .eq('user_id', userId)
-      .eq('id', cartItemId);
-    await loadCart(userId);
+  // UI only: remove item from local cart
+  void removeFromCart(String cartItemId) {
+  final updatedItems = state.items.where((item) => item.id != cartItemId).toList();
+  state = CartState(items: updatedItems, isLoading: false, error: null);
   }
 
-  Future<void> clearCart(String userId) async {
-    await _supabaseService.client.from('cart')
-      .delete()
-      .eq('user_id', userId);
-    await loadCart(userId);
+  // UI only: clear local cart
+  void clearCart() {
+  state = CartState(items: [], isLoading: false, error: null);
   }
 
-  Future<void> updateQuantity(String userId, String cartItemId, int newQuantity) async {
-    await _supabaseService.client.from('cart')
-      .update({'quantity': newQuantity})
-      .eq('user_id', userId)
-      .eq('id', cartItemId);
-    await loadCart(userId);
+  // UI only: update quantity in local cart
+  void updateQuantity(String cartItemId, int newQuantity) {
+    final updatedItems = state.items.map((item) {
+      if (item.id == cartItemId) {
+        return CartItem(
+          id: item.id,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          imageUrl: item.imageUrl,
+          farmId: item.farmId,
+          farmName: item.farmName,
+          quantity: newQuantity,
+          unit: item.unit,
+        );
+      }
+      return item;
+    }).toList();
+    state = CartState(items: updatedItems, isLoading: false, error: null);
   }
 }
 

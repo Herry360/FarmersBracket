@@ -52,106 +52,148 @@ class _SupportScreenState extends State<SupportScreen> {
       appBar: AppBar(
         title: const Text('Support'),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Contact Support',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'If you have any questions or need help, please fill out the form below.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Contact Support',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Please enter your name' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'If you have any questions or need help, please fill out the form below.',
+                      style: TextStyle(fontSize: 16),
                     ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                      if (!emailRegex.hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      labelText: 'Message',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 24),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          Semantics(
+                            label: 'Name field',
+                            child: TextFormField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Name',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) =>
+                                  value == null || value.trim().isEmpty ? 'Please enter your name' : null,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Semantics(
+                            label: 'Email field',
+                            child: TextFormField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                                if (!emailRegex.hasMatch(value)) {
+                                  return 'Please enter a valid email';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Semantics(
+                            label: 'Message field',
+                            child: TextFormField(
+                              controller: _messageController,
+                              decoration: const InputDecoration(
+                                labelText: 'Message',
+                                border: OutlineInputBorder(),
+                              ),
+                              maxLines: 5,
+                              validator: (value) =>
+                                  value == null || value.trim().isEmpty ? 'Please enter your message' : null,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Semantics(
+                            button: true,
+                            label: 'Submit support request',
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isSubmitting ? null : _submitSupportRequest,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: _isSubmitting
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Text('Submit'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    maxLines: 5,
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Please enter your message' : null,
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitSupportRequest,
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text('Submit'),
+                    const SizedBox(height: 32),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Other ways to contact us:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Semantics(
+                      label: 'Email support@farmbracket.com',
+                      child: ListTile(
+                        leading: const Icon(Icons.email),
+                        title: const Text('support@farmbracket.com'),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Email: support@farmbracket.com')),
+                          );
+                          // Implement email launch if needed
+                        },
+                      ),
+                    ),
+                    Semantics(
+                      label: 'Phone +1 234 567 890',
+                      child: ListTile(
+                        leading: const Icon(Icons.phone),
+                        title: const Text('+1 234 567 890'),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Phone: +1 234 567 890')),
+                          );
+                          // Implement phone launch if needed
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 16),
-            const Text(
-              'Other ways to contact us:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ListTile(
-              leading: const Icon(Icons.email),
-              title: const Text('support@farmbracket.com'),
-              onTap: () {
-                // Implement email launch if needed
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.phone),
-              title: const Text('+1 234 567 890'),
-              onTap: () {
-                // Implement phone launch if needed
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/farm_model.dart' as farm_model;
 import '../providers/products_provider.dart' as products_provider;
-import 'products_list.dart';
+import 'product_details_screen.dart';
 
 final farmProvider = Provider<farm_model.Farm>((ref) {
   throw UnimplementedError('farmProvider must be overridden in ProviderScope');
@@ -10,7 +11,7 @@ final farmProvider = Provider<farm_model.Farm>((ref) {
 
 class ProductsGrid extends ConsumerWidget {
   final String searchQuery;
-  const ProductsGrid({super.key, required this.searchQuery});
+  const ProductsGrid({Key? key, required this.searchQuery}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +21,7 @@ class ProductsGrid extends ConsumerWidget {
     final isLoading = productsProviderInstance.isLoading;
 
     if (isLoading) {
-      return const LoadingIndicator();
+      return const ShimmerGridPlaceholder();
     }
     List<farm_model.Product> farmProducts = products.where((product) => product.farmId == farm.id).toList();
     if (searchQuery.isNotEmpty) {
@@ -34,7 +35,75 @@ class ProductsGrid extends ConsumerWidget {
     if (farmProducts.isEmpty) {
       return const EmptyProductsState();
     }
-    return ProductsList(products: farmProducts);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+        return RefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(const Duration(seconds: 1));
+          },
+          child: GridView.builder(
+            padding: const EdgeInsets.all(8),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: farmProducts.length,
+            itemBuilder: (context, index) {
+              final product = farmProducts[index];
+              return Semantics(
+                label: 'Product: ${product.title}',
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Selected ${product.title}')),
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailsScreen(product: product),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                product.imageUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          const SizedBox(height: 4),
+                          Text(product.category, style: const TextStyle(color: Colors.grey)),
+                          const SizedBox(height: 4),
+                          Text('R${product.price.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -65,6 +134,82 @@ class EmptyProductsState extends StatelessWidget {
           Text('Check back later', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
         ],
       ),
+    );
+  }
+}
+
+class ShimmerGridPlaceholder extends StatelessWidget {
+  const ShimmerGridPlaceholder({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final crossAxisCount = MediaQuery.of(context).size.width > 600 ? 3 : 2;
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.75,
+      ),
+      itemCount: crossAxisCount * 3,
+      itemBuilder: (context, index) {
+        return Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        color: Colors.grey.shade300,
+                        width: double.infinity,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    height: 16,
+                    width: 80,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    height: 12,
+                    width: 60,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    height: 14,
+                    width: 40,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

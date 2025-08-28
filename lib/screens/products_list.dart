@@ -4,7 +4,7 @@ import '../models/farm_model.dart';
 import '../providers/cart_provider.dart' as cart_provider;
 import '../providers/favorites_provider.dart';
 import '../widgets/product_card.dart';
-import '../providers/auth_provider.dart';
+// ...existing code...
 import 'cart_screen.dart';
 
 class ProductsList extends ConsumerWidget {
@@ -19,7 +19,7 @@ class ProductsList extends ConsumerWidget {
   final cartItems = cartProviderInstance.items;
   final cartNotifier = ref.read(cart_provider.cartProvider.notifier);
   final favoritesNotifier = ref.read(favoritesProvider.notifier);
-  final userId = ref.read(authProvider).currentUser?.id;
+  // UI only: no userId needed
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -39,12 +39,13 @@ class ProductsList extends ConsumerWidget {
                 (context, index) {
                   final product = products[index];
                   final isFav = favoritesState.favorites.any((p) => p.id == product.id);
+                  final isInCart = cartItems.any((item) => item.productId == product.id);
                   return ProductCard(
                     key: ValueKey(product.id),
                     product: product,
-                    isInCart: cartItems.any((item) => item.productId == product.id),
+                    isInCart: isInCart,
+                    isFavorite: isFav,
                     onAddToCart: () {
-                      if (userId == null) return;
                       final cartItem = cart_provider.CartItem(
                         id: product.id,
                         productId: product.id,
@@ -53,10 +54,10 @@ class ProductsList extends ConsumerWidget {
                         imageUrl: product.imageUrl,
                         farmId: product.farmId,
                         farmName: product.farmName,
-                        quantity: product.quantity,
+                        quantity: 1,
                         unit: product.unit,
                       );
-                      cartNotifier.addToCart(userId, cartItem);
+                      cartNotifier.addToCart(cartItem);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Added ${product.title} to cart'),
@@ -68,20 +69,18 @@ class ProductsList extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const CartScreen()),
+                                MaterialPageRoute(builder: (_) => CartScreen()),
                               );
                             },
                           ),
                         ),
                       );
                     },
-                    isFavorite: isFav,
                     onFavoritePressed: () {
-                      if (userId == null) return;
                       if (isFav) {
-                        favoritesNotifier.removeFavorite(userId, product.id);
+                        favoritesNotifier.removeFavorite(product.id);
                       } else {
-                        favoritesNotifier.addFavorite(userId, product.id);
+                        favoritesNotifier.addFavorite(product);
                       }
                     },
                   );

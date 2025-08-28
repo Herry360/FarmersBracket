@@ -37,4 +37,7 @@ class LanguageProvider with ChangeNotifier {
 }
 
 // Riverpod provider
-final languageProvider = ChangeNotifierProvider<LanguageProvider>((ref) => LanguageProvider());
+final languageProvider = ChangeNotifierProvider<LanguageProvider>((ref) {
+  // Inject dependencies here if needed
+  return LanguageProvider();
+});

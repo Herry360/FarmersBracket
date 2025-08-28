@@ -12,11 +12,14 @@ class FarmAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cart_provider.cartProvider);
     return AppBar(
-      title: Text(
-        farm.name,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+      title: Semantics(
+        label: 'Farm name: ${farm.name}',
+        child: Text(
+          farm.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
       ),
       centerTitle: false,
@@ -39,14 +42,21 @@ class CartIconWithBadge extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const cart_screen.CartScreen()),
-            );
-          },
+        Semantics(
+          button: true,
+          label: 'Cart with ${cartItems.length} items',
+          child: IconButton(
+            icon: const Icon(Icons.shopping_cart_outlined),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => cart_screen.CartScreen()),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Opening cart with ${cartItems.length} items.')),
+              );
+            },
+          ),
         ),
         if (cartItems.isNotEmpty)
           Positioned(

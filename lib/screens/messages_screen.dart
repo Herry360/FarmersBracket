@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/supabase_service.dart';
+// ...existing code...
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({Key? key}) : super(key: key);
@@ -10,9 +10,9 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final SupabaseService _supabaseService = SupabaseService();
-  final String _userId = 'CURRENT_USER_ID'; // Replace with actual user id
-  List<_Message> _messages = [];
+  // ...existing code...
+  // ...existing code...
+  final List<_Message> _messages = [];
 
   @override
   void initState() {
@@ -21,26 +21,23 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Future<void> _loadMessages() async {
-    final data = await _supabaseService.fetchMessages(_userId);
+    // UI only: load messages from local state
     setState(() {
-      _messages = data.map<_Message>((item) => _Message(
-        text: item['text'] ?? '',
-        timestamp: item['timestamp'] != null ? DateTime.tryParse(item['timestamp']) ?? DateTime.now() : DateTime.now(),
-        isMe: item['user_id'] == _userId,
-      )).toList();
+      // No-op for UI only
     });
   }
 
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
-      await _supabaseService.client.from('messages').insert({
-        'user_id': _userId,
-        'text': text,
-        'timestamp': DateTime.now().toIso8601String(),
+      setState(() {
+        _messages.add(_Message(
+          text: text,
+          timestamp: DateTime.now(),
+          isMe: true,
+        ));
       });
       _messageController.clear();
-      await _loadMessages();
     }
   }
 
@@ -98,56 +95,88 @@ class _MessagesScreenState extends State<MessagesScreen> {
               setState(() {
                 _messages.clear();
               });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Messages cleared.')),
+              );
             },
             tooltip: 'Clear messages',
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No messages yet.',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    reverse: true,
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) =>
-                        _buildMessage(_messages[_messages.length - 1 - index]),
-                  ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Type your message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: _messages.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('No messages yet.', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                        ],
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 16),
+                    )
+                  : ListView.builder(
+                      reverse: true,
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) =>
+                          Semantics(
+                            label: _messages[_messages.length - 1 - index].isMe ? 'Sent message' : 'Received message',
+                            child: _buildMessage(_messages[_messages.length - 1 - index]),
+                          ),
                     ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.green),
-                  onPressed: _sendMessage,
-                  tooltip: 'Send',
-                ),
-              ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      label: 'Type your message',
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: InputDecoration(
+                          hintText: 'Type your message...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 16),
+                        ),
+                        onSubmitted: (_) => _sendMessage(),
+                        textInputAction: TextInputAction.send,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Semantics(
+                    button: true,
+                    label: 'Send message',
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.green),
+                      onPressed: () {
+                        if (_messageController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Message cannot be empty.'), backgroundColor: Colors.red),
+                          );
+                        } else {
+                          _sendMessage();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Message sent!')),
+                          );
+                        }
+                      },
+                      tooltip: 'Send',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

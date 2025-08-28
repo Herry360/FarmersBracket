@@ -15,12 +15,16 @@ class RatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Implement interactive star rating
     return Row(
       children: List.generate(maxRating, (index) {
-        return Icon(
-          index < rating ? Icons.star : Icons.star_border,
-          color: Colors.amber,
+        return GestureDetector(
+          onTap: onRatingChanged != null
+              ? () => onRatingChanged!(index + 1)
+              : null,
+          child: Icon(
+            index < rating ? Icons.star : Icons.star_border,
+            color: Colors.amber,
+          ),
         );
       }),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/supabase_service.dart';
+import 'package:shimmer/shimmer.dart';
+// ...existing code...
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({Key? key}) : super(key: key);
@@ -26,8 +27,8 @@ class Order {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   late Future<List<Order>> _ordersFuture;
-  final SupabaseService _supabaseService = SupabaseService();
-  final String _userId = 'CURRENT_USER_ID'; // Replace with actual user id
+  // ...existing code...
+  // ...existing code...
 
   @override
   void initState() {
@@ -36,14 +37,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Future<List<Order>> fetchOrders() async {
-    final data = await _supabaseService.fetchOrders(_userId);
-    return data.map<Order>((item) => Order(
-      id: item['id'],
-      customerName: item['customerName'] ?? '',
-      date: item['date'] != null ? DateTime.tryParse(item['date']) ?? DateTime.now() : DateTime.now(),
-      total: (item['total'] ?? 0.0).toDouble(),
-      status: item['status'] ?? '',
-    )).toList();
+    // UI only: return mock orders
+    await Future.delayed(const Duration(milliseconds: 300));
+    return [
+      Order(id: '1', customerName: 'John Doe', date: DateTime.now(), total: 120.0, status: 'Delivered'),
+      Order(id: '2', customerName: 'Jane Smith', date: DateTime.now().subtract(const Duration(days: 1)), total: 80.0, status: 'Pending'),
+    ];
   }
 
   void _refreshOrders() {
@@ -80,35 +79,58 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Widget _buildOrderList(List<Order> orders) {
     if (orders.isEmpty) {
-      return const Center(child: Text('No orders found.'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.receipt_long, size: 48, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            const Text('No orders found.', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const SizedBox(height: 8),
+            const Text('Try refreshing or check back later.', style: TextStyle(fontSize: 14, color: Colors.grey)),
+          ],
+        ),
+      );
     }
     return ListView.separated(
       itemCount: orders.length,
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final order = orders[index];
-        return ListTile(
-          leading: CircleAvatar(
-            child: Text(order.customerName[0]),
-          ),
-          title: Text(order.customerName),
-          subtitle: Text(
-            'Order ID: ${order.id}\nDate: ${order.date.toLocal().toString().split(' ')[0]}',
-          ),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('\$${order.total.toStringAsFixed(2)}'),
-              Text(
-                order.status,
-                style: TextStyle(
-                  color: _statusColor(order.status),
-                  fontWeight: FontWeight.bold,
-                ),
+        return Semantics(
+          label: 'Order for ${order.customerName}, status ${order.status}',
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Text(order.customerName[0]),
               ),
-            ],
+              title: Text(order.customerName, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text(
+                'Order ID: ${order.id}\nDate: ${order.date.toLocal().toString().split(' ')[0]}',
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('R${order.total.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  Text(
+                    order.status,
+                    style: TextStyle(
+                      color: _statusColor(order.status),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Viewing order ${order.id}')),
+                );
+                _showOrderDetails(order);
+              },
+            ),
           ),
-          onTap: () => _showOrderDetails(order),
         );
       },
     );
@@ -132,10 +154,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Orders'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _refreshOrders,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Refreshing orders...')),
+              );
+              _refreshOrders();
+            },
             tooltip: 'Refresh',
           ),
         ],
@@ -144,17 +175,65 @@ class _OrdersScreenState extends State<OrdersScreen> {
         future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const ShimmerOrdersList();
           }
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error loading orders: ${snapshot.error}'),
+              child: Text('Error loading orders: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
             );
           }
           final orders = snapshot.data ?? [];
-          return _buildOrderList(orders);
+          return RefreshIndicator(
+            onRefresh: () async {
+              _refreshOrders();
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            child: _buildOrderList(orders),
+          );
         },
       ),
+    );
+  }
+
+}
+
+// Shimmer placeholder for orders list
+class ShimmerOrdersList extends StatelessWidget {
+  const ShimmerOrdersList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemCount: 6,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            leading: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: CircleAvatar(backgroundColor: Colors.grey.shade300),
+            ),
+            title: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(height: 16, width: 80, color: Colors.grey.shade300),
+            ),
+            subtitle: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(height: 12, width: 120, color: Colors.grey.shade300),
+            ),
+            trailing: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(height: 14, width: 40, color: Colors.grey.shade300),
+            ),
+          ),
+        );
+      },
     );
   }
 }

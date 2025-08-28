@@ -104,99 +104,126 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Log in to your account', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Log in to your account', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    label: 'Email field',
+                    child: TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
                       },
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                  obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _rememberMe,
-                          onChanged: (val) {
-                            setState(() => _rememberMe = val ?? false);
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: 'Password field',
+                    child: TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () {
+                            setState(() => _obscurePassword = !_obscurePassword);
                           },
                         ),
-                        const Text('Remember Me'),
-                      ],
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                      obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.done,
                     ),
-                    TextButton(
-                      onPressed: _forgotPassword,
-                      child: const Text('Forgot Password?'),
-                    ),
-                  ],
-                ),
-                if (_errorMessage != null) ...[
+                  ),
                   const SizedBox(height: 8),
-                  Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-                ],
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Semantics(
+                            label: 'Remember Me',
+                            child: Checkbox(
+                              value: _rememberMe,
+                              onChanged: (val) {
+                                setState(() => _rememberMe = val ?? false);
+                              },
                             ),
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Colors.white,
                           ),
-                          onPressed: _login,
-                          child: const Text('Login'),
+                          const Text('Remember Me'),
+                        ],
+                      ),
+                      Semantics(
+                        button: true,
+                        label: 'Forgot Password',
+                        child: TextButton(
+                          onPressed: _forgotPassword,
+                          child: const Text('Forgot Password?'),
                         ),
-                ),
-              ],
+                      ),
+                    ],
+                  ),
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 8),
+                    Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Semantics(
+                            button: true,
+                            label: 'Login',
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () {
+                                if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please enter both email and password.'), backgroundColor: Colors.red),
+                                  );
+                                  return;
+                                }
+                                _login();
+                              },
+                              child: const Text('Login'),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

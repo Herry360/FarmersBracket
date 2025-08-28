@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../models/farm_model.dart';
-import 'product_detail_screen.dart';
+import '../widgets/product_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/products_provider.dart';
 
 class FarmProductsBody extends StatefulWidget {
   final Farm farm;
@@ -12,132 +14,311 @@ class FarmProductsBody extends StatefulWidget {
 }
 
 class _FarmProductsBodyState extends State<FarmProductsBody> {
-  final List<Product> _products = [
-    Product(
-      id: '1',
-      name: 'Tomatoes',
-      description: 'Fresh organic tomatoes.',
-      price: 2.5,
-      imageUrl: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc', title: null,
-    ),
-    Product(
-      id: '2',
-      name: 'Carrots',
-      description: 'Crunchy farm carrots.',
-      price: 1.2,
-      imageUrl: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', title: null,
-    ),
-    Product(
-      id: '3',
-      name: 'Lettuce',
-      description: 'Green leafy lettuce.',
-      price: 1.8,
-      imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836', title: null,
-    ),
-    Product(
-      id: '4',
-      name: 'Potatoes',
-      description: 'Organic potatoes.',
-      price: 2.0,
-      imageUrl: 'assets/images/farm_logo.jpg', title: null,
-    ),
-  ];
-
   String _searchQuery = '';
+  double? _minPrice;
+  double? _maxPrice;
+  double? _minRating;
+  bool? _onlyAvailable;
+  bool? _onlyOnSale;
+  bool? _onlyNewArrival;
+  String? _certification;
+  double? _userLatitude;
+  double? _userLongitude;
+  double? _maxDistanceKm;
+  final List<Map<String, dynamic>> _favoriteFilters = [];
 
   @override
   Widget build(BuildContext context) {
-    final filteredProducts = _products
-        .where((p) =>
-            p.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            p.description.toLowerCase().contains(_searchQuery.toLowerCase()))
-        .toList();
-
-    return Scaffold(
-    // Removed duplicate cart icon, use FarmAppBar in parent
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search products...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+    return Consumer(
+      builder: (context, ref, _) {
+        final provider = ref.watch(productsProvider);
+        final products = provider.products;
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildFilterBar(ref),
+                Expanded(
+                  child: products.isEmpty
+                      ? const Center(child: Text('No products found.'))
+                      : ListView.builder(
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+                            return ProductCard(
+                              product: product,
+                              isFavorite: false,
+                              isInCart: false,
+                              onFavoritePressed: () {},
+                              onAddToCart: () {},
+                            );
+                          },
+                        ),
                 ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterBar(WidgetRef ref) {
+    final provider = ref.read(productsProvider.notifier);
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 180,
+            child: TextField(
+              decoration: const InputDecoration(labelText: 'Search'),
+              onChanged: (val) {
+                setState(() => _searchQuery = val);
+                provider.searchProducts(val);
               },
             ),
           ),
-          Expanded(
-            child: filteredProducts.isEmpty
-                ? const Center(child: Text('No products found.'))
-                : ListView.builder(
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailScreen(product: product),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          elevation: 3,
-                          child: ListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                product.imageUrl,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.image_not_supported),
-                              ),
-                            ),
-                            title: Text(product.name,
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(product.description),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('R ${product.price.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold)),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('${product.name} added to cart!'),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    minimumSize: const Size(60, 30),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  child: const Text('Add'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+          _filterButton('Price', () async {
+            // Show price range dialog
+            final range = await showDialog<Map<String, double>>(
+              context: context,
+              builder: (ctx) => _priceRangeDialog(),
+            );
+            if (range != null) {
+              setState(() {
+                _minPrice = range['min'];
+                _maxPrice = range['max'];
+              });
+              provider.setPriceRange(_minPrice, _maxPrice);
+            }
+          }),
+          _filterButton('Sale', () {
+            setState(() => _onlyOnSale = !(_onlyOnSale ?? false));
+            provider.setSale(_onlyOnSale);
+          }),
+          _filterButton('New Arrival', () {
+            setState(() => _onlyNewArrival = !(_onlyNewArrival ?? false));
+            provider.setNewArrival(_onlyNewArrival);
+          }),
+          _filterButton('Available', () {
+            setState(() => _onlyAvailable = !(_onlyAvailable ?? false));
+            provider.setAvailability(_onlyAvailable);
+          }),
+          _filterButton('Rating', () async {
+            final minRating = await showDialog<double>(
+              context: context,
+              builder: (ctx) => _minRatingDialog(),
+            );
+            if (minRating != null) {
+              setState(() => _minRating = minRating);
+              provider.setMinRating(_minRating);
+            }
+          }),
+          _filterButton('Certification', () async {
+            final cert = await showDialog<String>(
+              context: context,
+              builder: (ctx) => _certificationDialog(),
+            );
+            if (cert != null) {
+              setState(() => _certification = cert);
+              provider.setCertification(_certification);
+            }
+          }),
+          _filterButton('Location', () async {
+            final loc = await showDialog<Map<String, double>>(
+              context: context,
+              builder: (ctx) => _locationDialog(),
+            );
+            if (loc != null) {
+              setState(() {
+                _userLatitude = loc['lat'];
+                _userLongitude = loc['lon'];
+                _maxDistanceKm = loc['maxDist'];
+              });
+              provider.setLocation(_userLatitude, _userLongitude, _maxDistanceKm);
+            }
+          }),
+          _filterButton('Save Filters', () {
+            _favoriteFilters.add({
+              'search': _searchQuery,
+              'minPrice': _minPrice,
+              'maxPrice': _maxPrice,
+              'onlyOnSale': _onlyOnSale,
+              'onlyNewArrival': _onlyNewArrival,
+              'onlyAvailable': _onlyAvailable,
+              'minRating': _minRating,
+              'certification': _certification,
+              'userLatitude': _userLatitude,
+              'userLongitude': _userLongitude,
+              'maxDistanceKm': _maxDistanceKm,
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Filter set saved!')),
+            );
+          }),
+          _filterButton('Load Filters', () async {
+            if (_favoriteFilters.isEmpty) return;
+            final idx = await showDialog<int>(
+              context: context,
+              builder: (ctx) => _favoriteFiltersDialog(),
+            );
+            if (idx != null && idx < _favoriteFilters.length) {
+              final f = _favoriteFilters[idx];
+              setState(() {
+                _searchQuery = f['search'] ?? '';
+                _minPrice = f['minPrice'];
+                _maxPrice = f['maxPrice'];
+                _onlyOnSale = f['onlyOnSale'];
+                _onlyNewArrival = f['onlyNewArrival'];
+                _onlyAvailable = f['onlyAvailable'];
+                _minRating = f['minRating'];
+                _certification = f['certification'];
+                _userLatitude = f['userLatitude'];
+                _userLongitude = f['userLongitude'];
+                _maxDistanceKm = f['maxDistanceKm'];
+              });
+              provider.searchProducts(_searchQuery);
+              provider.setPriceRange(_minPrice, _maxPrice);
+              provider.setSale(_onlyOnSale);
+              provider.setNewArrival(_onlyNewArrival);
+              provider.setAvailability(_onlyAvailable);
+              provider.setMinRating(_minRating);
+              provider.setCertification(_certification);
+              provider.setLocation(_userLatitude, _userLongitude, _maxDistanceKm);
+            }
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterButton(String label, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(label),
+      ),
+    );
+  }
+
+  Widget _priceRangeDialog() {
+    double min = _minPrice ?? 0;
+    double max = _maxPrice ?? 100;
+    return AlertDialog(
+      title: const Text('Price Range'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            decoration: const InputDecoration(labelText: 'Min Price'),
+            keyboardType: TextInputType.number,
+            onChanged: (val) => min = double.tryParse(val) ?? min,
+          ),
+          TextField(
+            decoration: const InputDecoration(labelText: 'Max Price'),
+            keyboardType: TextInputType.number,
+            onChanged: (val) => max = double.tryParse(val) ?? max,
           ),
         ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, {'min': min, 'max': max}),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+
+  Widget _minRatingDialog() {
+    double minRating = _minRating ?? 0;
+    return AlertDialog(
+      title: const Text('Minimum Rating'),
+      content: TextField(
+        decoration: const InputDecoration(labelText: 'Min Rating'),
+        keyboardType: TextInputType.number,
+        onChanged: (val) => minRating = double.tryParse(val) ?? minRating,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, minRating),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+
+  Widget _certificationDialog() {
+    String cert = _certification ?? '';
+    return AlertDialog(
+      title: const Text('Certification'),
+      content: TextField(
+        decoration: const InputDecoration(labelText: 'Certification'),
+        onChanged: (val) => cert = val,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, cert),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+
+  Widget _locationDialog() {
+    double lat = _userLatitude ?? 0;
+    double lon = _userLongitude ?? 0;
+    double maxDist = _maxDistanceKm ?? 50;
+    return AlertDialog(
+      title: const Text('Location Filter'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            decoration: const InputDecoration(labelText: 'Latitude'),
+            keyboardType: TextInputType.number,
+            onChanged: (val) => lat = double.tryParse(val) ?? lat,
+          ),
+          TextField(
+            decoration: const InputDecoration(labelText: 'Longitude'),
+            keyboardType: TextInputType.number,
+            onChanged: (val) => lon = double.tryParse(val) ?? lon,
+          ),
+          TextField(
+            decoration: const InputDecoration(labelText: 'Max Distance (km)'),
+            keyboardType: TextInputType.number,
+            onChanged: (val) => maxDist = double.tryParse(val) ?? maxDist,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, {'lat': lat, 'lon': lon, 'maxDist': maxDist}),
+          child: const Text('Apply'),
+        ),
+      ],
+    );
+  }
+
+  Widget _favoriteFiltersDialog() {
+    return AlertDialog(
+      title: const Text('Saved Filters'),
+      content: SizedBox(
+        width: 200,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: _favoriteFilters.length,
+          itemBuilder: (ctx, idx) {
+            final f = _favoriteFilters[idx];
+            return ListTile(
+              title: Text('Filter ${idx + 1}'),
+              subtitle: Text(f.toString()),
+              onTap: () => Navigator.pop(context, idx),
+            );
+          },
+        ),
       ),
     );
   }

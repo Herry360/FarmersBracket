@@ -40,46 +40,94 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
     );
   }
 
+  // Accessibility: Announce selection (fallback to SnackBar)
+  void _announceSelection(String methodName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Selected $methodName')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment Methods'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _paymentMethods.length,
-              itemBuilder: (context, index) {
-                final method = _paymentMethods[index];
-                return Card(
-                  child: ListTile(
-                    leading: Icon(method['icon']),
-                    title: Text(method['name']),
-                    trailing: Radio<int>(
-                      value: index,
-                      groupValue: _selectedMethod,
-                      onChanged: (value) => _onMethodSelected(value!),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      label: 'Select payment method',
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _paymentMethods.length,
+                        itemBuilder: (context, index) {
+                          final method = _paymentMethods[index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              leading: Icon(method['icon'], size: 32),
+                              title: Text(method['name'], style: const TextStyle(fontSize: 16)),
+                              trailing: Radio<int>(
+                                value: index,
+                                groupValue: _selectedMethod,
+                                onChanged: (value) {
+                                  _onMethodSelected(value!);
+                                  _announceSelection(method['name']);
+                                },
+                              ),
+                              onTap: () {
+                                _onMethodSelected(index);
+                                _announceSelection(method['name']);
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    onTap: () => _onMethodSelected(index),
-                  ),
-                );
-              },
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _onContinue,
-                child: const Text('Continue'),
+                    const Spacer(),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Semantics(
+                        button: true,
+                        label: 'Continue with selected payment method',
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: _onContinue,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.arrow_forward, size: 20),
+                              SizedBox(width: 8),
+                              Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
-}
+  }

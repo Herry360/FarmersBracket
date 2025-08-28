@@ -115,7 +115,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                 borderRadius: BorderRadius.circular(32),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.12),
+                                    color: Colors.black.withAlpha(30),
                                     blurRadius: 24,
                                     offset: const Offset(0, 8),
                                   ),
@@ -138,7 +138,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                           decoration: BoxDecoration(
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withValues(alpha: 0.18),
+                                                color: Colors.black.withAlpha(45),
                                                 blurRadius: 16,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -148,6 +148,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                             'assets/images/farm_logo.jpg',
                                             height: isWide ? 180 : 120,
                                             fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error, size: isWide ? 180 : 120, color: Colors.red),
                                           ),
                                         ),
                                       ),
@@ -174,6 +175,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
+                                  const SizedBox(height: 8),
+                                  Text('Your digital farm marketplace', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70)),
                                 ],
                               ),
                             ),
@@ -232,7 +235,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                           child: Column(
                             children: [
                               _isLoading
-                                  ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+                                  ? Column(
+                                      children: [
+                                        const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                                        const SizedBox(height: 8),
+                                        Text('Loading...', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                                      ],
+                                    )
                                   : ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
                                         minimumSize: const Size.fromHeight(48),
@@ -248,15 +257,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                       onPressed: () => _navigateToNext(context),
                                     ),
                               const SizedBox(height: 16),
-                              TextButton(
-                                onPressed: _isLoading
-                                    ? null
-                                    : () {
-                                        Navigator.pushNamed(context, '/login');
-                                      },
-                                child: const Text(
-                                  'Already have an account? Log in',
-                                  style: TextStyle(color: Colors.white),
+                              Semantics(
+                                label: 'Login button',
+                                child: TextButton(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () {
+                                          Navigator.pushNamed(context, '/login');
+                                        },
+                                  child: const Text(
+                                    'Already have an account? Log in',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             ],

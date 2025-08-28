@@ -34,7 +34,7 @@ class PaymentProvider {
 
   Future<bool> processPayment({required double amount}) async {
     // Simulate payment processing
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 100));
     paymentSuccess = selectedMethod != null && amount > 0;
     return paymentSuccess;
   }

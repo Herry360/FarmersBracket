@@ -1,37 +1,51 @@
 import 'package:hive/hive.dart';
+import '../screens/home_screen.dart';
 
 class HiveService {
-  static Future<void> init() async {
-    // Register adapters if needed
-    // Hive.registerAdapter(YourAdapter());
+	static Future<void> addRecentlyViewedProduct(String productId) async {
+		var box = await Hive.openBox('recently_viewed');
+		List<String> products = List<String>.from(box.get('recent_products', defaultValue: []));
+		products.remove(productId);
+		products.insert(0, productId);
+		if (products.length > 10) products = products.sublist(0, 10);
+		await box.put('recent_products', products);
+	}
 
-    await Hive.openBox('auth');
-    await Hive.openBox('cart');
-    await Hive.openBox('favorites');
-    await Hive.openBox('settings');
-    await Hive.openBox('addresses');
-  }
+	static Future<List<String>> getRecentlyViewedProducts() async {
+		var box = await Hive.openBox('recently_viewed');
+		return List<String>.from(box.get('recent_products', defaultValue: []));
+	}
 
-  static Future<void> clearAllData() async {
-    await Hive.box('auth').clear();
-    await Hive.box('cart').clear();
-    await Hive.box('favorites').clear();
-    await Hive.box('settings').clear();
-    await Hive.box('addresses').clear();
-  }
+		Future<HomeScreenFilter?> getHomeScreenFilter() async {
+			var box = await Hive.openBox('home_screen_filter');
+			final data = box.get('filter');
+			if (data == null) return null;
+			// Assuming data is a Map<String, dynamic>
+			return HomeScreenFilter(
+				showFavoritesOnly: data['showFavoritesOnly'] ?? false,
+				openNow: data['openNow'] ?? false,
+				organic: data['organic'] ?? false,
+				topRated: data['topRated'] ?? false,
+				category: data['category'] ?? 'All',
+				searchQuery: data['searchQuery'] ?? '',
+				minDistance: (data['minDistance'] ?? 0).toDouble(),
+				maxDistance: (data['maxDistance'] ?? 50).toDouble(),
+				price: (data['price'] ?? 100).toDouble(),
+			);
+		}
 
-  static Future<void> saveToBox(String boxName, String key, dynamic value) async {
-    final box = Hive.box(boxName);
-    await box.put(key, value);
-  }
-
-  static dynamic getFromBox(String boxName, String key, [dynamic defaultValue]) {
-    final box = Hive.box(boxName);
-    return box.get(key, defaultValue: defaultValue);  
-  }
-
-  static Future<void> removeFromBox(String boxName, String key) async {
-    final box = Hive.box(boxName);
-    await box.delete(key);
-  }
+		Future<void> saveHomeScreenFilter(HomeScreenFilter filter) async {
+			var box = await Hive.openBox('home_screen_filter');
+			await box.put('filter', {
+				'showFavoritesOnly': filter.showFavoritesOnly,
+				'openNow': filter.openNow,
+				'organic': filter.organic,
+				'topRated': filter.topRated,
+				'category': filter.category,
+				'searchQuery': filter.searchQuery,
+				'minDistance': filter.minDistance,
+				'maxDistance': filter.maxDistance,
+				'price': filter.price,
+			});
+		}
 }

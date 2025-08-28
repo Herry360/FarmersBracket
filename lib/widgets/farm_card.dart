@@ -22,11 +22,9 @@ class FarmCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Show loading card if loading
     if (isLoading) {
       return _buildLoadingCard();
     }
-    // Show error card if error
     if (hasError) {
       return _buildErrorCard(context);
     }
@@ -41,9 +39,9 @@ class FarmCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Farm image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
@@ -54,13 +52,14 @@ class FarmCard extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         width: 64,
                         height: 64,
-                        color: theme.hintColor.withValues(alpha: 0.1), // Use withValues instead of withOpacity
+                        color: theme.hintColor.withAlpha(25),
                         child: const Icon(Icons.broken_image),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -89,7 +88,7 @@ class FarmCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${farm.distance.toStringAsFixed(1)} km | Mpumalanga',
+                              '${farm.distance.toStringAsFixed(1)} km | Lat: ${farm.latitude.toStringAsFixed(4)}, Lng: ${farm.longitude.toStringAsFixed(4)}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.hintColor,
                               ),

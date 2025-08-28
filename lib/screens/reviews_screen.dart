@@ -8,6 +8,80 @@ class ReviewsScreen extends StatefulWidget {
 }
 
 class _ReviewsScreenState extends State<ReviewsScreen> {
+  void _showEditReviewDialog(BuildContext context, Review review, int index) {
+    final controller = TextEditingController(text: review.comment);
+    int rating = review.rating;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Review'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Text('Rating:'),
+                const SizedBox(width: 8),
+                DropdownButton<int>(
+                  value: rating,
+                  items: List.generate(
+                    5,
+                    (i) => DropdownMenuItem(
+                      value: i + 1,
+                      child: Text('${i + 1}'),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) rating = val;
+                  },
+                ),
+                _buildStars(rating),
+              ],
+            ),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(labelText: 'Review'),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _reviews[index] = Review(
+                  userName: review.userName,
+                  rating: rating,
+                  comment: controller.text,
+                  date: DateTime.now(),
+                );
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Review updated!')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteReview(int index) {
+    setState(() {
+      _reviews.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Review deleted!')),
+    );
+  }
+  int _currentPage = 0;
+  final int _reviewsPerPage = 5;
   final List<Review> _reviews = [
     Review(
       userName: 'Alice',
@@ -106,34 +180,89 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
     if (_reviews.isEmpty) {
       return const Center(child: Text('No reviews yet.'));
     }
-    return ListView.separated(
-      itemCount: _reviews.length,
-      separatorBuilder: (_, __) => const Divider(),
-      itemBuilder: (context, index) {
-        final review = _reviews[index];
-        return ListTile(
-          leading: CircleAvatar(
-            child: Text(review.userName[0]),
+    final start = _currentPage * _reviewsPerPage;
+    final end = (_currentPage + 1) * _reviewsPerPage;
+    final pageReviews = _reviews.sublist(
+      start,
+      end > _reviews.length ? _reviews.length : end,
+    );
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            itemCount: pageReviews.length,
+            separatorBuilder: (_, __) => const Divider(),
+            itemBuilder: (context, index) {
+              final review = pageReviews[index];
+              final isOwnReview = review.userName == 'You';
+              return Semantics(
+                label: 'Review by ${review.userName}',
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(review.userName[0]),
+                  ),
+                  title: Row(
+                    children: [
+                      Text(review.userName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 8),
+                      _buildStars(review.rating),
+                    ],
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(review.comment),
+                      Text(
+                        _formatDate(review.date),
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  trailing: isOwnReview
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              tooltip: 'Edit review',
+                              onPressed: () => _showEditReviewDialog(context, review, start + index),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              tooltip: 'Delete review',
+                              onPressed: () => _deleteReview(start + index),
+                            ),
+                          ],
+                        )
+                      : null,
+                ),
+              );
+            },
           ),
-          title: Row(
-            children: [
-              Text(review.userName, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              _buildStars(review.rating),
-            ],
+        ),
+        if (_reviews.length > _reviewsPerPage)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _currentPage > 0
+                      ? () => setState(() => _currentPage--)
+                      : null,
+                ),
+                Text('Page ${_currentPage + 1} of ${(_reviews.length / _reviewsPerPage).ceil()}'),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  onPressed: end < _reviews.length
+                      ? () => setState(() => _currentPage++)
+                      : null,
+                ),
+              ],
+            ),
           ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(review.comment),
-              Text(
-                _formatDate(review.date),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        );
-      },
+      ],
     );
   }
 

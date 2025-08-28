@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+// import '../providers/auth_provider.dart';
 import '../providers/theme_mode_provider.dart';
+import '../widgets/default_profile_placeholder.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -109,7 +110,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             onPressed: () async {
               setState(() => _isLoading = true);
-              await ref.read(authProvider).signOut();
+              // authProvider.signOut();
               setState(() => _isLoading = false);
               if (mounted) {
                 Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
@@ -162,7 +163,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // Call delete account method
               try {
                 // Replace with your actual delete logic, e.g.:
-                // await ref.read(authProvider.notifier).deleteAccount();
+                // await authProvider.deleteAccount();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Account deleted successfully.')),
                 );
@@ -182,8 +183,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-  final auth = ref.watch(authProvider);
-    final user = auth.currentUser;
+  // No authentication logic required
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -199,21 +199,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 28,
-                      backgroundImage: user?.userMetadata?['avatar_url'] != null
-                          ? NetworkImage(user!.userMetadata!['avatar_url'])
-                          : const AssetImage('assets/images/default_profile.png') as ImageProvider,
-                    ),
-                    title: Text(user?.userMetadata?['name'] ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(user?.email ?? 'No email'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed('/profile_edit');
-                      },
-                    ),
-                  ),
+                          leading: Semantics(
+                            label: 'Profile avatar',
+                            child: const DefaultProfilePlaceholder(size: 28),
+                          ),
+                          title: const Text('User', style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: const Text('No email'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            tooltip: 'Edit profile',
+                            onPressed: () {
+                              try {
+                                Navigator.of(context).pushNamed('/profile_edit');
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                                );
+                              }
+                            },
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 24),
 
@@ -265,7 +270,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SwitchListTile(
                   title: const Text('Enable Notifications'),
                   value: _notificationsEnabled,
-                  onChanged: _onNotificationChanged,
+                  onChanged: (val) {
+                    try {
+                      _onNotificationChanged(val);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error updating notifications: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
                   secondary: const Icon(Icons.notifications_active),
                 ),
                 const Divider(height: 32),
@@ -280,14 +293,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leading: const Icon(Icons.privacy_tip),
                   title: const Text('Privacy Policy'),
                   onTap: () {
-                    Navigator.of(context).pushNamed('/privacy_policy');
+                    try {
+                      Navigator.of(context).pushNamed('/privacy_policy');
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.article),
                   title: const Text('Terms & Conditions'),
                   onTap: () {
-                    Navigator.of(context).pushNamed('/terms');
+                    try {
+                      Navigator.of(context).pushNamed('/terms');
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
                   },
                 ),
                 const Divider(height: 32),
@@ -298,7 +323,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leading: const Icon(Icons.feedback),
                   title: const Text('Send Feedback'),
                   onTap: () {
-                    Navigator.of(context).pushNamed('/feedback');
+                    try {
+                      Navigator.of(context).pushNamed('/feedback');
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
                   },
                 ),
 

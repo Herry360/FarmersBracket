@@ -82,8 +82,6 @@ Key dependencies used in this project:
 - `flutter`
 - `provider` (state management)
 - `http` (network requests)
-- `firebase_core` & `firebase_auth` (authentication)
-- `cloud_firestore` (database)
 - `charts_flutter` (data visualization)
 
 See `pubspec.yaml` for the full list.

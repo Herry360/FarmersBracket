@@ -8,30 +8,39 @@ class FarmHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FarmImage(farm: farm),
-              const SizedBox(width: 16),
-              FarmDetails(farm: farm),
-            ],
-          ),
-        ],
+    return Semantics(
+      label: 'Farm header for ${farm.name}',
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withAlpha(25),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  label: 'Farm image',
+                  child: FarmImage(farm: farm),
+                ),
+                const SizedBox(width: 16),
+                Semantics(
+                  label: 'Farm details',
+                  child: FarmDetails(farm: farm),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -116,7 +125,7 @@ class FarmLocation extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          '${farm.distance.toStringAsFixed(1)} km • ${farm.location}',
+          '${farm.distance.toStringAsFixed(1)} km • Lat: ${farm.latitude.toStringAsFixed(4)}, Lng: ${farm.longitude.toStringAsFixed(4)}',
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 13,
@@ -151,30 +160,33 @@ class FarmRatingBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-          color: const Color.fromRGBO(255, 191, 0, 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.star,
-            color: Colors.amber[700],
-            size: 16,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            farm.rating.toStringAsFixed(1),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: Colors.amber[800],
+    return Semantics(
+      label: 'Farm rating ${farm.rating.toStringAsFixed(1)}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+            color: const Color.fromRGBO(255, 191, 0, 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.star,
+              color: Colors.amber[700],
+              size: 16,
             ),
-          ),
-        ],
+            const SizedBox(width: 4),
+            Text(
+              farm.rating.toStringAsFixed(1),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Colors.amber[800],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -187,29 +199,32 @@ class FarmCategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1), // Updated to withValues for precision
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.category_outlined,
-            size: 16,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            farm.category,
-            style: TextStyle(
-              fontSize: 12,
+    return Semantics(
+      label: 'Farm category ${farm.category}',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.category_outlined,
+              size: 16,
               color: Theme.of(context).colorScheme.secondary,
             ),
-          ),
-        ],
+            const SizedBox(width: 4),
+            Text(
+              farm.category,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -8,6 +8,9 @@ class OrderModel {
   final double totalAmount;
   final String status; // e.g., Processing, Shipped, Delivered
   final DateTime orderDate;
+  final String? shipmentStatus; // e.g., In Transit, Out for Delivery
+  final String? trackingNumber;
+  final DateTime? estimatedDelivery;
 
   OrderModel({
     required this.id,
@@ -17,6 +20,9 @@ class OrderModel {
     required this.totalAmount,
     required this.status,
     required this.orderDate,
+    this.shipmentStatus,
+    this.trackingNumber,
+    this.estimatedDelivery,
   });
 }
 
