@@ -3,15 +3,18 @@ import 'package:geolocator/geolocator.dart';
 
 class LocationPermissionScreen extends StatelessWidget {
   final VoidCallback onNext;
-  const LocationPermissionScreen({Key? key, required this.onNext}) : super(key: key);
+  const LocationPermissionScreen({super.key, required this.onNext});
 
   Future<void> _requestPermission(BuildContext context) async {
     LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
       onNext();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Location permission is required to continue.')),
+        const SnackBar(
+          content: Text('Location permission is required to continue.'),
+        ),
       );
     }
   }

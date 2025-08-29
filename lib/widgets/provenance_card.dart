@@ -7,12 +7,12 @@ class ProvenanceCard extends StatelessWidget {
   final String farmerName;
 
   const ProvenanceCard({
-    Key? key,
+    super.key,
     required this.farmName,
     required this.farmLogoUrl,
     required this.distanceKm,
     required this.farmerName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,13 @@ class ProvenanceCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(farmName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      farmName,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Text('Farmer: $farmerName'),
                     Text('Distance: ${distanceKm.toStringAsFixed(1)} km'),
                   ],

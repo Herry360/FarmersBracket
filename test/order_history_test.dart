@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 // import relevant providers/screens
 // import 'package:farm_bracket/providers/order_provider.dart';
@@ -7,45 +6,45 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Order History', () {
     test('View past orders', () {
-  // Mock order history logic
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  mockOrderHistoryProvider.addOrder(_mockOrder1);
-  expect(mockOrderHistoryProvider.orders.isNotEmpty, true);
+      // Mock order history logic
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      mockOrderHistoryProvider.addOrder(_mockOrder1);
+      expect(mockOrderHistoryProvider.orders.isNotEmpty, true);
     });
 
     test('Order history is empty initially', () {
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  expect(mockOrderHistoryProvider.orders, isEmpty);
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      expect(mockOrderHistoryProvider.orders, isEmpty);
     });
 
     test('Add order to history', () {
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  mockOrderHistoryProvider.addOrder(_mockOrder1);
-  expect(mockOrderHistoryProvider.orders.length, 1);
-  expect(mockOrderHistoryProvider.orders.first.id, '1');
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      mockOrderHistoryProvider.addOrder(_mockOrder1);
+      expect(mockOrderHistoryProvider.orders.length, 1);
+      expect(mockOrderHistoryProvider.orders.first.id, '1');
     });
 
     test('Retrieve specific order by ID', () {
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  mockOrderHistoryProvider.addOrder(_mockOrder2);
-  final retrievedOrder = mockOrderHistoryProvider.getOrderById('2');
-  expect(retrievedOrder, isNotNull);
-  expect(retrievedOrder!.id, '2');
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      mockOrderHistoryProvider.addOrder(_mockOrder2);
+      final retrievedOrder = mockOrderHistoryProvider.getOrderById('2');
+      expect(retrievedOrder, isNotNull);
+      expect(retrievedOrder!.id, '2');
     });
 
     test('Order history contains multiple orders', () {
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  mockOrderHistoryProvider.addOrder(_mockOrder1);
-  mockOrderHistoryProvider.addOrder(_mockOrder2);
-  expect(mockOrderHistoryProvider.orders.length, 2);
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      mockOrderHistoryProvider.addOrder(_mockOrder1);
+      mockOrderHistoryProvider.addOrder(_mockOrder2);
+      expect(mockOrderHistoryProvider.orders.length, 2);
     });
 
     test('Remove order from history', () {
-  final mockOrderHistoryProvider = _MockOrderHistoryProvider();
-  final order = _MockOrder(id: '3', total: 30.0, date: DateTime.now());
-  mockOrderHistoryProvider.addOrder(order);
-  mockOrderHistoryProvider.removeOrder('3');
-  expect(mockOrderHistoryProvider.orders.any((o) => o.id == '3'), false);
+      final mockOrderHistoryProvider = _MockOrderHistoryProvider();
+      final order = _MockOrder(id: '3', total: 30.0, date: DateTime.now());
+      mockOrderHistoryProvider.addOrder(order);
+      mockOrderHistoryProvider.removeOrder('3');
+      expect(mockOrderHistoryProvider.orders.any((o) => o.id == '3'), false);
     });
   });
 }

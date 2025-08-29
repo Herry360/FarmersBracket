@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../models/farm_model.dart';
 import '../providers/user_provider.dart';
 import '../providers/products_provider.dart';
 import 'farm_products_body.dart';
@@ -40,9 +39,7 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
     final userNotifier = ref.read(userProvider.notifier);
     final isFavorite = userState.user.favoriteFarmIds.contains(widget.farm.id);
     return ProviderScope(
-      overrides: [
-        farmProvider.overrideWithValue(widget.farm)
-      ],
+      overrides: [farmProvider.overrideWithValue(widget.farm)],
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.farm.name),
@@ -56,16 +53,18 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                   isScrollControlled: true,
                   builder: (ctx) => AdvancedFilterBottomSheet(
                     onApply: (filters) {
-                      ref.read(productsProvider.notifier).filterProducts(
-                        categories: filters['categories'],
-                        tags: filters['tags'],
-                        farms: filters['farms'],
-                        minPrice: filters['minPrice'],
-                        maxPrice: filters['maxPrice'],
-                        pickedToday: filters['pickedToday'],
-                        organic: filters['organic'],
-                        minRating: filters['minRating'],
-                      );
+                      ref
+                          .read(productsProvider.notifier)
+                          .filterProducts(
+                            categories: filters['categories'],
+                            tags: filters['tags'],
+                            farms: filters['farms'],
+                            minPrice: filters['minPrice'],
+                            maxPrice: filters['maxPrice'],
+                            pickedToday: filters['pickedToday'],
+                            organic: filters['organic'],
+                            minRating: filters['minRating'],
+                          );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Filters applied: $filters')),
                       );
@@ -94,7 +93,10 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                 ),
                 // --- Filter Chips Row ---
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 4.0,
+                  ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -103,39 +105,43 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                           label: const Text('Organic'),
                           selected: ref.watch(productsProvider).organic == true,
                           onSelected: (selected) {
-                            ref.read(productsProvider.notifier).filterProducts(
-                              organic: selected,
-                            );
+                            ref
+                                .read(productsProvider.notifier)
+                                .filterProducts(organic: selected);
                           },
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
                           label: const Text('On Sale'),
-                          selected: ref.watch(productsProvider).onlyOnSale == true,
+                          selected:
+                              ref.watch(productsProvider).onlyOnSale == true,
                           onSelected: (selected) {
-                            ref.read(productsProvider.notifier).filterProducts(
-                              onlyOnSale: selected,
-                            );
+                            ref
+                                .read(productsProvider.notifier)
+                                .filterProducts(onlyOnSale: selected);
                           },
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
                           label: const Text('New Arrival'),
-                          selected: ref.watch(productsProvider).onlyNewArrival == true,
+                          selected:
+                              ref.watch(productsProvider).onlyNewArrival ==
+                              true,
                           onSelected: (selected) {
-                            ref.read(productsProvider.notifier).filterProducts(
-                              onlyNewArrival: selected,
-                            );
+                            ref
+                                .read(productsProvider.notifier)
+                                .filterProducts(onlyNewArrival: selected);
                           },
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
                           label: const Text('Available'),
-                          selected: ref.watch(productsProvider).onlyAvailable == true,
+                          selected:
+                              ref.watch(productsProvider).onlyAvailable == true,
                           onSelected: (selected) {
-                            ref.read(productsProvider.notifier).filterProducts(
-                              onlyAvailable: selected,
-                            );
+                            ref
+                                .read(productsProvider.notifier)
+                                .filterProducts(onlyAvailable: selected);
                           },
                         ),
                       ],
@@ -144,7 +150,10 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                 ),
                 // --- Price Range Slider ---
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
                   child: Row(
                     children: [
                       const Text('Price Range:'),
@@ -154,11 +163,12 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                           max: 1000,
                           divisions: 20,
                           value: ref.watch(productsProvider).minPrice ?? 100,
-                          label: 'R${ref.watch(productsProvider).minPrice?.toInt() ?? 100}',
+                          label:
+                              'R${ref.watch(productsProvider).minPrice?.toInt() ?? 100}',
                           onChanged: (value) {
-                            ref.read(productsProvider.notifier).filterProducts(
-                              minPrice: value,
-                            );
+                            ref
+                                .read(productsProvider.notifier)
+                                .filterProducts(minPrice: value);
                           },
                         ),
                       ),
@@ -168,10 +178,16 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ElevatedButton.icon(
-                    icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-                    label: Text(isFavorite ? 'Unfavorite Farm' : 'Favorite Farm'),
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                    ),
+                    label: Text(
+                      isFavorite ? 'Unfavorite Farm' : 'Favorite Farm',
+                    ),
                     onPressed: () {
-                      final updated = List<String>.from(userState.user.favoriteFarmIds);
+                      final updated = List<String>.from(
+                        userState.user.favoriteFarmIds,
+                      );
                       if (isFavorite) {
                         updated.remove(widget.farm.id);
                       } else {
@@ -179,7 +195,13 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                       }
                       userNotifier.updateFavoriteFarms(updated);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(isFavorite ? 'Removed from favorites' : 'Added to favorites')),
+                        SnackBar(
+                          content: Text(
+                            isFavorite
+                                ? 'Removed from favorites'
+                                : 'Added to favorites',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -189,20 +211,31 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Rate & Review This Farm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      const Text(
+                        'Rate & Review This Farm',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Row(
-                        children: List.generate(5, (index) => GestureDetector(
-                          child: Icon(
-                            index < _selectedRating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
+                        children: List.generate(
+                          5,
+                          (index) => GestureDetector(
+                            child: Icon(
+                              index < _selectedRating
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _selectedRating = index + 1;
+                              });
+                            },
                           ),
-                          onTap: () {
-                            setState(() {
-                              _selectedRating = index + 1;
-                            });
-                          },
-                        )),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       TextField(
@@ -226,14 +259,18 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                         icon: const Icon(Icons.photo_camera),
                         label: const Text('Upload Photo'),
                         onPressed: () async {
-                          final image = await _picker.pickImage(source: ImageSource.gallery);
+                          final image = await _picker.pickImage(
+                            source: ImageSource.gallery,
+                          );
                           if (!mounted) return;
                           if (image != null) {
                             setState(() {
                               _pickedImage = image;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Photo selected for review!')),
+                              const SnackBar(
+                                content: Text('Photo selected for review!'),
+                              ),
                             );
                           }
                         },
@@ -247,18 +284,26 @@ class _FarmProductsScreenState extends ConsumerState<FarmProductsScreen> {
                           final imagePath = _pickedImage?.path;
                           if (rating == 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Please select a rating.')),
+                              const SnackBar(
+                                content: Text('Please select a rating.'),
+                              ),
                             );
                             return;
                           }
                           if (comment.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Please enter a comment.')),
+                              const SnackBar(
+                                content: Text('Please enter a comment.'),
+                              ),
                             );
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Review submitted!\nRating: $rating\nComment: $comment${imagePath != null ? '\nPhoto attached' : ''}')),
+                            SnackBar(
+                              content: Text(
+                                'Review submitted!\nRating: $rating\nComment: $comment${imagePath != null ? '\nPhoto attached' : ''}',
+                              ),
+                            ),
                           );
                           setState(() {
                             _selectedRating = 0;

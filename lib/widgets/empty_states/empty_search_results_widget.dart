@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-
 class EmptySearchResultsWidget extends StatelessWidget {
   const EmptySearchResultsWidget({super.key});
 
@@ -17,7 +16,10 @@ class EmptySearchResultsWidget extends StatelessWidget {
             repeat: true,
           ),
           const SizedBox(height: 16),
-          Text('No Results Found', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'No Results Found',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           const Text(
             'Try a different search or check your spelling. You can also browse our categories!',

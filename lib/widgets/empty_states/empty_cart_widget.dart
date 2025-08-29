@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-
 class EmptyCartWidget extends StatelessWidget {
-  const EmptyCartWidget({super.key});
+  const EmptyCartWidget({super.key, required String titleText});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +16,10 @@ class EmptyCartWidget extends StatelessWidget {
             repeat: true,
           ),
           const SizedBox(height: 16),
-          Text('Your cart is empty!', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Your cart is empty!',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           const Text(
             'Find something fresh to add. Browse our products and fill your cart with farm goodness!',

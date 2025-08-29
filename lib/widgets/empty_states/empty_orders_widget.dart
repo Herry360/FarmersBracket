@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-
 class EmptyOrdersWidget extends StatelessWidget {
-  const EmptyOrdersWidget({super.key});
+  const EmptyOrdersWidget({super.key, required Null Function() onActionPressed, required String subtitle, required String heading});
 
   @override
   Widget build(BuildContext context) {

@@ -35,9 +35,7 @@ class _AddressCardState extends State<AddressCard> {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -68,7 +66,7 @@ class _AddressCardState extends State<AddressCard> {
               ],
             ),
             const SizedBox(height: 8),
-            
+
             if (_isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
@@ -92,21 +90,35 @@ class _AddressCardState extends State<AddressCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_address?['full_name'] != null) 
-                    Text(_address!['full_name'], style: theme.textTheme.bodyLarge),
+                  if (_address?['full_name'] != null)
+                    Text(
+                      _address!['full_name'],
+                      style: theme.textTheme.bodyLarge,
+                    ),
                   const SizedBox(height: 4),
-                  if (_address?['street_address'] != null) 
-                    Text(_address!['street_address'], style: theme.textTheme.bodyMedium),
-                  if (_address?['apartment'] != null) 
-                    Text(_address!['apartment']!, style: theme.textTheme.bodyMedium),
-                  if (_address?['city'] != null && _address?['postal_code'] != null)
-                    Text('${_address!['city']}, ${_address!['postal_code']}', 
-                         style: theme.textTheme.bodyMedium),
+                  if (_address?['street_address'] != null)
+                    Text(
+                      _address!['street_address'],
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  if (_address?['apartment'] != null)
+                    Text(
+                      _address!['apartment']!,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  if (_address?['city'] != null &&
+                      _address?['postal_code'] != null)
+                    Text(
+                      '${_address!['city']}, ${_address!['postal_code']}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                   Text('Mpumalanga', style: theme.textTheme.bodyMedium),
                   const SizedBox(height: 8),
                   if (_address?['phone_number'] != null)
-                    Text('Phone: ${_address!['phone_number']}', 
-                         style: theme.textTheme.bodyMedium),
+                    Text(
+                      'Phone: ${_address!['phone_number']}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                 ],
               ),
           ],

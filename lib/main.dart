@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Providers
 import 'providers/theme_data_provider.dart';
@@ -10,7 +11,7 @@ import 'providers/onboarding_complete_provider.dart';
 
 // Routes
 import 'routes/app_routes.dart';
-import 'routes/navigation_analytics_observer.dart'; // Importing NavigationAnalyticsObserver
+import 'routes/navigation_analytics_observer.dart';
 
 // Screens
 import 'screens/welcome_screen.dart';
@@ -22,31 +23,31 @@ void main() async {
 
   // Initialize Hive
   await Hive.initFlutter();
-  // ...existing code...
   await Hive.openBox('cart');
   await Hive.openBox('favorites');
   await Hive.openBox('settings');
 
-  // ...existing code...
+  // Check if it's the first launch
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
 
-  runApp(
-    const ProviderScope(
-      child: FarmBracketApp(),
-    ),
-  );
+  runApp(ProviderScope(child: FarmBracketApp(isFirstLaunch: isFirstLaunch)));
 }
 
 class FarmBracketApp extends ConsumerWidget {
-  const FarmBracketApp({super.key});
-
+  final bool isFirstLaunch;
+  const FarmBracketApp({super.key, required this.isFirstLaunch});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = ref.watch(themeDataProvider);
     final themeMode = ref.watch(themeModeProvider).themeMode;
     final locale = ref.watch(languageProvider).currentLocale;
-
     final onboardingComplete = ref.watch(onboardingCompleteProvider);
+
+    // If first launch, show onboarding regardless of onboardingComplete
+    final showOnboarding = isFirstLaunch || !onboardingComplete;
+
     return MaterialApp(
       title: 'FarmBracket',
       debugShowCheckedModeBanner: false,
@@ -66,10 +67,19 @@ class FarmBracketApp extends ConsumerWidget {
       },
       onGenerateRoute: AppRoutes.onGenerateRoute,
       navigatorObservers: [NavigationAnalyticsObserver()],
-      home: onboardingComplete
-          ? PopScope(
+      home: showOnboarding
+          ? OnboardingFlow(
+              onComplete: () async {
+                ref
+                    .read(onboardingCompleteProvider.notifier)
+                    .completeOnboarding();
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isFirstLaunch', false);
+              },
+            )
+          : PopScope(
               canPop: true,
-              onPopInvoked: (didPop) {},
+              onPopInvokedWithResult: (didPop, result) {},
               child: Builder(
                 builder: (context) => Scaffold(
                   body: const WelcomeScreen(),
@@ -82,10 +92,7 @@ class FarmBracketApp extends ConsumerWidget {
                   ),
                 ),
               ),
-            )
-          : OnboardingFlow(onComplete: () {
-              ref.read(onboardingCompleteProvider.notifier).completeOnboarding();
-            }),
+            ),
     );
   }
 }

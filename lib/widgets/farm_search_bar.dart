@@ -16,7 +16,7 @@ class FarmSearchBar extends StatefulWidget {
     this.onSubmitted,
     this.debounceDuration = const Duration(milliseconds: 300),
     this.hintText = 'Search farms...',
-    this.autofocus = false,
+    this.autofocus = false, required TextEditingController controller, required void Function() onClear,
   });
 
   @override
@@ -65,7 +65,7 @@ class _FarmSearchBarState extends State<FarmSearchBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return TextField(
       controller: _controller,
       onChanged: _onSearchChanged,
@@ -87,7 +87,10 @@ class _FarmSearchBarState extends State<FarmSearchBar> {
         ),
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest.withAlpha(128),
-        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 16,
+        ),
         isDense: true,
         constraints: const BoxConstraints(minHeight: 48),
       ),

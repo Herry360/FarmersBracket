@@ -9,7 +9,8 @@ class ReviewsState {
 }
 
 class ReviewsNotifier extends StateNotifier<ReviewsState> {
-  ReviewsNotifier() : super(ReviewsState(reviews: [], isLoading: false, error: null));
+  ReviewsNotifier()
+    : super(ReviewsState(reviews: [], isLoading: false, error: null));
 
   Future<void> loadReviews(String targetId, String targetType) async {
     state = ReviewsState(reviews: state.reviews, isLoading: true, error: null);
@@ -24,6 +25,8 @@ class ReviewsNotifier extends StateNotifier<ReviewsState> {
   }
 }
 
-final reviewsProvider = StateNotifierProvider<ReviewsNotifier, ReviewsState>((ref) {
+final reviewsProvider = StateNotifierProvider<ReviewsNotifier, ReviewsState>((
+  ref,
+) {
   return ReviewsNotifier();
 });

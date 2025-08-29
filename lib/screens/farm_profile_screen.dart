@@ -5,7 +5,7 @@ import '../providers/products_provider.dart';
 
 class FarmProfileScreen extends ConsumerStatefulWidget {
   final String farmId;
-  const FarmProfileScreen({Key? key, required this.farmId}) : super(key: key);
+  const FarmProfileScreen({super.key, required this.farmId});
 
   @override
   ConsumerState<FarmProfileScreen> createState() => _FarmProfileScreenState();
@@ -71,17 +71,28 @@ class _FarmProfileScreenState extends ConsumerState<FarmProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Farm Story', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Farm Story',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Text(farm?.story ?? ''),
             const SizedBox(height: 16),
-            const Text('Practices', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Practices',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             Wrap(
               spacing: 8,
-              children: farm?.practices.map((p) => Chip(label: Text(p))).toList() ?? [],
+              children:
+                  farm?.practices.map((p) => Chip(label: Text(p))).toList() ??
+                  [],
             ),
             const SizedBox(height: 16),
-            const Text('Gallery', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Gallery',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             SizedBox(
               height: 120,
@@ -92,18 +103,29 @@ class _FarmProfileScreenState extends ConsumerState<FarmProfileScreen> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(farm?.images[i] ?? '', width: 120, height: 120, fit: BoxFit.cover),
+                    child: Image.network(
+                      farm?.images[i] ?? '',
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Products',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.8,
+              ),
               itemCount: products.length,
               itemBuilder: (context, i) {
                 final p = products[i];
@@ -111,23 +133,42 @@ class _FarmProfileScreenState extends ConsumerState<FarmProfileScreen> {
                   elevation: 2,
                   child: InkWell(
                     onTap: () {
-                      Navigator.pushNamed(context, '/productDetail', arguments: p.id);
+                      Navigator.pushNamed(
+                        context,
+                        '/productDetail',
+                        arguments: p.id,
+                      );
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                          child: Image.network(p.imageUrl, height: 90, width: double.infinity, fit: BoxFit.cover),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(8),
+                          ),
+                          child: Image.network(
+                            p.imageUrl,
+                            height: 90,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                p.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 4),
-                              Text(p.description, style: const TextStyle(fontSize: 12)),
+                              Text(
+                                p.description,
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ],
                           ),
                         ),

@@ -6,10 +6,8 @@ class CustomImageWidget extends StatelessWidget {
   final double width;
   final double height;
   final BoxFit fit;
-
-  /// Optional widget to show when the image fails to load.
-  /// If null, a default asset image is shown.
   final Widget? errorWidget;
+  final String semanticLabel;
 
   const CustomImageWidget({
     super.key,
@@ -18,18 +16,27 @@ class CustomImageWidget extends StatelessWidget {
     this.height = 60,
     this.fit = BoxFit.cover,
     this.errorWidget,
+    this.semanticLabel = '',
   });
 
   @override
   Widget build(BuildContext context) {
+    final String url =
+        imageUrl ??
+        'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop';
+
     return CachedNetworkImage(
-      imageUrl: imageUrl ??
-          'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop',
+      imageUrl: url,
       width: width,
       height: height,
       fit: fit,
-
-      // Use caller-supplied widget if provided, else fallback asset.
+      imageBuilder: (context, imageProvider) => Image(
+        image: imageProvider,
+        width: width,
+        height: height,
+        fit: fit,
+        semanticLabel: semanticLabel,
+      ),
       errorWidget: (context, url, error) =>
           errorWidget ??
           Image.asset(
@@ -37,8 +44,8 @@ class CustomImageWidget extends StatelessWidget {
             fit: fit,
             width: width,
             height: height,
+            semanticLabel: semanticLabel,
           ),
-
       placeholder: (context, url) => Container(
         width: width,
         height: height,

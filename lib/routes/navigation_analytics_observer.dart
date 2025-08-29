@@ -23,6 +23,8 @@ class NavigationAnalyticsObserver extends NavigatorObserver {
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    debugPrint('Navigation: replaced ${oldRoute?.settings.name} with ${newRoute?.settings.name}');
+    debugPrint(
+      'Navigation: replaced ${oldRoute?.settings.name} with ${newRoute?.settings.name}',
+    );
   }
 }

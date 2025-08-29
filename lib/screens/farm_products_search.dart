@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/farm_model.dart';
 import '../widgets/product_card.dart';
 
 class FarmProductsSearch extends StatefulWidget {
@@ -47,10 +46,10 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
     String query = _searchController.text.toLowerCase();
     setState(() {
       _filteredProducts = _allProducts.where((product) {
-        final matchesCategory = _selectedCategory == 'All' ||
+        final matchesCategory =
+            _selectedCategory == 'All' ||
             product['category'] == _selectedCategory;
-        final matchesQuery =
-            product['name'].toLowerCase().contains(query);
+        final matchesQuery = product['name'].toLowerCase().contains(query);
         return matchesCategory && matchesQuery;
       }).toList();
     });
@@ -94,10 +93,7 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Semantics(
-                label: 'Search products',
-                child: _buildSearchBar(),
-              ),
+              Semantics(label: 'Search products', child: _buildSearchBar()),
               const SizedBox(height: 12),
               Semantics(
                 label: 'Category dropdown',
@@ -137,10 +133,7 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
         DropdownButton<String>(
           value: _selectedCategory,
           items: categories
-              .map((cat) => DropdownMenuItem(
-                    value: cat,
-                    child: Text(cat),
-                  ))
+              .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
               .toList(),
           onChanged: _onCategoryChanged,
         ),
@@ -156,7 +149,10 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
           children: [
             Icon(Icons.search_off, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text('No products found.', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            Text(
+              'No products found.',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
           ],
         ),
       );
@@ -187,7 +183,12 @@ class _FarmProductsSearchState extends State<FarmProductsSearch> {
           createdAt: null,
           updatedAt: null,
           isOutOfSeason: false,
-          title: p['name'] ?? '', isOnSale: false, isNewArrival: false, certification: '', latitude: p['latitude']?.toDouble(), longitude: p['longitude']?.toDouble(),
+          title: p['name'] ?? '',
+          isOnSale: false,
+          isNewArrival: false,
+          certification: '',
+          latitude: p['latitude']?.toDouble(),
+          longitude: p['longitude']?.toDouble(),
         );
         return Semantics(
           label: 'Product card for ${product.name}',

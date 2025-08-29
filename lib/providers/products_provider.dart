@@ -1,8 +1,8 @@
+import 'package:farm_bracket/models/product.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/farm_model.dart';
 
 final productsProvider = ChangeNotifierProvider<ProductsProvider>((ref) {
   // final supabase = Supabase.instance.client;
@@ -13,6 +13,14 @@ final productsProvider = ChangeNotifierProvider<ProductsProvider>((ref) {
 // Product model is now unified in models/farm_model.dart
 
 class ProductsProvider with ChangeNotifier {
+  String _selectedSort = 'Relevance';
+  String get selectedSort => _selectedSort;
+  void setSort(String sort) {
+    _selectedSort = sort;
+    _applyFilters();
+    notifyListeners();
+  }
+
   // Public getters for filter state
   bool? get organic => _organic;
   bool? get onlyAvailable => _onlyAvailable;
@@ -69,35 +77,38 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
     try {
       // Populate with 10 placeholder products for UI testing
-      _products = List.generate(10, (i) => Product(
-        id: 'prod_$i',
-        name: 'Product $i',
-        description: 'Description for product $i',
-        price: 10.0 + i,
-        imageUrl: '',
-        images: [],
-        farmId: 'farm_${i % 3}',
-        farmName: 'Farm ${i % 3}',
-        category: i % 2 == 0 ? 'fruits' : 'vegetables',
-        unit: 'kg',
-        isOrganic: i % 2 == 0,
-        isFeatured: i % 3 == 0,
-        isSeasonal: i % 2 == 1,
-        isOnSale: i % 4 == 0,
-        isNewArrival: i % 5 == 0,
-        rating: 3.5 + (i % 5),
-        reviewCount: i * 2,
-        harvestDate: DateTime.now().subtract(Duration(days: i * 3)),
-        stock: 10 + i,
-        createdAt: DateTime.now().subtract(Duration(days: i * 2)),
-        updatedAt: DateTime.now(),
-        isOutOfSeason: false,
-        title: 'Product $i',
-        certification: i % 2 == 0 ? 'Certified' : '',
-        latitude: -25.0 + i,
-        longitude: 30.0 + i,
-        quantity: 1,
-      ));
+      _products = List.generate(
+        10,
+        (i) => Product(
+          id: 'prod_$i',
+          name: 'Product $i',
+          description: 'Description for product $i',
+          price: 10.0 + i,
+          imageUrl: '',
+          images: [],
+          farmId: 'farm_${i % 3}',
+          farmName: 'Farm ${i % 3}',
+          category: i % 2 == 0 ? 'fruits' : 'vegetables',
+          unit: 'kg',
+          isOrganic: i % 2 == 0,
+          isFeatured: i % 3 == 0,
+          isSeasonal: i % 2 == 1,
+          isOnSale: i % 4 == 0,
+          isNewArrival: i % 5 == 0,
+          rating: 3.5 + (i % 5),
+          reviewCount: i * 2,
+          harvestDate: DateTime.now().subtract(Duration(days: i * 3)),
+          stock: 10 + i,
+          createdAt: DateTime.now().subtract(Duration(days: i * 2)),
+          updatedAt: DateTime.now(),
+          isOutOfSeason: false,
+          title: 'Product $i',
+          certification: i % 2 == 0 ? 'Certified' : '',
+          latitude: -25.0 + i,
+          longitude: 30.0 + i,
+          quantity: 1, stockQuantity: 0, farmerId: '', isAvailable: true,
+        ),
+      );
       _applyFilters();
     } catch (e) {
       _error = 'Error loading products: $e';
@@ -108,37 +119,100 @@ class ProductsProvider with ChangeNotifier {
   }
 
   void filterByCategory(String category) {
-  _selectedCategory = category;
-  _applyFilters();
-  notifyListeners();
+    _selectedCategory = category;
+    _applyFilters();
+    notifyListeners();
   }
 
   void searchProducts(String query) {
-  _searchQuery = query.toLowerCase();
-  _applyFilters();
-  notifyListeners();
+    _searchQuery = query.toLowerCase();
+    _applyFilters();
+    notifyListeners();
   }
 
   void _applyFilters() {
     _filteredProducts = _products.where((product) {
-      final matchesCategory = _selectedCategories.isEmpty || _selectedCategories.contains(product.category);
-      final matchesTags = _selectedTags.isEmpty || (_selectedTags.any((tag) => product.title.toLowerCase().contains(tag.toLowerCase())));
-      final matchesFarms = _selectedFarms.isEmpty || _selectedFarms.contains(product.farmName);
-      final matchesPickedToday = _pickedToday == null || (_pickedToday == true ? (product.harvestDate != null && product.harvestDate!.difference(DateTime.now()).inDays == 0) : true);
-      final matchesOrganic = _organic == null || (_organic == true ? product.isOrganic : true);
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesCategory =
+          _selectedCategories.isEmpty ||
+          _selectedCategories.contains(product.category);
+      final matchesTags =
+          _selectedTags.isEmpty ||
+          (_selectedTags.any(
+            (tag) => product.name.toLowerCase().contains(tag.toLowerCase()),
+          ));
+      final matchesFarms =
+          _selectedFarms.isEmpty || _selectedFarms.contains(product.farmId);
+      final matchesPickedToday =
+          _pickedToday == null ||
+          (_pickedToday == true
+              ? (product.harvestDate != null &&
+                    product.harvestDate!.difference(DateTime.now()).inDays == 0)
+              : true);
+      final matchesOrganic =
+          _organic == null || (_organic == true ? product.isOrganic : true);
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           product.name.toLowerCase().contains(_searchQuery) ||
           product.description.toLowerCase().contains(_searchQuery) ||
           product.farmName.toLowerCase().contains(_searchQuery);
-      final matchesPrice = (_minPrice == null || product.price >= _minPrice!) && (_maxPrice == null || product.price <= _maxPrice!);
-      final matchesCertification = _certification == null || product.certification == _certification;
-      final matchesAvailability = _onlyAvailable == null || (_onlyAvailable == true ? product.stock > 0 : true);
-      final matchesSale = _onlyOnSale == null || (_onlyOnSale == true ? product.isOnSale : true);
-      final matchesNewArrival = _onlyNewArrival == null || (_onlyNewArrival == true ? product.isNewArrival : true);
+      final matchesPrice =
+          (_minPrice == null || product.price >= _minPrice!) &&
+          (_maxPrice == null || product.price <= _maxPrice!);
+      final matchesCertification =
+          _certification == null || product.certification == _certification;
+      final matchesAvailability =
+          _onlyAvailable == null ||
+          (_onlyAvailable == true ? product.stock > 0 : true);
+      final matchesSale =
+          _onlyOnSale == null ||
+          (_onlyOnSale == true ? product.isOnSale : true);
+      final matchesNewArrival =
+          _onlyNewArrival == null ||
+          (_onlyNewArrival == true ? product.isNewArrival : true);
       final matchesRating = _minRating == null || product.rating >= _minRating!;
-      final matchesDistance = (_maxDistanceKm == null || _userLatitude == null || _userLongitude == null) ? true : _distanceKm(_userLatitude!, _userLongitude!, product.latitude, product.longitude) <= _maxDistanceKm!;
-      return matchesCategory && matchesTags && matchesFarms && matchesPickedToday && matchesOrganic && matchesSearch && matchesPrice && matchesCertification && matchesAvailability && matchesSale && matchesNewArrival && matchesRating && matchesDistance;
+      final matchesDistance =
+          (_maxDistanceKm == null ||
+              _userLatitude == null ||
+              _userLongitude == null)
+          ? true
+          : _distanceKm(
+                  _userLatitude!,
+                  _userLongitude!,
+                  product.latitude,
+                  product.longitude,
+                ) <=
+                _maxDistanceKm!;
+      return matchesCategory &&
+          matchesTags &&
+          matchesFarms &&
+          matchesPickedToday &&
+          matchesOrganic &&
+          matchesSearch &&
+          matchesPrice &&
+          matchesCertification &&
+          matchesAvailability &&
+          matchesSale &&
+          matchesNewArrival &&
+          matchesRating &&
+          matchesDistance;
     }).toList();
+    // Sort logic
+    switch (_selectedSort) {
+      case 'Price':
+        _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case 'Date':
+        _filteredProducts.sort((a, b) {
+          final aDate = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDate = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return bDate.compareTo(aDate);
+        });
+        break;
+      case 'Relevance':
+      default:
+        // No-op or custom relevance logic
+        break;
+    }
   }
 
   double _distanceKm(double lat1, double lon1, double lat2, double lon2) {
@@ -146,7 +220,10 @@ class ProductsProvider with ChangeNotifier {
     final dLat = _deg2rad(lat2 - lat1);
     final dLon = _deg2rad(lon2 - lon1);
     final a =
-        (sin(dLat / 2) * sin(dLat / 2)) + cos(_deg2rad(lat1)) * cos(_deg2rad(lat2)) * (sin(dLon / 2) * sin(dLon / 2));
+        (sin(dLat / 2) * sin(dLat / 2)) +
+        cos(_deg2rad(lat1)) *
+            cos(_deg2rad(lat2)) *
+            (sin(dLon / 2) * sin(dLon / 2));
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c;
   }
@@ -160,31 +237,37 @@ class ProductsProvider with ChangeNotifier {
     _applyFilters();
     notifyListeners();
   }
+
   void setCertification(String? cert) {
     _certification = cert;
     _applyFilters();
     notifyListeners();
   }
+
   void setAvailability(bool? onlyAvailable) {
     _onlyAvailable = onlyAvailable;
     _applyFilters();
     notifyListeners();
   }
+
   void setSale(bool? onlyOnSale) {
     _onlyOnSale = onlyOnSale;
     _applyFilters();
     notifyListeners();
   }
+
   void setNewArrival(bool? onlyNewArrival) {
     _onlyNewArrival = onlyNewArrival;
     _applyFilters();
     notifyListeners();
   }
+
   void setMinRating(double? minRating) {
     _minRating = minRating;
     _applyFilters();
     notifyListeners();
   }
+
   void setLocation(double? userLat, double? userLon, double? maxDistanceKm) {
     _userLatitude = userLat;
     _userLongitude = userLon;
@@ -250,4 +333,3 @@ class ProductsProvider with ChangeNotifier {
     }).toList();
   }
 }
-

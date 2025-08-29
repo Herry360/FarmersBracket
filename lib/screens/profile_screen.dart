@@ -14,26 +14,43 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _firstNameController = TextEditingController(text: 'Collen');
-  final TextEditingController _lastNameController = TextEditingController(text: 'Siyabonga');
-  final TextEditingController _emailController = TextEditingController(text: 'collen@example.com');
-  final TextEditingController _phoneController = TextEditingController(text: '081 234 5678');
+  final TextEditingController _firstNameController = TextEditingController(
+    text: 'Collen',
+  );
+  final TextEditingController _lastNameController = TextEditingController(
+    text: 'Siyabonga',
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: 'collen@example.com',
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: '081 234 5678',
+  );
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _idNumberController = TextEditingController();
   final TextEditingController _homeAddressController = TextEditingController();
-  final TextEditingController _businessAddressController = TextEditingController();
-  final TextEditingController _preferredNameController = TextEditingController();
-  final TextEditingController _emergencyContactController = TextEditingController();
-  final TextEditingController _loyaltyNumberController = TextEditingController();
-  
+  final TextEditingController _businessAddressController =
+      TextEditingController();
+  final TextEditingController _preferredNameController =
+      TextEditingController();
+  final TextEditingController _emergencyContactController =
+      TextEditingController();
+  final TextEditingController _loyaltyNumberController =
+      TextEditingController();
+
   File? _profileImage;
   bool _isLoading = false;
   bool _isEditing = false;
   DateTime? _selectedDob;
   String? _selectedGender;
 
-  final List<String> _genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+  final List<String> _genders = [
+    'Male',
+    'Female',
+    'Other',
+    'Prefer not to say',
+  ];
 
   final ImagePickerService _imagePickerService = ImagePickerService();
 
@@ -44,13 +61,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _profileImage = File(pickedPath);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile image updated!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile image updated!')));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -73,10 +93,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      
+
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile saved successfully')),
@@ -103,8 +123,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           if (_isEditing)
             TextButton(
-              onPressed: _isLoading ? null : () => setState(() => _isEditing = false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+              onPressed: _isLoading
+                  ? null
+                  : () => setState(() => _isEditing = false),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
         ],
       ),
@@ -138,7 +163,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             shape: BoxShape.circle,
                             color: Colors.blue,
                           ),
-                          child: const Icon(Icons.camera_alt, size: 24, color: Colors.white),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 24,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -148,16 +177,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Personal Information Section
-            const Text('Personal Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Personal Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            
+
             Row(
               children: [
                 Expanded(
                   child: _buildEditableField(
                     label: 'First Name',
                     controller: _firstNameController,
-                    validator: (value) => value?.isEmpty ?? true ? 'Please enter first name' : null,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter first name'
+                        : null,
                     isEditing: _isEditing,
                   ),
                 ),
@@ -166,27 +200,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: _buildEditableField(
                     label: 'Last Name',
                     controller: _lastNameController,
-                    validator: (value) => value?.isEmpty ?? true ? 'Please enter last name' : null,
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter last name'
+                        : null,
                     isEditing: _isEditing,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             _buildEditableField(
               label: 'Preferred Name (Optional)',
               controller: _preferredNameController,
               isEditing: _isEditing,
             ),
             const SizedBox(height: 12),
-            
+
             _buildEditableField(
               label: 'Email Address',
               controller: _emailController,
               validator: (value) {
                 if (value?.isEmpty ?? true) return 'Please enter your email';
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value!)) {
                   return 'Please enter a valid email';
                 }
                 return null;
@@ -195,21 +233,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 12),
-            
+
             _buildEditableField(
               label: 'Phone Number',
               controller: _phoneController,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter your phone number' : null,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter your phone number'
+                  : null,
               isEditing: _isEditing,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 12),
-            
+
             if (_isEditing)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Date of Birth', style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    'Date of Birth',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   InkWell(
                     onTap: () => _selectDate(context),
                     child: IgnorePointer(
@@ -219,7 +262,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           suffixIcon: Icon(Icons.calendar_today),
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) => value?.isEmpty ?? true ? 'Please select date of birth' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Please select date of birth'
+                            : null,
                       ),
                     ),
                   ),
@@ -227,11 +272,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
             else
               ListTile(
-                title: const Text('Date of Birth', style: TextStyle(color: Colors.grey)),
-                subtitle: Text(_dobController.text.isEmpty ? 'Not provided' : _dobController.text),
+                title: const Text(
+                  'Date of Birth',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                subtitle: Text(
+                  _dobController.text.isEmpty
+                      ? 'Not provided'
+                      : _dobController.text,
+                ),
               ),
             const SizedBox(height: 12),
-            
+
             if (_isEditing)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,36 +312,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
             else
               ListTile(
-                title: const Text('Gender', style: TextStyle(color: Colors.grey)),
-                subtitle: Text(_genderController.text.isEmpty ? 'Not specified' : _genderController.text),
+                title: const Text(
+                  'Gender',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                subtitle: Text(
+                  _genderController.text.isEmpty
+                      ? 'Not specified'
+                      : _genderController.text,
+                ),
               ),
             const SizedBox(height: 24),
 
             // Identification Section
-            const Text('Identification', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Identification',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            
+
             _buildEditableField(
               label: 'ID/Passport Number',
               controller: _idNumberController,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter ID number' : null,
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter ID number' : null,
               isEditing: _isEditing,
             ),
             const SizedBox(height: 24),
 
             // Address Section
-            const Text('Address Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Address Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            
+
             _buildEditableField(
               label: 'Home Address',
               controller: _homeAddressController,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter home address' : null,
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Please enter home address' : null,
               isEditing: _isEditing,
               maxLines: 3,
             ),
             const SizedBox(height: 12),
-            
+
             _buildEditableField(
               label: 'Business Address (Optional)',
               controller: _businessAddressController,
@@ -299,19 +366,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Emergency Contact Section
-            const Text('Emergency Contact', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Emergency Contact',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            
+
             _buildEditableField(
               label: 'Emergency Contact Name & Number',
               controller: _emergencyContactController,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter emergency contact' : null,
+              validator: (value) => value?.isEmpty ?? true
+                  ? 'Please enter emergency contact'
+                  : null,
               isEditing: _isEditing,
             ),
             const SizedBox(height: 24),
 
             // Loyalty Program Section
-            const Text('Loyalty Program', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Loyalty Program',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             _buildEditableField(
               label: 'Loyalty Card Number',
@@ -322,7 +397,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Communication Preferences
-            const Text('Communication Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Communication Preferences',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             _buildEditableField(
               label: 'Preferred Communication Methods (e.g. Email, SMS)',
@@ -332,7 +410,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Dietary Preferences
-            const Text('Dietary Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Dietary Preferences',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             _buildEditableField(
               label: 'Dietary Preferences (e.g. Vegan, Halal)',
@@ -342,7 +423,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Allergies
-            const Text('Allergies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Allergies',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             _buildEditableField(
               label: 'Allergies (e.g. Nuts, Dairy)',
@@ -352,7 +436,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Favorite Farms
-            const Text('Favorite Farms', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Favorite Farms',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             _buildEditableField(
               label: 'Favorite Farm IDs (comma separated)',
@@ -383,7 +470,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -427,7 +517,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           )
         : ListTile(
             title: Text(label, style: const TextStyle(color: Colors.grey)),
-            subtitle: Text(controller.text.isEmpty ? 'Not provided' : controller.text),
+            subtitle: Text(
+              controller.text.isEmpty ? 'Not provided' : controller.text,
+            ),
           );
   }
 }

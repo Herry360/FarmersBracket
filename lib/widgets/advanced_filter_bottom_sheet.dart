@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 class AdvancedFilterBottomSheet extends StatefulWidget {
   final Function(Map<String, dynamic>) onApply;
-  const AdvancedFilterBottomSheet({Key? key, required this.onApply}) : super(key: key);
+  const AdvancedFilterBottomSheet({super.key, required this.onApply});
 
   @override
-  State<AdvancedFilterBottomSheet> createState() => _AdvancedFilterBottomSheetState();
+  State<AdvancedFilterBottomSheet> createState() =>
+      _AdvancedFilterBottomSheetState();
 }
 
 class _AdvancedFilterBottomSheetState extends State<AdvancedFilterBottomSheet> {
@@ -17,8 +18,20 @@ class _AdvancedFilterBottomSheetState extends State<AdvancedFilterBottomSheet> {
   List<String> selectedCategories = [];
   List<String> selectedTags = [];
   int minRating = 0;
-  final List<String> allCategories = ['Fruits', 'Vegetables', 'Dairy', 'Grains', 'Meat'];
-  final List<String> allTags = ['Organic', 'Local', 'Discount', 'New', 'Best Seller'];
+  final List<String> allCategories = [
+    'Fruits',
+    'Vegetables',
+    'Dairy',
+    'Grains',
+    'Meat',
+  ];
+  final List<String> allTags = [
+    'Organic',
+    'Local',
+    'Discount',
+    'New',
+    'Best Seller',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -28,66 +41,91 @@ class _AdvancedFilterBottomSheetState extends State<AdvancedFilterBottomSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Filter Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Filter Products',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             const Text('Farm'),
             Wrap(
               spacing: 8,
               children: [
-                FilterChip(label: const Text('Sunnyvale'), selected: selectedFarms.contains('Sunnyvale'), onSelected: (v) {
-                  setState(() {
-                    v ? selectedFarms.add('Sunnyvale') : selectedFarms.remove('Sunnyvale');
-                  });
-                }),
-                FilterChip(label: const Text('Green Acres'), selected: selectedFarms.contains('Green Acres'), onSelected: (v) {
-                  setState(() {
-                    v ? selectedFarms.add('Green Acres') : selectedFarms.remove('Green Acres');
-                  });
-                }),
+                FilterChip(
+                  label: const Text('Sunnyvale'),
+                  selected: selectedFarms.contains('Sunnyvale'),
+                  onSelected: (v) {
+                    setState(() {
+                      v
+                          ? selectedFarms.add('Sunnyvale')
+                          : selectedFarms.remove('Sunnyvale');
+                    });
+                  },
+                ),
+                FilterChip(
+                  label: const Text('Green Acres'),
+                  selected: selectedFarms.contains('Green Acres'),
+                  onSelected: (v) {
+                    setState(() {
+                      v
+                          ? selectedFarms.add('Green Acres')
+                          : selectedFarms.remove('Green Acres');
+                    });
+                  },
+                ),
               ],
             ),
-              const SizedBox(height: 16),
-              const Text('Categories'),
-              Wrap(
-                spacing: 8,
-                children: allCategories.map((cat) => FilterChip(
-                  label: Text(cat),
-                  selected: selectedCategories.contains(cat),
-                  onSelected: (v) {
-                    setState(() {
-                      v ? selectedCategories.add(cat) : selectedCategories.remove(cat);
-                    });
-                  },
-                )).toList(),
-              ),
-              const SizedBox(height: 16),
-              const Text('Tags'),
-              Wrap(
-                spacing: 8,
-                children: allTags.map((tag) => FilterChip(
-                  label: Text(tag),
-                  selected: selectedTags.contains(tag),
-                  onSelected: (v) {
-                    setState(() {
-                      v ? selectedTags.add(tag) : selectedTags.remove(tag);
-                    });
-                  },
-                )).toList(),
-              ),
-              const SizedBox(height: 16),
-              const Text('Minimum Rating'),
-              Slider(
-                min: 0,
-                max: 5,
-                divisions: 5,
-                value: minRating.toDouble(),
-                label: minRating == 0 ? 'Any' : minRating.toString(),
-                onChanged: (v) {
-                  setState(() {
-                    minRating = v.toInt();
-                  });
-                },
-              ),
+            const SizedBox(height: 16),
+            const Text('Categories'),
+            Wrap(
+              spacing: 8,
+              children: allCategories
+                  .map(
+                    (cat) => FilterChip(
+                      label: Text(cat),
+                      selected: selectedCategories.contains(cat),
+                      onSelected: (v) {
+                        setState(() {
+                          v
+                              ? selectedCategories.add(cat)
+                              : selectedCategories.remove(cat);
+                        });
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 16),
+            const Text('Tags'),
+            Wrap(
+              spacing: 8,
+              children: allTags
+                  .map(
+                    (tag) => FilterChip(
+                      label: Text(tag),
+                      selected: selectedTags.contains(tag),
+                      onSelected: (v) {
+                        setState(() {
+                          v ? selectedTags.add(tag) : selectedTags.remove(tag);
+                        });
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 16),
+            const Text('Minimum Rating'),
+            Slider(
+              min: 0,
+              max: 5,
+              divisions: 5,
+              value: minRating.toDouble(),
+              label: minRating == 0 ? 'Any' : minRating.toString(),
+              onChanged: (v) {
+                setState(() {
+                  minRating = v.toInt();
+                });
+              },
+            ),
             const SizedBox(height: 16),
             SwitchListTile(
               title: const Text('Picked Today'),
@@ -105,7 +143,10 @@ class _AdvancedFilterBottomSheetState extends State<AdvancedFilterBottomSheet> {
               min: 0,
               max: 100,
               divisions: 20,
-              labels: RangeLabels('${minPrice.toInt()}', '${maxPrice.toInt()}'),
+              labels: RangeLabels(
+                '${minPrice.toInt()}',
+                '${maxPrice.toInt()}',
+              ),
               values: RangeValues(minPrice, maxPrice),
               onChanged: (values) {
                 setState(() {
@@ -129,7 +170,9 @@ class _AdvancedFilterBottomSheetState extends State<AdvancedFilterBottomSheet> {
                 });
                 Navigator.pop(context);
               },
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
               child: const Text('Apply'),
             ),
           ],

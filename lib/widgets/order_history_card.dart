@@ -62,7 +62,9 @@ class OrderCard extends StatelessWidget {
                   if (showStatus)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -94,18 +96,23 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildInfoSection(
-      BuildContext context, DateFormat dateFormat, DateFormat timeFormat) {
+    BuildContext context,
+    DateFormat dateFormat,
+    DateFormat timeFormat,
+  ) {
     return Column(
       children: [
         _buildInfoRow(
           icon: Icons.calendar_today_outlined,
-          text: '${dateFormat.format(order.date)} • ${timeFormat.format(order.date)}',
+          text:
+              '${dateFormat.format(order.date)} • ${timeFormat.format(order.date)}',
           context: context,
         ),
         const SizedBox(height: 8),
         _buildInfoRow(
           icon: Icons.shopping_bag_outlined,
-          text: '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
+          text:
+              '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
           context: context,
         ),
       ],
@@ -125,10 +132,7 @@ class OrderCard extends StatelessWidget {
           color: Theme.of(context).textTheme.bodySmall?.color,
         ),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(text, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -168,27 +172,31 @@ class OrderCard extends StatelessWidget {
             children: [
               Text(
                 firstItem.name,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 '${firstItem.quantity} × R${firstItem.price.toStringAsFixed(2)}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
             ],
-         ),
+          ),
         ),
         if (order.items.length > 1)
           Text(
             '+${order.items.length - 1} more',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
       ],
     );
@@ -198,15 +206,12 @@ class OrderCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Total',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text('Total', style: Theme.of(context).textTheme.bodyMedium),
         Text(
           'R${order.total.toStringAsFixed(2)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );

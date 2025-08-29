@@ -38,7 +38,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
       state = state.copyWith(isProcessing: true, error: null);
 
       final subtotal = cartItems.isNotEmpty
-          ? cartItems.fold<double>(0.0, (sum, item) => sum + item.totalPrice)
+          ? cartItems.fold<double>(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0))
           : 0.0;
       const shippingFee = 5.0;
       final tax = subtotal * 0.1;
@@ -70,10 +70,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
       // Clear cart using riverpod
       ref.read(cartProvider.notifier).clearCart();
 
-      state = state.copyWith(
-        isProcessing: false,
-        lastOrder: order,
-      );
+      state = state.copyWith(isProcessing: false, lastOrder: order);
     } catch (e) {
       state = state.copyWith(
         isProcessing: false,
@@ -89,17 +86,9 @@ class OrderState {
   final Order? lastOrder;
   final String? error;
 
-  OrderState({
-    this.isProcessing = false,
-    this.lastOrder,
-    this.error,
-  });
+  OrderState({this.isProcessing = false, this.lastOrder, this.error});
 
-  OrderState copyWith({
-    bool? isProcessing,
-    Order? lastOrder,
-    String? error,
-  }) {
+  OrderState copyWith({bool? isProcessing, Order? lastOrder, String? error}) {
     return OrderState(
       isProcessing: isProcessing ?? this.isProcessing,
       lastOrder: lastOrder ?? this.lastOrder,
@@ -162,7 +151,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   int _loyaltyPoints = 0;
   double _loyaltyCredit = 0.0;
   final double _loyaltyConversionRate = 0.1; // 1 point = R0.10
-  
+
   String _couponCode = '';
   double _discount = 0.0;
   final Map<String, double> _validCoupons = {
@@ -177,7 +166,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     _checkConnectivity();
     _getUserLocation();
   }
-  
+
   Future<void> _checkConnectivity() async {
     final connectivity = Connectivity();
     final result = await connectivity.checkConnectivity();
@@ -185,17 +174,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       _isOffline = result == ConnectivityResult.none;
     });
   }
-  
+
   Future<void> _getUserLocation() async {
     try {
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
       setState(() {
         _userPosition = position;
       });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to get location: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Unable to get location: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -207,12 +201,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     });
     if (_discount > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Coupon applied! Discount: R${_discount.toStringAsFixed(2)}')),
+        SnackBar(
+          content: Text(
+            'Coupon applied! Discount: R${_discount.toStringAsFixed(2)}',
+          ),
+        ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid coupon code.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid coupon code.')));
     }
   }
 
@@ -233,10 +231,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     );
   }
 
@@ -326,7 +321,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Future<void> _showOrderSuccessDialog(BuildContext context, Order order) async {
+  Future<void> _showOrderSuccessDialog(
+    BuildContext context,
+    Order order,
+  ) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -339,7 +337,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             const Text('Your order has been placed successfully.'),
             const SizedBox(height: 16),
             Text('Order ID: ${order.id}'),
-            Text('Date: ${DateFormat('MMM dd, yyyy - hh:mm a').format(order.date)}'),
+            Text(
+              'Date: ${DateFormat('MMM dd, yyyy - hh:mm a').format(order.date)}',
+            ),
             Text('Total: R${order.total.toStringAsFixed(2)}'),
           ],
         ),
@@ -363,7 +363,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final orderState = ref.watch(orderProvider);
     final orderNotifier = ref.read(orderProvider.notifier);
     final theme = Theme.of(context);
-    final subtotal = cartItems.fold<double>(0.0, (sum, item) => sum + item.totalPrice);
+    final subtotal = cartItems.fold<double>(
+      0.0,
+      (sum, item) => sum + (item.totalPrice ?? 0.0),
+    );
     const shippingFee = 5.0;
     final tax = subtotal * 0.1;
     final total = subtotal + shippingFee + tax - _discount - _loyaltyCredit;
@@ -385,7 +388,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         title: const Text('Checkout'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: orderState.isProcessing ? null : () => Navigator.of(context).pop(),
+          onPressed: orderState.isProcessing
+              ? null
+              : () => Navigator.of(context).pop(),
         ),
       ),
       body: cartItems.isEmpty
@@ -393,9 +398,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   SizedBox(height: 16),
-                  Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text(
+                    'Your cart is empty',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
                 ],
               ),
             )
@@ -409,12 +421,29 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     label: 'Checkout progress',
                     child: Stepper(
                       currentStep: _getCurrentStep(cartItems),
-                      controlsBuilder: (context, details) => const SizedBox.shrink(),
+                      controlsBuilder: (context, details) =>
+                          const SizedBox.shrink(),
                       steps: const [
-                        Step(title: Text('Cart'), content: SizedBox.shrink(), isActive: true),
-                        Step(title: Text('Delivery'), content: SizedBox.shrink(), isActive: true),
-                        Step(title: Text('Payment'), content: SizedBox.shrink(), isActive: true),
-                        Step(title: Text('Confirm'), content: SizedBox.shrink(), isActive: true),
+                        Step(
+                          title: Text('Cart'),
+                          content: SizedBox.shrink(),
+                          isActive: true,
+                        ),
+                        Step(
+                          title: Text('Delivery'),
+                          content: SizedBox.shrink(),
+                          isActive: true,
+                        ),
+                        Step(
+                          title: Text('Payment'),
+                          content: SizedBox.shrink(),
+                          isActive: true,
+                        ),
+                        Step(
+                          title: Text('Confirm'),
+                          content: SizedBox.shrink(),
+                          isActive: true,
+                        ),
                       ],
                     ),
                   ),
@@ -443,7 +472,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           );
                           if (pickedLocation != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Picked location: ${pickedLocation.latitude}, ${pickedLocation.longitude}')),
+                              SnackBar(
+                                content: Text(
+                                  'Picked location: ${pickedLocation.latitude}, ${pickedLocation.longitude}',
+                                ),
+                              ),
                             );
                           }
                         },
@@ -466,7 +499,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       context: context,
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime.now(),
-                                      lastDate: DateTime.now().add(const Duration(days: 7)),
+                                      lastDate: DateTime.now().add(
+                                        const Duration(days: 7),
+                                      ),
                                     );
                                     if (!mounted) return;
                                     if (picked != null) {
@@ -489,13 +524,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     }
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error selecting delivery time: $e'), backgroundColor: Colors.red),
+                                      SnackBar(
+                                        content: Text(
+                                          'Error selecting delivery time: $e',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
                                     );
                                   }
                                 },
-                          child: Text(_selectedDeliveryTime == null
-                              ? 'Select Delivery Time'
-                              : DateFormat('EEE, MMM d yyyy - hh:mm a').format(_selectedDeliveryTime!)),
+                          child: Text(
+                            _selectedDeliveryTime == null
+                                ? 'Select Delivery Time'
+                                : DateFormat(
+                                    'EEE, MMM d yyyy - hh:mm a',
+                                  ).format(_selectedDeliveryTime!),
+                          ),
                         ),
                       ),
                     ],
@@ -527,9 +571,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         child: PaymentMethodCard(
                           method: _paymentMethods[index],
                           isSelected: _selectedPaymentMethod == index,
-                          onSelected: orderState.isProcessing 
-                              ? null 
-                              : () => setState(() => _selectedPaymentMethod = index),
+                          onSelected: orderState.isProcessing
+                              ? null
+                              : () => setState(
+                                  () => _selectedPaymentMethod = index,
+                                ),
                         ),
                       ),
                     ),
@@ -558,7 +604,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   if (_discount > 0)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
-                      child: Text('Discount applied: R${_discount.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green)),
+                      child: Text(
+                        'Discount applied: R${_discount.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.green),
+                      ),
                     ),
                   const SizedBox(height: 24),
 
@@ -576,7 +625,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           onChanged: (val) {
                             setState(() {
                               _loyaltyPoints = int.tryParse(val) ?? 0;
-                              _loyaltyCredit = _loyaltyPoints * _loyaltyConversionRate;
+                              _loyaltyCredit =
+                                  _loyaltyPoints * _loyaltyConversionRate;
                             });
                           },
                         ),
@@ -593,7 +643,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   const SizedBox(height: 8),
                   Card(
                     elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -604,7 +656,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           Container(
                             height: 120,
                             color: Colors.grey[200],
-                            child: const Center(child: Text('Map/driver location will appear here')), 
+                            child: const Center(
+                              child: Text(
+                                'Map/driver location will appear here',
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -612,7 +668,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                   const SizedBox(height: 8),
                   ExpansionTile(
-                    title: const Text('Review Cart & Cost Summary', style: TextStyle(fontWeight: FontWeight.bold)),
+                    title: const Text(
+                      'Review Cart & Cost Summary',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     initiallyExpanded: false,
                     children: [
                       Card(
@@ -627,7 +686,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               _buildSummaryRow('Subtotal', subtotal),
                               _buildSummaryRow('Shipping', shippingFee),
                               _buildSummaryRow('Tax (10%)', tax),
-                              if (_discount > 0) _buildSummaryRow('Discount', -_discount),
+                              if (_discount > 0)
+                                _buildSummaryRow('Discount', -_discount),
                               const Divider(height: 24),
                               _buildSummaryRow('Total', total, isTotal: true),
                             ],
@@ -641,12 +701,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   if (_isOffline)
                     const Padding(
                       padding: EdgeInsets.only(top: 16),
-                      child: Text('You are offline. Showing cached data.', style: TextStyle(color: Colors.orange)),
+                      child: Text(
+                        'You are offline. Showing cached data.',
+                        style: TextStyle(color: Colors.orange),
+                      ),
                     ),
                   if (orderState.error != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
-                      child: Text('Error: ${orderState.error}', style: const TextStyle(color: Colors.red)),
+                      child: Text(
+                        'Error: ${orderState.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     ),
                 ],
               ),

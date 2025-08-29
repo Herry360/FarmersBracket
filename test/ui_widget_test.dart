@@ -1,10 +1,8 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
-
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +24,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class NextScreen extends StatelessWidget {
-  const NextScreen({Key? key}) : super(key: key);
+  const NextScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 // ...existing code...
 
 class MessagesScreen extends StatefulWidget {
-  const MessagesScreen({Key? key}) : super(key: key);
+  const MessagesScreen({super.key});
 
   @override
   State<MessagesScreen> createState() => _MessagesScreenState();
@@ -31,11 +31,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
-        _messages.add(_Message(
-          text: text,
-          timestamp: DateTime.now(),
-          isMe: true,
-        ));
+        _messages.add(
+          _Message(text: text, timestamp: DateTime.now(), isMe: true),
+        );
       });
       _messageController.clear();
     }
@@ -62,10 +60,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               ? CrossAxisAlignment.end
               : CrossAxisAlignment.start,
           children: [
-            Text(
-              message.text,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(message.text, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 4),
             Text(
               _formatTimestamp(message.timestamp),
@@ -112,20 +107,30 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
                           SizedBox(height: 16),
-                          Text('No messages yet.', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                          Text(
+                            'No messages yet.',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
                         ],
                       ),
                     )
                   : ListView.builder(
                       reverse: true,
                       itemCount: _messages.length,
-                      itemBuilder: (context, index) =>
-                          Semantics(
-                            label: _messages[_messages.length - 1 - index].isMe ? 'Sent message' : 'Received message',
-                            child: _buildMessage(_messages[_messages.length - 1 - index]),
-                          ),
+                      itemBuilder: (context, index) => Semantics(
+                        label: _messages[_messages.length - 1 - index].isMe
+                            ? 'Sent message'
+                            : 'Received message',
+                        child: _buildMessage(
+                          _messages[_messages.length - 1 - index],
+                        ),
+                      ),
                     ),
             ),
             Padding(
@@ -143,7 +148,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 16),
+                            vertical: 10,
+                            horizontal: 16,
+                          ),
                         ),
                         onSubmitted: (_) => _sendMessage(),
                         textInputAction: TextInputAction.send,
@@ -160,7 +167,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       onPressed: () {
                         if (_messageController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Message cannot be empty.'), backgroundColor: Colors.red),
+                            const SnackBar(
+                              content: Text('Message cannot be empty.'),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         } else {
                           _sendMessage();
@@ -187,9 +197,5 @@ class _Message {
   final DateTime timestamp;
   final bool isMe;
 
-  _Message({
-    required this.text,
-    required this.timestamp,
-    required this.isMe,
-  });
+  _Message({required this.text, required this.timestamp, required this.isMe});
 }

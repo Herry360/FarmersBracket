@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({Key? key}) : super(key: key);
+  const PaymentScreen({super.key});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -20,16 +20,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (value.length < 16) return 'Card number must be 16 digits';
     return null;
   }
+
   String? _validateExpiryDate(String? value) {
     if (value == null || value.isEmpty) return 'Expiry date required';
     // Add more validation if needed
     return null;
   }
+
   String? _validateCVV(String? value) {
     if (value == null || value.isEmpty) return 'CVV required';
     if (value.length < 3) return 'CVV must be 3 digits';
     return null;
   }
+
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) return 'Name required';
     return null;
@@ -46,7 +49,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
           _isProcessing = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment successful!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Payment successful!'),
+            backgroundColor: Colors.green,
+          ),
         );
       });
     } else {
@@ -54,7 +60,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _errorMessage = 'Please fix errors in the form.';
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fix errors in the form.'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('Please fix errors in the form.'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -62,35 +71,43 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-      ),
+      appBar: AppBar(title: const Text('Payment')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Payment Method:', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Select Payment Method:',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
               Semantics(
                 label: 'Payment method dropdown',
                 child: DropdownButton<String>(
                   value: _selectedMethod,
-                  items: [
-                    'Credit Card',
-                    'Mobile Payment',
-                    'Cash on Delivery',
-                    'EFT',
-                    'SnapScan',
-                    'Zapper',
-                  ].map((method) => DropdownMenuItem(
-                    value: method,
-                    child: Text(method),
-                  )).toList(),
-                  onChanged: _isProcessing ? null : (val) {
-                    setState(() => _selectedMethod = val!);
-                  },
+                  items:
+                      [
+                            'Credit Card',
+                            'Mobile Payment',
+                            'Cash on Delivery',
+                            'EFT',
+                            'SnapScan',
+                            'Zapper',
+                          ]
+                          .map(
+                            (method) => DropdownMenuItem(
+                              value: method,
+                              child: Text(method),
+                            ),
+                          )
+                          .toList(),
+                  onChanged: _isProcessing
+                      ? null
+                      : (val) {
+                          setState(() => _selectedMethod = val!);
+                        },
                 ),
               ),
               const SizedBox(height: 16),
@@ -102,7 +119,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Semantics(
                         label: 'Card number field',
                         child: TextFormField(
-                          decoration: const InputDecoration(labelText: 'Card Number'),
+                          decoration: const InputDecoration(
+                            labelText: 'Card Number',
+                          ),
                           keyboardType: TextInputType.number,
                           validator: _validateCardNumber,
                         ),
@@ -111,7 +130,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Semantics(
                         label: 'Expiry date field',
                         child: TextFormField(
-                          decoration: const InputDecoration(labelText: 'Expiry Date (MM/YY)'),
+                          decoration: const InputDecoration(
+                            labelText: 'Expiry Date (MM/YY)',
+                          ),
                           keyboardType: TextInputType.datetime,
                           validator: _validateExpiryDate,
                         ),
@@ -129,7 +150,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Semantics(
                         label: 'Name on card field',
                         child: TextFormField(
-                          decoration: const InputDecoration(labelText: 'Name on Card'),
+                          decoration: const InputDecoration(
+                            labelText: 'Name on Card',
+                          ),
                           validator: _validateName,
                         ),
                       ),
@@ -146,7 +169,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       if (_errorMessage != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
-                          child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ),
                     ],
                   ),
@@ -154,7 +180,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
               if (_selectedMethod == 'Mobile Payment')
                 Column(
                   children: [
-                    const Text('Scan the QR code below to pay with your mobile app:'),
+                    const Text(
+                      'Scan the QR code below to pay with your mobile app:',
+                    ),
                     const SizedBox(height: 16),
                     Center(
                       child: QrImageView(
@@ -168,7 +196,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
               if (_selectedMethod == 'Cash on Delivery')
                 const Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('You will pay in cash when your order is delivered.'),
+                  child: Text(
+                    'You will pay in cash when your order is delivered.',
+                  ),
                 ),
               if (_selectedMethod == 'EFT')
                 Column(
@@ -179,10 +209,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       onPressed: _isProcessing
                           ? null
                           : () async {
-                              final result = await FilePicker.platform.pickFiles();
+                              final result = await FilePicker.platform
+                                  .pickFiles();
                               if (result != null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Proof uploaded!'), backgroundColor: Colors.green),
+                                  const SnackBar(
+                                    content: Text('Proof uploaded!'),
+                                    backgroundColor: Colors.green,
+                                  ),
                                 );
                               }
                             },
@@ -193,7 +227,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
               if (_selectedMethod == 'SnapScan' || _selectedMethod == 'Zapper')
                 Column(
                   children: [
-                    Text('Scan the QR code below to pay with $_selectedMethod:'),
+                    Text(
+                      'Scan the QR code below to pay with $_selectedMethod:',
+                    ),
                     const SizedBox(height: 16),
                     Center(
                       child: QrImageView(

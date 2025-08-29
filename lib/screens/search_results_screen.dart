@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-
 class SearchResultsScreen extends StatefulWidget {
-  const SearchResultsScreen({Key? key}) : super(key: key);
+  const SearchResultsScreen({super.key});
 
   @override
   State<SearchResultsScreen> createState() => _SearchResultsScreenState();
@@ -35,7 +34,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                         selected: false,
                         onSelected: (selected) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Filter "$filter" selected.')),
+                            SnackBar(
+                              content: Text('Filter "$filter" selected.'),
+                            ),
                           );
                         },
                       ),
@@ -46,13 +47,19 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             ),
             // Result count and view toggle
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Semantics(
                     label: 'Showing $resultCount results for $searchTerm',
-                    child: Text("Showing $resultCount results for '$searchTerm'", style: const TextStyle(fontSize: 16)),
+                    child: Text(
+                      "Showing $resultCount results for '$searchTerm'",
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
                   Row(
                     children: [
@@ -67,7 +74,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               isGridView = true;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Grid view selected.')),
+                              const SnackBar(
+                                content: Text('Grid view selected.'),
+                              ),
                             );
                           },
                         ),
@@ -83,7 +92,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               isGridView = false;
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('List view selected.')),
+                              const SnackBar(
+                                content: Text('List view selected.'),
+                              ),
                             );
                           },
                         ),
@@ -101,7 +112,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   children: [
                     Icon(Icons.search, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('Search results go here.', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                    Text(
+                      'Search results go here.',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
                   ],
                 ),
               ),

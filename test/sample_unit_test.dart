@@ -47,17 +47,25 @@ void main() {
 
   group('String Operations', () {
     test('String concatenation', () {
-      expect('Hello ' 'World', equals('Hello World'));
-      expect('Dart' 'Lang', equals('DartLang'));
+      expect(
+        'Hello '
+        'World',
+        equals('Hello World'),
+      );
+      expect(
+        'Dart'
+        'Lang',
+        equals('DartLang'),
+      );
     });
 
     test('String interpolation', () {
-  const name = 'Alice';
-  expect('Hello $name', equals('Hello Alice'));
+      const name = 'Alice';
+      expect('Hello $name', equals('Hello Alice'));
     });
 
     test('String length', () {
-  expect('Hello'.length, equals(5));
+      expect('Hello'.length, equals(5));
       expect(''.length, equals(0));
     });
   });

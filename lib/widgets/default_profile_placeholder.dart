@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class DefaultProfilePlaceholder extends StatelessWidget {
   final double size;
-  const DefaultProfilePlaceholder({Key? key, this.size = 60}) : super(key: key);
+  const DefaultProfilePlaceholder({super.key, this.size = 60});
 
   @override
   Widget build(BuildContext context) {

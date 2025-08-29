@@ -7,7 +7,7 @@ import '../providers/products_provider.dart';
 
 class FarmProductsBody extends StatefulWidget {
   final Farm farm;
-  const FarmProductsBody({Key? key, required this.farm}) : super(key: key);
+  const FarmProductsBody({super.key, required this.farm});
 
   @override
   State<FarmProductsBody> createState() => _FarmProductsBodyState();
@@ -136,7 +136,11 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
                 _userLongitude = loc['lon'];
                 _maxDistanceKm = loc['maxDist'];
               });
-              provider.setLocation(_userLatitude, _userLongitude, _maxDistanceKm);
+              provider.setLocation(
+                _userLatitude,
+                _userLongitude,
+                _maxDistanceKm,
+              );
             }
           }),
           _filterButton('Save Filters', () {
@@ -153,9 +157,9 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
               'userLongitude': _userLongitude,
               'maxDistanceKm': _maxDistanceKm,
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Filter set saved!')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Filter set saved!')));
           }),
           _filterButton('Load Filters', () async {
             if (_favoriteFilters.isEmpty) return;
@@ -185,7 +189,11 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
               provider.setAvailability(_onlyAvailable);
               provider.setMinRating(_minRating);
               provider.setCertification(_certification);
-              provider.setLocation(_userLatitude, _userLongitude, _maxDistanceKm);
+              provider.setLocation(
+                _userLatitude,
+                _userLongitude,
+                _maxDistanceKm,
+              );
             }
           }),
         ],
@@ -196,10 +204,7 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
   Widget _filterButton(String label, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(label),
-      ),
+      child: ElevatedButton(onPressed: onPressed, child: Text(label)),
     );
   }
 
@@ -295,7 +300,11 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context, {'lat': lat, 'lon': lon, 'maxDist': maxDist}),
+          onPressed: () => Navigator.pop(context, {
+            'lat': lat,
+            'lon': lon,
+            'maxDist': maxDist,
+          }),
           child: const Text('Apply'),
         ),
       ],
@@ -323,4 +332,3 @@ class _FarmProductsBodyState extends State<FarmProductsBody> {
     );
   }
 }
-

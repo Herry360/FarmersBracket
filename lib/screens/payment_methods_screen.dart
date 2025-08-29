@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
-  const PaymentMethodsScreen({Key? key}) : super(key: key);
+  const PaymentMethodsScreen({super.key});
 
   @override
   State<PaymentMethodsScreen> createState() => _PaymentMethodsScreenState();
@@ -11,18 +11,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   int _selectedMethod = 0;
 
   final List<Map<String, dynamic>> _paymentMethods = [
-    {
-      'name': 'Credit Card',
-      'icon': Icons.credit_card,
-    },
-    {
-      'name': 'PayPal',
-      'icon': Icons.account_balance_wallet,
-    },
-    {
-      'name': 'Bank Transfer',
-      'icon': Icons.account_balance,
-    },
+    {'name': 'Credit Card', 'icon': Icons.credit_card},
+    {'name': 'PayPal', 'icon': Icons.account_balance_wallet},
+    {'name': 'Bank Transfer', 'icon': Icons.account_balance},
   ];
 
   void _onMethodSelected(int index) {
@@ -42,9 +33,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
 
   // Accessibility: Announce selection (fallback to SnackBar)
   void _announceSelection(String methodName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Selected $methodName')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Selected $methodName')));
   }
 
   @override
@@ -77,10 +68,15 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                           final method = _paymentMethods[index];
                           return Card(
                             elevation: 2,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: ListTile(
                               leading: Icon(method['icon'], size: 32),
-                              title: Text(method['name'], style: const TextStyle(fontSize: 16)),
+                              title: Text(
+                                method['name'],
+                                style: const TextStyle(fontSize: 16),
+                              ),
                               trailing: Radio<int>(
                                 value: index,
                                 groupValue: _selectedMethod,
@@ -107,7 +103,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           onPressed: _onContinue,
                           child: const Row(
@@ -115,7 +113,10 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                             children: [
                               Icon(Icons.arrow_forward, size: 20),
                               SizedBox(width: 8),
-                              Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Continue',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                         ),
@@ -130,4 +131,4 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       ),
     );
   }
-  }
+}

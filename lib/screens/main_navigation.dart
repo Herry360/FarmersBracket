@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'cart_screen.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({Key? key}) : super(key: key);
+  const MainNavigation({super.key});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -18,12 +18,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const ProfileScreen(),
   ];
 
-  final List<String> _titles = [
-    'Home',
-    'Search',
-    'Notifications',
-    'Profile',
-  ];
+  final List<String> _titles = ['Home', 'Search', 'Notifications', 'Profile'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -39,12 +34,26 @@ class _MainNavigationState extends State<MainNavigation> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'Help Center',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/help-center');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.support_agent),
+            tooltip: 'Contact Support',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/contact-support');
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_suggest),
             color: Theme.of(context).colorScheme.primary,
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
             },
           ),
         ],
@@ -52,13 +61,13 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _screens[_selectedIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => CartScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => CartScreen()));
         },
         backgroundColor: Colors.green,
-        child: const Icon(Icons.shopping_cart),
         tooltip: 'Go to Cart',
+        child: const Icon(Icons.shopping_cart),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -91,7 +100,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
 // Dummy Screens for demonstration
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -104,7 +113,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class SearchScreen extends StatelessWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -117,44 +126,33 @@ class SearchScreen extends StatelessWidget {
 }
 
 class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text(
-        'No new notifications.',
-        style: TextStyle(fontSize: 20),
-      ),
+      child: Text('No new notifications.', style: TextStyle(fontSize: 20)),
     );
   }
 }
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text(
-        'Your profile details.',
-        style: TextStyle(fontSize: 20),
-      ),
+      child: Text('Your profile details.', style: TextStyle(fontSize: 20)),
     );
   }
 }
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: const Center(
-        child: Text(
-          'Settings go here.',
-          style: TextStyle(fontSize: 20),
-        ),
+        child: Text('Settings go here.', style: TextStyle(fontSize: 20)),
       ),
     );
   }

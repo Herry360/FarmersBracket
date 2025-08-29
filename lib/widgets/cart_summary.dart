@@ -33,7 +33,11 @@ class CartSummary extends StatelessWidget {
             const SizedBox(height: 8),
             _SummaryRow(label: 'Shipping', value: shippingFee),
             const Divider(height: 24),
-            _SummaryRow(label: 'Total', value: subtotal + shippingFee, isTotal: true),
+            _SummaryRow(
+              label: 'Total',
+              value: subtotal + shippingFee,
+              isTotal: true,
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -87,7 +91,9 @@ class _SummaryRow extends StatelessWidget {
         Text(
           value.toStringAsFixed(2),
           style: isTotal
-              ? Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
+              ? Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
               : Theme.of(context).textTheme.bodyMedium,
         ),
       ],

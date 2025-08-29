@@ -103,11 +103,7 @@ class FarmCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
-                    Icons.star_rounded,
-                    color: Colors.amber,
-                    size: 16,
-                  ),
+                  const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
                   Text(
                     ' ${farm.rating.toStringAsFixed(1)}',
                     style: theme.textTheme.bodyMedium?.copyWith(

@@ -84,10 +84,7 @@ class _ProductSearchBarState extends State<ProductSearchBar> {
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: colorScheme.outline,
-              width: 1.0,
-            ),
+            borderSide: BorderSide(color: colorScheme.outline, width: 1.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -98,14 +95,14 @@ class _ProductSearchBarState extends State<ProductSearchBar> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: colorScheme.primary,
-              width: 2.0,
-            ),
+            borderSide: BorderSide(color: colorScheme.primary, width: 2.0),
           ),
           filled: true,
           fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 16,
+          ),
           isDense: true,
           constraints: const BoxConstraints(minHeight: 56),
         ),

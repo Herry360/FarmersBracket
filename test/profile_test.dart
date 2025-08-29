@@ -1,55 +1,59 @@
-
 import 'package:flutter_test/flutter_test.dart';
 // import relevant providers/screens
 
 void main() {
   group('Profile Management', () {
     test('Update user profile', () {
-  // Mock profile update logic
-  final mockProfileProvider = _MockProfileProvider();
-  mockProfileProvider.updateProfile('New Name');
-  expect(mockProfileProvider.profile!.name, 'New Name');
+      // Mock profile update logic
+      final mockProfileProvider = _MockProfileProvider();
+      mockProfileProvider.updateProfile('New Name');
+      expect(mockProfileProvider.profile!.name, 'New Name');
     });
 
     test('Change password', () {
-  // Mock password change logic
-  final mockProfileProvider = _MockProfileProvider();
-  mockProfileProvider.changePassword('oldPass', 'newPass');
-  expect(mockProfileProvider.passwordChanged, true);
+      // Mock password change logic
+      final mockProfileProvider = _MockProfileProvider();
+      mockProfileProvider.changePassword('oldPass', 'newPass');
+      expect(mockProfileProvider.passwordChanged, true);
     });
 
     test('Fetch user profile', () async {
-  // Mock fetching user profile
-  final mockProfileProvider = _MockProfileProvider();
-  final profile = await mockProfileProvider.fetchProfile();
-  expect(profile, isNotNull);
-  expect(profile!.name, equals('Test User'));
+      // Mock fetching user profile
+      final mockProfileProvider = _MockProfileProvider();
+      final profile = await mockProfileProvider.fetchProfile();
+      expect(profile, isNotNull);
+      expect(profile!.name, equals('Test User'));
     });
 
     test('Profile update fails with invalid data', () {
-  // Mock invalid profile update
-  final mockProfileProvider = _MockProfileProvider();
-  expect(() => mockProfileProvider.updateProfile(null), throwsException);
+      // Mock invalid profile update
+      final mockProfileProvider = _MockProfileProvider();
+      expect(() => mockProfileProvider.updateProfile(null), throwsException);
     });
 
     test('Password change fails with wrong old password', () {
-  // Mock password change with wrong old password
-  final mockProfileProvider = _MockProfileProvider();
-  expect(() => mockProfileProvider.changePassword('wrongOld', 'newPass'), throwsException);
+      // Mock password change with wrong old password
+      final mockProfileProvider = _MockProfileProvider();
+      expect(
+        () => mockProfileProvider.changePassword('wrongOld', 'newPass'),
+        throwsException,
+      );
     });
 
     test('Profile picture upload', () async {
-  // Mock profile picture upload
-  final mockProfileProvider = _MockProfileProvider();
-  final result = await mockProfileProvider.uploadProfilePicture('mockImageFile');
-  expect(result, isTrue);
+      // Mock profile picture upload
+      final mockProfileProvider = _MockProfileProvider();
+      final result = await mockProfileProvider.uploadProfilePicture(
+        'mockImageFile',
+      );
+      expect(result, isTrue);
     });
 
     test('Logout clears profile data', () {
-  // Mock logout
-  final mockProfileProvider = _MockProfileProvider();
-  mockProfileProvider.logout();
-  expect(mockProfileProvider.profile, isNull);
+      // Mock logout
+      final mockProfileProvider = _MockProfileProvider();
+      mockProfileProvider.logout();
+      expect(mockProfileProvider.profile, isNull);
     });
   });
 }

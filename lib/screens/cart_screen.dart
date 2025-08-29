@@ -1,16 +1,13 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:farm_bracket/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// ...existing code...
 import '../widgets/cart_summary.dart';
 import '../services/notification_service.dart';
-import '../providers/cart_provider.dart';
+import '../providers/cart_provider.dart'; // Ensure this import points to the file where cartProvider is defined
 import '../widgets/product_card.dart';
 import '../models/farm_model.dart';
 import 'main_navigation.dart';
-
-// Providers
-// ...existing code...
 
 @RoutePage()
 class CartScreen extends ConsumerWidget {
@@ -23,7 +20,6 @@ class CartScreen extends ConsumerWidget {
     final cartItems = cartState.items;
     final totalPrice = cartState.subtotal;
     const double shippingFee = 5.00;
-  // Removed unused isLoading variable
 
     return Scaffold(
       appBar: AppBar(
@@ -41,33 +37,49 @@ class CartScreen extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.delayed(const Duration(milliseconds: 500));
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cart refreshed!')),
-          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Cart refreshed!')));
+          }
         },
         child: cartItems.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                    const Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 64,
+                      color: Colors.grey,
+                    ),
                     const SizedBox(height: 16),
-                    const Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                    const Text(
+                      'Your cart is empty',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
                       child: SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                            onPressed: () {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(builder: (_) => const MainNavigation()),
-                                (route) => false,
-                              );
-                            },
+                          onPressed: () {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (_) => const MainNavigation(),
+                              ),
+                              (route) => false,
+                            );
+                          },
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -84,23 +96,28 @@ class CartScreen extends ConsumerWidget {
               )
             : Column(
                 children: [
-                  Expanded(
-                    child: _buildCartItemsList(context, ref, cartItems),
-                  ),
+                  Expanded(child: _buildCartItemsList(context, ref, cartItems)),
                   CartSummary(subtotal: totalPrice, shippingFee: shippingFee),
                   _buildCheckoutButton(context, ref, totalPrice + shippingFee),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                         onPressed: () {
                           Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const MainNavigation()),
+                            MaterialPageRoute(
+                              builder: (_) => const MainNavigation(),
+                            ),
                             (route) => false,
                           );
                         },
@@ -121,24 +138,28 @@ class CartScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCartItemsList(BuildContext context, WidgetRef ref, List<CartItem> cartItems) {
+  Widget _buildCartItemsList(
+    BuildContext context,
+    WidgetRef ref,
+    List<CartItem> cartItems,
+  ) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: cartItems.length,
-  separatorBuilder: (context, index) => const Divider(height: 1),
+      separatorBuilder: (context, index) => const Divider(height: 1),
       itemBuilder: (ctx, index) {
         final item = cartItems[index];
         final product = Product(
-          id: item.productId,
-          name: item.name,
+          id: item.id,
+          name: item.title,
           description: '',
           price: item.price,
-          imageUrl: item.imageUrl,
+          imageUrl: item.imageUrl ?? '', // Use the correct property from CartItem for the image URL, fallback to empty string if null
           images: [],
-          farmId: item.farmId,
-          farmName: item.farmName,
+          farmId: item.farmID ?? '', // Ensure farmId is always a String
+          farmName: item.farm ?? '', // Ensure farmName is always a String
           category: '',
-          unit: item.unit,
+          unit: item.unit ?? '', // Replace 'unit' with the correct property name if different, e.g., item.measurementUnit
           isOrganic: false,
           isFeatured: false,
           isSeasonal: false,
@@ -151,13 +172,14 @@ class CartScreen extends ConsumerWidget {
           createdAt: null,
           updatedAt: null,
           isOutOfSeason: false,
-          title: item.name,
+          title: item.title,
           certification: '',
           latitude: 0.0,
-          longitude: 0.0, quantity: item.quantity,
+          longitude: 0.0,
+          quantity: item.quantity, stockQuantity: 0, farmerId: '', isAvailable: false,
         );
         return Semantics(
-          label: 'Cart item for ${item.name}',
+          label: 'Cart item for ${item.title}',
           child: Dismissible(
             key: Key('${item.id}_${item.quantity}'),
             direction: DismissDirection.endToStart,
@@ -172,7 +194,7 @@ class CartScreen extends ConsumerWidget {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Remove Item'),
-                  content: Text('Remove ${item.name} from your cart?'),
+                  content: Text('Remove ${item.title} from your cart?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
@@ -180,7 +202,10 @@ class CartScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),
@@ -195,7 +220,9 @@ class CartScreen extends ConsumerWidget {
               isFavorite: false,
               isInCart: true,
               onFavoritePressed: () {},
-              onAddToCart: () => ref.read(cartProvider.notifier).updateQuantity(item.id, item.quantity + 1),
+              onAddToCart: () => ref
+                  .read(cartProvider.notifier)
+                  .updateQuantity(item.id, item.quantity + 1),
               onProductTap: null,
             ),
           ),
@@ -204,7 +231,11 @@ class CartScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCheckoutButton(BuildContext context, WidgetRef ref, double total) {
+  Widget _buildCheckoutButton(
+    BuildContext context,
+    WidgetRef ref,
+    double total,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SizedBox(
@@ -213,7 +244,9 @@ class CartScreen extends ConsumerWidget {
           onPressed: () => _processCheckout(context, ref, total),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: const Text(
             'Proceed to Checkout',
@@ -228,7 +261,7 @@ class CartScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-  title: const Text('Confirm Order'),
+        title: const Text('Confirm Order'),
         content: Text('Total amount: R${total.toStringAsFixed(2)}'),
         actions: [
           TextButton(
@@ -240,9 +273,12 @@ class CartScreen extends ConsumerWidget {
               Navigator.pop(context);
               ref.read(cartProvider.notifier).clearCart();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Order placed successfully!'))
+                const SnackBar(content: Text('Order placed successfully!')),
               );
-              _notificationService.sendNotification('Order Confirmed', 'Your order has been placed!');
+              _notificationService.sendNotification(
+                'Order Confirmed',
+                'Your order has been placed!',
+              );
             },
             child: const Text('Confirm'),
           ),
@@ -255,8 +291,10 @@ class CartScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-  title: const Text('Clear Cart'),
-  content: const Text('Are you sure you want to remove all items from your cart?'),
+        title: const Text('Clear Cart'),
+        content: const Text(
+          'Are you sure you want to remove all items from your cart?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -266,9 +304,9 @@ class CartScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(cartProvider.notifier).clearCart();
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cart cleared')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Cart cleared')));
             },
             child: const Text('Clear', style: TextStyle(color: Colors.red)),
           ),
@@ -280,7 +318,7 @@ class CartScreen extends ConsumerWidget {
   void _showUndoSnackbar(BuildContext context, WidgetRef ref, CartItem item) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${item.name} removed'),
+        content: Text('${item.title} removed'),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'UNDO',

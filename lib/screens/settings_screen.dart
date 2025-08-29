@@ -6,7 +6,7 @@ import '../providers/theme_mode_provider.dart';
 import '../widgets/default_profile_placeholder.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -20,7 +20,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           Icon(icon, color: Colors.blue),
           const SizedBox(width: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -113,7 +116,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               // authProvider.signOut();
               setState(() => _isLoading = false);
               if (mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/login', (route) => false);
               }
             },
             child: const Text('Logout'),
@@ -144,7 +149,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Account'),
-        content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -165,7 +172,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 // Replace with your actual delete logic, e.g.:
                 // await authProvider.deleteAccount();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Account deleted successfully.')),
+                  const SnackBar(
+                    content: Text('Account deleted successfully.'),
+                  ),
                 );
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -183,12 +192,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-  // No authentication logic required
+    // No authentication logic required
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -197,28 +203,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 // Profile Section
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: ListTile(
-                          leading: Semantics(
-                            label: 'Profile avatar',
-                            child: const DefaultProfilePlaceholder(size: 28),
-                          ),
-                          title: const Text('User', style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: const Text('No email'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit),
-                            tooltip: 'Edit profile',
-                            onPressed: () {
-                              try {
-                                Navigator.of(context).pushNamed('/profile_edit');
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
-                                );
-                              }
-                            },
-                          ),
-                        ),
+                    leading: Semantics(
+                      label: 'Profile avatar',
+                      child: const DefaultProfilePlaceholder(size: 28),
+                    ),
+                    title: const Text(
+                      'User',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text('No email'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Edit profile',
+                      onPressed: () {
+                        try {
+                          Navigator.of(context).pushNamed('/profile_edit');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Navigation error: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -231,20 +245,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.delete, color: Colors.red),
-                  title: const Text('Delete Account', style: TextStyle(color: Colors.red)),
+                  title: const Text(
+                    'Delete Account',
+                    style: TextStyle(color: Colors.red),
+                  ),
                   onTap: _onDeleteAccount,
                 ),
                 const Divider(height: 32),
 
                 // Theme Selection Section
                 buildSectionTitle('Theme', Icons.color_lens),
-                ..._themeOptions.map((option) => RadioListTile<ThemeMode>(
-                      value: option['value'],
-                      groupValue: _themeMode,
-                      title: Text(option['label']),
-                      secondary: Icon(option['icon']),
-                      onChanged: _onThemeModeChanged,
-                    )),
+                ..._themeOptions.map(
+                  (option) => RadioListTile<ThemeMode>(
+                    value: option['value'],
+                    groupValue: _themeMode,
+                    title: Text(option['label']),
+                    secondary: Icon(option['icon']),
+                    onChanged: _onThemeModeChanged,
+                  ),
+                ),
                 const Divider(height: 32),
 
                 // Language Selection
@@ -255,10 +274,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   trailing: DropdownButton<String>(
                     value: _selectedLanguage,
                     items: _languages.entries
-                        .map((entry) => DropdownMenuItem(
-                              value: entry.key,
-                              child: Text(entry.value),
-                            ))
+                        .map(
+                          (entry) => DropdownMenuItem(
+                            value: entry.key,
+                            child: Text(entry.value),
+                          ),
+                        )
                         .toList(),
                     onChanged: _onLanguageChanged,
                   ),
@@ -275,7 +296,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       _onNotificationChanged(val);
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error updating notifications: $e'), backgroundColor: Colors.red),
+                        SnackBar(
+                          content: Text('Error updating notifications: $e'),
+                          backgroundColor: Colors.red,
+                        ),
                       );
                     }
                   },
@@ -297,7 +321,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Navigator.of(context).pushNamed('/privacy_policy');
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                        SnackBar(
+                          content: Text('Navigation error: $e'),
+                          backgroundColor: Colors.red,
+                        ),
                       );
                     }
                   },
@@ -310,7 +337,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Navigator.of(context).pushNamed('/terms');
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                        SnackBar(
+                          content: Text('Navigation error: $e'),
+                          backgroundColor: Colors.red,
+                        ),
                       );
                     }
                   },
@@ -327,7 +357,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Navigator.of(context).pushNamed('/feedback');
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigation error: $e'), backgroundColor: Colors.red),
+                        SnackBar(
+                          content: Text('Navigation error: $e'),
+                          backgroundColor: Colors.red,
+                        ),
                       );
                     }
                   },
@@ -336,7 +369,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 // Logout
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Logout', style: TextStyle(color: Colors.red)),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.red),
+                  ),
                   onTap: _onLogout,
                 ),
               ],

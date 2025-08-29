@@ -9,12 +9,12 @@ class NetworkImageWidget extends StatelessWidget {
   final BoxFit fit;
 
   const NetworkImageWidget({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width,
     this.height,
     this.fit = BoxFit.cover,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,8 @@ class NetworkImageWidget extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator()),
       errorWidget: (context, url, error) => const Icon(Icons.broken_image),
     );
   }

@@ -1,40 +1,75 @@
+import 'support_tickets_screen.dart';
 import 'package:flutter/material.dart';
 
 class HelpCenterScreen extends StatelessWidget {
-  const HelpCenterScreen({Key? key}) : super(key: key);
+  const HelpCenterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final faqs = [
-      {'question': 'How do I place an order?', 'answer': 'Browse products, add to cart, and checkout.'},
-      {'question': 'How do I track my delivery?', 'answer': 'Go to Order History and select Track Order.'},
-      {'question': 'How do I request a refund?', 'answer': 'Report an issue from your order card.'},
-      {'question': 'How do I contact support?', 'answer': 'Use the chat or callback request below.'},
+      {
+        'question': 'How do I place an order?',
+        'answer': 'Browse products, add to cart, and checkout.',
+      },
+      {
+        'question': 'How do I track my delivery?',
+        'answer': 'Go to Order History and select Track Order.',
+      },
+      {
+        'question': 'How do I request a refund?',
+        'answer': 'Report an issue from your order card.',
+      },
+      {
+        'question': 'How do I contact support?',
+        'answer': 'Use the chat or callback request below.',
+      },
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('Help Center & FAQs')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Frequently Asked Questions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const Text(
+            'Frequently Asked Questions',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           const SizedBox(height: 16),
-          ...faqs.map((faq) => ExpansionTile(
-                title: Text(faq['question']!),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(faq['answer']!),
-                  ),
-                ],
-              )),
+          ...faqs.map(
+            (faq) => ExpansionTile(
+              title: Text(faq['question']!),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(faq['answer']!),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
-          const Text('Need more help?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const Text(
+            'Need more help?',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           const SizedBox(height: 8),
           ElevatedButton.icon(
             icon: const Icon(Icons.chat),
             label: const Text('Chat with Support'),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportChatScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SupportChatScreen()),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.history),
+            label: const Text('View My Support Tickets'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SupportTicketsScreen()),
+              );
             },
           ),
           const SizedBox(height: 8),
@@ -46,7 +81,9 @@ class HelpCenterScreen extends StatelessWidget {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Request Callback'),
-                  content: const Text('Our support team will call you back soon.'),
+                  content: const Text(
+                    'Our support team will call you back soon.',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -64,7 +101,7 @@ class HelpCenterScreen extends StatelessWidget {
 }
 
 class SupportChatScreen extends StatefulWidget {
-  const SupportChatScreen({Key? key}) : super(key: key);
+  const SupportChatScreen({super.key});
 
   @override
   State<SupportChatScreen> createState() => _SupportChatScreenState();
@@ -96,7 +133,9 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 final msg = _messages[i];
                 final isSupport = msg['sender'] == 'support';
                 return ListTile(
-                  leading: isSupport ? const Icon(Icons.support_agent) : const Icon(Icons.person),
+                  leading: isSupport
+                      ? const Icon(Icons.support_agent)
+                      : const Icon(Icons.person),
                   title: Text(msg['text'] ?? ''),
                 );
               },

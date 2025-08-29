@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/farm_model.dart' as farm_model;
 import '../providers/products_provider.dart' as products_provider;
 import 'product_details_screen.dart';
 
@@ -11,19 +10,23 @@ final farmProvider = Provider<farm_model.Farm>((ref) {
 
 class ProductsGrid extends ConsumerWidget {
   final String searchQuery;
-  const ProductsGrid({Key? key, required this.searchQuery}) : super(key: key);
+  const ProductsGrid({super.key, required this.searchQuery});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final farm = ref.watch(farmProvider);
-    final productsProviderInstance = ref.watch(products_provider.productsProvider);
+    final productsProviderInstance = ref.watch(
+      products_provider.productsProvider,
+    );
     final products = productsProviderInstance.products;
     final isLoading = productsProviderInstance.isLoading;
 
     if (isLoading) {
       return const ShimmerGridPlaceholder();
     }
-    List<farm_model.Product> farmProducts = products.where((product) => product.farmId == farm.id).toList();
+    List<farm_model.Product> farmProducts = products
+        .where((product) => product.farmId == farm.id)
+        .toList();
     if (searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
       farmProducts = farmProducts.where((product) {
@@ -57,7 +60,9 @@ class ProductsGrid extends ConsumerWidget {
                 label: 'Product: ${product.title}',
                 child: Card(
                   elevation: 3,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
@@ -67,7 +72,8 @@ class ProductsGrid extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductDetailsScreen(product: product),
+                          builder: (context) =>
+                              ProductDetailsScreen(product: product),
                         ),
                       );
                     },
@@ -83,16 +89,36 @@ class ProductsGrid extends ConsumerWidget {
                                 product.imageUrl,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                      Icons.broken_image,
+                                      size: 48,
+                                      color: Colors.grey,
+                                    ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(
+                            product.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text(product.category, style: const TextStyle(color: Colors.grey)),
+                          Text(
+                            product.category,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
                           const SizedBox(height: 4),
-                          Text('R${product.price.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          Text(
+                            'R${product.price.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -108,18 +134,16 @@ class ProductsGrid extends ConsumerWidget {
 }
 
 class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({Key? key}) : super(key: key);
+  const LoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(strokeWidth: 2),
-    );
+    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
   }
 }
 
 class EmptyProductsState extends StatelessWidget {
-  const EmptyProductsState({Key? key}) : super(key: key);
+  const EmptyProductsState({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +153,15 @@ class EmptyProductsState extends StatelessWidget {
         children: [
           Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text('No products available', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+          Text(
+            'No products available',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
           const SizedBox(height: 8),
-          Text('Check back later', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+          Text(
+            'Check back later',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
         ],
       ),
     );
@@ -139,7 +169,7 @@ class EmptyProductsState extends StatelessWidget {
 }
 
 class ShimmerGridPlaceholder extends StatelessWidget {
-  const ShimmerGridPlaceholder({Key? key}) : super(key: key);
+  const ShimmerGridPlaceholder({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +186,9 @@ class ShimmerGridPlaceholder extends StatelessWidget {
       itemBuilder: (context, index) {
         return Card(
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

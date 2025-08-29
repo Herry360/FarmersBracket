@@ -1,8 +1,10 @@
+import 'package:farm_bracket/screens/write_review_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+// ...existing code...
+import 'order_issue_report_screen.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
-  const OrderHistoryScreen({Key? key}) : super(key: key);
+  const OrderHistoryScreen({super.key});
 
   @override
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
@@ -15,8 +17,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   @override
   void initState() {
-  super.initState();
-  _ordersFuture = fetchOrders();
+    super.initState();
+    _ordersFuture = fetchOrders();
   }
 
   Future<List<Order>> fetchOrders() async {
@@ -41,18 +43,14 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         date: DateTime.now().subtract(const Duration(days: 3)),
         status: OrderStatus.cancelled,
         total: 29.99,
-        items: [
-          OrderItem(name: 'Carrots', quantity: 3, price: 7.0),
-        ],
+        items: [OrderItem(name: 'Carrots', quantity: 3, price: 7.0)],
       ),
       Order(
         id: 'ORD125',
         date: DateTime.now().subtract(const Duration(days: 2)),
         status: OrderStatus.pending,
         total: 19.99,
-        items: [
-          OrderItem(name: 'Lettuce', quantity: 1, price: 5.0),
-        ],
+        items: [OrderItem(name: 'Lettuce', quantity: 1, price: 5.0)],
       ),
     ];
   }
@@ -66,15 +64,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
-            onPressed: _isRefreshing ? null : () async {
-              setState(() => _isRefreshing = true);
-              _ordersFuture = fetchOrders();
-              await Future.delayed(const Duration(milliseconds: 500));
-              setState(() => _isRefreshing = false);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Order history refreshed!')),
-              );
-            },
+            onPressed: _isRefreshing
+                ? null
+                : () async {
+                    setState(() => _isRefreshing = true);
+                    _ordersFuture = fetchOrders();
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    setState(() => _isRefreshing = false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Order history refreshed!')),
+                    );
+                  },
           ),
         ],
       ),
@@ -84,15 +84,20 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                const Text('Filter:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Filter:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(width: 8),
                 DropdownButton<String>(
                   value: _selectedStatus,
                   items: ['All', 'Delivered', 'Cancelled', 'Pending']
-                      .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          ))
+                      .map(
+                        (status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     setState(() {
@@ -120,8 +125,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: [
                         const Icon(Icons.error, color: Colors.red, size: 48),
                         const SizedBox(height: 8),
-                        Text('Error loading orders: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red)),
+                        Text(
+                          'Error loading orders: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           icon: const Icon(Icons.refresh),
@@ -142,7 +149,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: [
                         Icon(Icons.inbox, size: 48, color: Colors.grey),
                         SizedBox(height: 8),
-                        Text('No orders found.', style: TextStyle(color: Colors.grey)),
+                        Text(
+                          'No orders found.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ],
                     ),
                   );
@@ -170,7 +180,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       children: [
                         const Icon(Icons.inbox, size: 48, color: Colors.grey),
                         const SizedBox(height: 8),
-                        Text('No $_selectedStatus orders found.', style: const TextStyle(color: Colors.grey)),
+                        Text(
+                          'No $_selectedStatus orders found.',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       ],
                     ),
                   );
@@ -229,17 +242,13 @@ class OrderItem {
   final int quantity;
   final double price;
 
-  OrderItem({
-    required this.name,
-    required this.quantity,
-    required this.price,
-  });
+  OrderItem({required this.name, required this.quantity, required this.price});
 }
 
 class OrderCard extends StatelessWidget {
   final Order order;
 
-  const OrderCard({Key? key, required this.order}) : super(key: key);
+  const OrderCard({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +274,20 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Text('Status: ${order.status.toString().split('.').last}'),
                     Text('Total: \$${order.total.toStringAsFixed(2)}'),
+                    // Reorder button if order is within 90 days
+                    if (DateTime.now().difference(order.date).inDays <= 90)
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.repeat),
+                        label: const Text('Reorder'),
+                        onPressed: () {
+                          // Implement reorder logic here
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Order added to cart for reorder!'),
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ),
               ],
@@ -278,7 +301,9 @@ class OrderCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(item.name),
-                    Text('${item.quantity} x \$${item.price.toStringAsFixed(2)}'),
+                    Text(
+                      '${item.quantity} x \$${item.price.toStringAsFixed(2)}',
+                    ),
                   ],
                 ),
               ),
@@ -296,75 +321,76 @@ class OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.report_problem),
-                  label: const Text('Report Issue'),
+                  icon: const Icon(Icons.help_outline),
+                  label: const Text('Get Help with This Order'),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-                      isScrollControlled: true,
                       builder: (context) {
-                        return Padding(
-                          padding: MediaQuery.of(context).viewInsets,
-                          child: StatefulBuilder(
-                            builder: (context, setModalState) {
-                              final ImagePicker picker = ImagePicker();
-                              XFile? pickedImage;
-                              return Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Describe the issue', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    const SizedBox(height: 8),
-                                    const TextField(
-                                      decoration: InputDecoration(
-                                        labelText: 'Issue Description',
-                                        border: OutlineInputBorder(),
+                        final quickOptions = [
+                          'Item was damaged or spoiled',
+                          'Item is missing from my delivery',
+                          'I received the wrong item',
+                          'Other issue',
+                        ];
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                'What issue are you experiencing?',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            ...quickOptions.map(
+                              (option) => ListTile(
+                                title: Text(option),
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => OrderIssueReportScreen(
+                                        orderId: order.id,
+                                        products: order.items
+                                            .map(
+                                              (item) => {
+                                                'id': item.name,
+                                                'name': item.name,
+                                              },
+                                            )
+                                            .toList(),
                                       ),
-                                      maxLines: 3,
                                     ),
-                                    const SizedBox(height: 8),
-                                    const SizedBox.shrink(),
-                                    ElevatedButton.icon(
-                                      icon: const Icon(Icons.photo_camera),
-                                      label: const Text('Upload Photo'),
-                                      onPressed: () async {
-                                        final image = await picker.pickImage(source: ImageSource.gallery);
-                                        if (image != null) {
-                                          setModalState(() {
-                                            pickedImage = image;
-                                          });
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Photo selected for issue report!')),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    if (pickedImage != null) ...[
-                                      const SizedBox(height: 8),
-                                      Text('Photo selected: ${pickedImage?.name}', style: const TextStyle(color: Colors.green)),
-                                    ],
-                                    const SizedBox(height: 8),
-                                    ElevatedButton(
-                                      child: const Text('Submit Issue'),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Issue reported!')),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         );
                       },
                     );
                   },
                 ),
+                if (order.status == OrderStatus.delivered)
+                  ...order.items.map(
+                    (item) => Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.rate_review),
+                        label: Text('Review ${item.name}'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => WriteReviewScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],

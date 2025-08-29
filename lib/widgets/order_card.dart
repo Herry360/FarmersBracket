@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'order_action_buttons.dart';
-import '../screens/order_history_screen.dart' show Order, OrderStatus, OrderItem;
+import '../screens/order_history_screen.dart'
+    show Order, OrderStatus, OrderItem;
 // ...existing code...
 
 class OrderCard extends StatelessWidget {
   static const _cardMargin = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
   static const _cardPadding = EdgeInsets.all(16);
-  static const _statusPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 4);
+  static const _statusPadding = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 4,
+  );
   // ...existing code...
   static const _imageSize = 40.0;
   static const _iconSize = 16.0;
@@ -38,8 +42,7 @@ class OrderCard extends StatelessWidget {
   });
 
   bool get _canCancel {
-    return onCancel != null && 
-           (order.status == OrderStatus.pending);
+    return onCancel != null && (order.status == OrderStatus.pending);
   }
 
   @override
@@ -54,8 +57,8 @@ class OrderCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isDarkMode 
-              ? theme.colorScheme.outlineVariant 
+          color: isDarkMode
+              ? theme.colorScheme.outlineVariant
               : theme.colorScheme.outline,
           width: 1,
         ),
@@ -80,7 +83,10 @@ class OrderCard extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               _buildTotalAmount(context),
-              if (showActions && (onCancel != null || onTrack != null || onReorder != null)) ...[
+              if (showActions &&
+                  (onCancel != null ||
+                      onTrack != null ||
+                      onReorder != null)) ...[
                 const SizedBox(height: 8),
                 _buildActionButtons(context),
               ],
@@ -97,9 +103,9 @@ class OrderCard extends StatelessWidget {
       children: [
         Text(
           'Order #${order.id.substring(0, 8)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         if (showStatus)
           Container(
@@ -123,7 +129,8 @@ class OrderCard extends StatelessWidget {
   Widget _buildOrderDate(BuildContext context) {
     return _buildInfoRow(
       icon: Icons.calendar_today_outlined,
-      text: '${_dateFormat.format(order.date)} • ${_timeFormat.format(order.date)}',
+      text:
+          '${_dateFormat.format(order.date)} • ${_timeFormat.format(order.date)}',
       context: context,
     );
   }
@@ -131,7 +138,8 @@ class OrderCard extends StatelessWidget {
   Widget _buildItemCount(BuildContext context) {
     return _buildInfoRow(
       icon: Icons.shopping_bag_outlined,
-      text: '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
+      text:
+          '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
       context: context,
     );
   }
@@ -143,9 +151,9 @@ class OrderCard extends StatelessWidget {
         Text('Total', style: Theme.of(context).textTheme.bodyMedium),
         Text(
           'R${order.total.toStringAsFixed(2)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -158,7 +166,11 @@ class OrderCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: _iconSize, color: Theme.of(context).textTheme.bodySmall?.color),
+        Icon(
+          icon,
+          size: _iconSize,
+          color: Theme.of(context).textTheme.bodySmall?.color,
+        ),
         const SizedBox(width: 8),
         Text(text, style: Theme.of(context).textTheme.bodySmall),
       ],
@@ -189,16 +201,18 @@ class OrderCard extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${item.quantity} × R${item.price.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withAlpha(154),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha(154),
                   ),
                 ),
               ],

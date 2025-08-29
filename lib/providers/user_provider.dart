@@ -10,15 +10,14 @@ class UserState {
 }
 
 class UserNotifier extends StateNotifier<UserState> {
-  UserNotifier(UserModel initialUser)
-      : super(UserState(user: initialUser));
+  UserNotifier(UserModel initialUser) : super(UserState(user: initialUser));
 
   void updateLocation(double lat, double lon) {
-  state = UserState(user: state.user, latitude: lat, longitude: lon);
-  // Persist location to Hive
-  final settingsBox = Hive.box('settings');
-  settingsBox.put('user_latitude', lat);
-  settingsBox.put('user_longitude', lon);
+    state = UserState(user: state.user, latitude: lat, longitude: lon);
+    // Persist location to Hive
+    final settingsBox = Hive.box('settings');
+    settingsBox.put('user_latitude', lat);
+    settingsBox.put('user_longitude', lon);
   }
 
   void updateCommunicationPreferences(List<String> prefs) {
@@ -88,11 +87,13 @@ class UserNotifier extends StateNotifier<UserState> {
 
 final userProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
   // Replace with actual user loading logic
-  return UserNotifier(UserModel(
-    id: 'user1',
-    name: 'Collen Siyabonga',
-    email: 'collen@example.com',
-    phone: '081 234 5678',
-    address: '123 Main St',
-  ));
+  return UserNotifier(
+    UserModel(
+      id: 'user1',
+      name: 'Collen Siyabonga',
+      email: 'collen@example.com',
+      phone: '081 234 5678',
+      address: '123 Main St',
+    ),
+  );
 });

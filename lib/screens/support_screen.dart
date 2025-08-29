@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SupportScreen extends StatefulWidget {
-  const SupportScreen({Key? key}) : super(key: key);
+  const SupportScreen({super.key});
 
   @override
   State<SupportScreen> createState() => _SupportScreenState();
@@ -36,9 +36,9 @@ class _SupportScreenState extends State<SupportScreen> {
       _isSubmitting = false;
     });
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Support request submitted!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Support request submitted!')));
 
     _formKey.currentState!.reset();
     _nameController.clear();
@@ -69,7 +69,10 @@ class _SupportScreenState extends State<SupportScreen> {
                   children: [
                     const Text(
                       'Contact Support',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -90,7 +93,9 @@ class _SupportScreenState extends State<SupportScreen> {
                                 border: OutlineInputBorder(),
                               ),
                               validator: (value) =>
-                                  value == null || value.trim().isEmpty ? 'Please enter your name' : null,
+                                  value == null || value.trim().isEmpty
+                                  ? 'Please enter your name'
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -107,7 +112,9 @@ class _SupportScreenState extends State<SupportScreen> {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                                final emailRegex = RegExp(
+                                  r'^[^@]+@[^@]+\.[^@]+',
+                                );
                                 if (!emailRegex.hasMatch(value)) {
                                   return 'Please enter a valid email';
                                 }
@@ -126,7 +133,9 @@ class _SupportScreenState extends State<SupportScreen> {
                               ),
                               maxLines: 5,
                               validator: (value) =>
-                                  value == null || value.trim().isEmpty ? 'Please enter your message' : null,
+                                  value == null || value.trim().isEmpty
+                                  ? 'Please enter your message'
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -136,16 +145,25 @@ class _SupportScreenState extends State<SupportScreen> {
                             child: SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _isSubmitting ? null : _submitSupportRequest,
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : _submitSupportRequest,
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                                 child: _isSubmitting
                                     ? const SizedBox(
                                         width: 24,
                                         height: 24,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
                                       )
                                     : const Text('Submit'),
                               ),
@@ -169,7 +187,9 @@ class _SupportScreenState extends State<SupportScreen> {
                         title: const Text('support@farmbracket.com'),
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Email: support@farmbracket.com')),
+                            const SnackBar(
+                              content: Text('Email: support@farmbracket.com'),
+                            ),
                           );
                           // Implement email launch if needed
                         },
@@ -182,7 +202,9 @@ class _SupportScreenState extends State<SupportScreen> {
                         title: const Text('+1 234 567 890'),
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Phone: +1 234 567 890')),
+                            const SnackBar(
+                              content: Text('Phone: +1 234 567 890'),
+                            ),
                           );
                           // Implement phone launch if needed
                         },

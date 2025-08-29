@@ -1,41 +1,70 @@
-import 'address_model.dart';
 
-class OrderModel {
+class Order {
   final String id;
-  final String userId;
+  final String customerId;
+  final DateTime date;
   final List<OrderItem> items;
-  final AddressModel shippingAddress;
   final double totalAmount;
-  final String status; // e.g., Processing, Shipped, Delivered
-  final DateTime orderDate;
-  final String? shipmentStatus; // e.g., In Transit, Out for Delivery
-  final String? trackingNumber;
-  final DateTime? estimatedDelivery;
+  final String status;
 
-  OrderModel({
+  Order({
     required this.id,
-    required this.userId,
+    required this.customerId,
+    required this.date,
     required this.items,
-    required this.shippingAddress,
     required this.totalAmount,
     required this.status,
-    required this.orderDate,
-    this.shipmentStatus,
-    this.trackingNumber,
-    this.estimatedDelivery,
   });
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'] as String,
+      customerId: json['customerId'] as String,
+      date: DateTime.parse(json['date'] as String),
+      items: (json['items'] as List<dynamic>)
+          .map((item) => OrderItem.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      totalAmount: (json['totalAmount'] as num).toDouble(),
+      status: json['status'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerId': customerId,
+      'date': date.toIso8601String(),
+      'items': items.map((item) => item.toJson()).toList(),
+      'totalAmount': totalAmount,
+      'status': status,
+    };
+  }
 }
 
 class OrderItem {
   final String productId;
-  final String name;
   final int quantity;
   final double price;
 
   OrderItem({
     required this.productId,
-    required this.name,
     required this.quantity,
     required this.price,
   });
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      productId: json['productId'] as String,
+      quantity: json['quantity'] as int,
+      price: (json['price'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'quantity': quantity,
+      'price': price,
+    };
+  }
 }

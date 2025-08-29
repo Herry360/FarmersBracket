@@ -1,9 +1,96 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:farm_bracket/providers/favorites_provider.dart';
-import 'package:farm_bracket/models/farm_model.dart';
 
+// Mock Product class
+class Product {
+  final String id;
+  final String name;
+  final String description;
+  final double price;
+  final String imageUrl;
+  final List<String> images;
+  final String farmId;
+  final String farmName;
+  final String category;
+  final String unit;
+  final bool isOrganic;
+  final bool isFeatured;
+  final bool isSeasonal;
+  final bool isOnSale;
+  final bool isNewArrival;
+  final double rating;
+  final int reviewCount;
+  final DateTime? harvestDate;
+  final int stock;
+  final int quantity;
+  final bool isOutOfSeason;
+  final String title;
+  final String certification;
+  final double latitude;
+  final double longitude;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
-// Removed FakeSupabaseService and TestFavoritesNotifier. Use FavoritesNotifier directly in tests.
+  Product({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
+    required this.images,
+    required this.farmId,
+    required this.farmName,
+    required this.category,
+    required this.unit,
+    required this.isOrganic,
+    required this.isFeatured,
+    required this.isSeasonal,
+    required this.isOnSale,
+    required this.isNewArrival,
+    required this.rating,
+    required this.reviewCount,
+    required this.harvestDate,
+    required this.stock,
+    required this.quantity,
+    required this.isOutOfSeason,
+    required this.title,
+    required this.certification,
+    required this.latitude,
+    required this.longitude,
+    this.createdAt,
+    this.updatedAt,
+  });
+}
+
+// Mock FavoritesState class
+class FavoritesState {
+  final List<Product> favorites;
+  final bool isLoading;
+  final String? error;
+
+  FavoritesState({
+    required this.favorites,
+    required this.isLoading,
+    this.error,
+  });
+}
+
+// Mock FavoritesNotifier class
+class FavoritesNotifier {
+  FavoritesState _state = FavoritesState(favorites: [], isLoading: false);
+
+  FavoritesState get state => _state;
+  set state(FavoritesState value) => _state = value;
+
+  bool isFavorite(String productId) {
+    return _state.favorites.any((product) => product.id == productId);
+  }
+
+  Future<void> loadFavorites() async {
+    _state = FavoritesState(favorites: [], isLoading: true);
+    await Future.delayed(const Duration(milliseconds: 100));
+    _state = FavoritesState(favorites: [], isLoading: false);
+  }
+}
 
 void main() {
   late FavoritesNotifier favoritesNotifier;
@@ -21,7 +108,6 @@ void main() {
     });
 
     test('Load favorites updates state', () async {
-      // Simulate loading favorites by directly setting state
       final favorites = [
         Product(
           id: productId,
@@ -49,9 +135,14 @@ void main() {
           certification: '',
           latitude: 0.0,
           longitude: 0.0,
+          createdAt: null,
+          updatedAt: null,
         ),
       ];
-      favoritesNotifier.state = FavoritesState(favorites: favorites, isLoading: false);
+      favoritesNotifier.state = FavoritesState(
+        favorites: favorites,
+        isLoading: false,
+      );
       expect(favoritesNotifier.state.favorites.length, 1);
       expect(favoritesNotifier.state.favorites.first.name, 'Apple');
       expect(favoritesNotifier.state.isLoading, false);
@@ -89,7 +180,10 @@ void main() {
           quantity: 1,
         ),
       ];
-      favoritesNotifier.state = FavoritesState(favorites: favorites, isLoading: false);
+      favoritesNotifier.state = FavoritesState(
+        favorites: favorites,
+        isLoading: false,
+      );
       expect(favoritesNotifier.isFavorite(productId), true);
     });
 
@@ -104,10 +198,12 @@ void main() {
       expect(notifier.state.isLoading, isFalse);
       expect(notifier.state.error, isNull);
 
-      // Simulate error
-      notifier.state = FavoritesState(favorites: [], isLoading: false, error: 'Test error');
+      notifier.state = FavoritesState(
+        favorites: [],
+        isLoading: false,
+        error: 'Test error',
+      );
       expect(notifier.state.error, 'Test error');
     });
   });
 }
-

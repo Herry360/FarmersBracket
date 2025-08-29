@@ -5,22 +5,33 @@ class IssueReportState {
   final List<IssueReport> reports;
   final bool isLoading;
   final String? error;
-  IssueReportState({required this.reports, required this.isLoading, this.error});
+  IssueReportState({
+    required this.reports,
+    required this.isLoading,
+    this.error,
+  });
 }
 
 class IssueReportNotifier extends StateNotifier<IssueReportState> {
   void submitReport(IssueReport report) {
     // Instant resolution logic for Wrong Item or Missing Item
-    if (report.issueType == 'Wrong Item' || report.issueType == 'Missing Item') {
+    if (report.issueType == 'Wrong Item' ||
+        report.issueType == 'Missing Item') {
       // Mock: Add credit to user's account (would update UserProvider in real app)
       // e.g., userProvider.addCredit(report.resolvedCreditAmount ?? 15.0);
     }
     addReport(report);
   }
-  IssueReportNotifier() : super(IssueReportState(reports: [], isLoading: false, error: null));
+
+  IssueReportNotifier()
+    : super(IssueReportState(reports: [], isLoading: false, error: null));
 
   Future<void> loadReports(String userId) async {
-    state = IssueReportState(reports: state.reports, isLoading: true, error: null);
+    state = IssueReportState(
+      reports: state.reports,
+      isLoading: true,
+      error: null,
+    );
     await Future.delayed(const Duration(milliseconds: 300));
     state = IssueReportState(reports: [], isLoading: false, error: null);
   }
@@ -31,6 +42,7 @@ class IssueReportNotifier extends StateNotifier<IssueReportState> {
   }
 }
 
-final issueReportProvider = StateNotifierProvider<IssueReportNotifier, IssueReportState>((ref) {
-  return IssueReportNotifier();
-});
+final issueReportProvider =
+    StateNotifierProvider<IssueReportNotifier, IssueReportState>((ref) {
+      return IssueReportNotifier();
+    });

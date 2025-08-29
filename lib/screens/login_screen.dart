@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -31,7 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     await Future.delayed(const Duration(seconds: 1));
     // Mock authentication logic
-    if (_emailController.text == 'user@example.com' && _passwordController.text == 'password123') {
+    if (_emailController.text == 'user@example.com' &&
+        _passwordController.text == 'password123') {
       setState(() => _isLoading = false);
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
@@ -69,7 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -78,9 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               onPressed: () {
                 final email = emailController.text.trim();
-                if (email.isEmpty || !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(email)) {
+                if (email.isEmpty ||
+                    !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(email)) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid email address.')),
+                    const SnackBar(
+                      content: Text('Please enter a valid email address.'),
+                    ),
                   );
                   return;
                 }
@@ -88,7 +95,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Future.delayed(const Duration(milliseconds: 500), () {
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Password reset link sent to $email')),
+                    SnackBar(
+                      content: Text('Password reset link sent to $email'),
+                    ),
                   );
                 });
               },
@@ -113,7 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Log in to your account', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Log in to your account',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 24),
                   Semantics(
                     label: 'Email field',
@@ -124,7 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please enter your email';
                         }
-                        if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(value)) {
+                        if (!RegExp(
+                          r'^[^@\s]+@[^@\s]+\.[^@\s]+',
+                        ).hasMatch(value)) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -141,9 +155,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(
                         labelText: 'Password',
                         suffixIcon: IconButton(
-                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
                           onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                         ),
                       ),
@@ -190,7 +210,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 8),
-                    Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ],
                   const SizedBox(height: 24),
                   SizedBox(
@@ -202,17 +225,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: 'Login',
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
                                 foregroundColor: Colors.white,
                               ),
                               onPressed: () {
-                                if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
+                                if (_emailController.text.trim().isEmpty ||
+                                    _passwordController.text.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Please enter both email and password.'), backgroundColor: Colors.red),
+                                    const SnackBar(
+                                      content: Text(
+                                        'Please enter both email and password.',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
                                   );
                                   return;
                                 }

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
   late AnimationController _bgController;
   late Animation<Color?> _bgAnimation;
   late final AnimationController _logoController;
@@ -19,15 +20,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
   final List<Map<String, String>> _onboardingPages = [
     {
       'title': 'Discover Fresh Products',
-      'desc': 'Browse a wide variety of farm-fresh goods and local specialties.'
+      'desc':
+          'Browse a wide variety of farm-fresh goods and local specialties.',
     },
     {
       'title': 'Shop with Ease',
-      'desc': 'Add your favorite products to cart and enjoy a seamless checkout experience.'
+      'desc':
+          'Add your favorite products to cart and enjoy a seamless checkout experience.',
     },
     {
       'title': 'Customer Support & Reviews',
-      'desc': 'Read reviews, rate products, and get help whenever you need it.'
+      'desc': 'Read reviews, rate products, and get help whenever you need it.',
     },
   ];
 
@@ -62,18 +65,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
   }
 
   void _navigateToNext(BuildContext context) async {
-  setState(() => _isLoading = true);
-  await Future.delayed(const Duration(milliseconds: 600));
-  if (!mounted) return;
-  Navigator.pushReplacementNamed(context, '/profile-registration');
-  setState(() => _isLoading = false);
+    setState(() => _isLoading = true);
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/profile-registration');
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isWide = MediaQuery.of(context).size.width > 600;
-    
+
     return Scaffold(
       body: AnimatedBuilder(
         animation: _bgAnimation,
@@ -83,7 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
               gradient: LinearGradient(
                 colors: [
                   _bgAnimation.value ?? const Color(0xFF81C784),
-                  const Color(0xFF388E3C)
+                  const Color(0xFF388E3C),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -98,9 +101,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 child: SingleChildScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height - 
-                                MediaQuery.of(context).padding.top - 
-                                MediaQuery.of(context).padding.bottom,
+                      minHeight:
+                          MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.top -
+                          MediaQuery.of(context).padding.bottom,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,7 +115,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                               duration: const Duration(milliseconds: 800),
                               curve: Curves.easeInOut,
                               decoration: BoxDecoration(
-                                  color: const Color.fromRGBO(255, 255, 255, 0.18),
+                                color: const Color.fromRGBO(
+                                  255,
+                                  255,
+                                  255,
+                                  0.18,
+                                ),
                                 borderRadius: BorderRadius.circular(32),
                                 boxShadow: [
                                   BoxShadow(
@@ -121,7 +130,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                   ),
                                 ],
                                 border: Border.all(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.25),
+                                  color: const Color.fromRGBO(
+                                    255,
+                                    255,
+                                    255,
+                                    0.25,
+                                  ),
                                   width: 2,
                                 ),
                               ),
@@ -138,7 +152,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                           decoration: BoxDecoration(
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withAlpha(45),
+                                                color: Colors.black.withAlpha(
+                                                  45,
+                                                ),
                                                 blurRadius: 16,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -148,7 +164,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                             'assets/images/farm_logo.jpg',
                                             height: isWide ? 180 : 120,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error, size: isWide ? 180 : 120, color: Colors.red),
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Icon(
+                                                      Icons.error,
+                                                      size: isWide ? 180 : 120,
+                                                      color: Colors.red,
+                                                    ),
                                           ),
                                         ),
                                       ),
@@ -160,23 +182,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                     duration: const Duration(milliseconds: 800),
                                     child: Text(
                                       'Welcome to FarmBracket Marketplace',
-                                      style: theme.textTheme.headlineMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 1.2,
-                                        shadows: [
-                                          const Shadow(
-                                            color: Colors.black26,
-                                            offset: Offset(1, 2),
-                                            blurRadius: 4,
+                                      style: theme.textTheme.headlineMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.2,
+                                            shadows: [
+                                              const Shadow(
+                                                color: Colors.black26,
+                                                offset: Offset(1, 2),
+                                                blurRadius: 4,
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text('Your digital farm marketplace', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70)),
+                                  Text(
+                                    'Your digital farm marketplace',
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -185,7 +213,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                               height: isWide ? 120 : 100,
                               child: PageView.builder(
                                 itemCount: _onboardingPages.length,
-                                onPageChanged: (i) => setState(() => _currentPage = i),
+                                onPageChanged: (i) =>
+                                    setState(() => _currentPage = i),
                                 itemBuilder: (context, i) {
                                   final page = _onboardingPages[i];
                                   return Column(
@@ -193,18 +222,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                     children: [
                                       Text(
                                         page['title']!,
-                                        style: theme.textTheme.titleLarge?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: theme.textTheme.titleLarge
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                         textAlign: TextAlign.center,
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         page['desc']!,
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          color: Colors.white70,
-                                        ),
+                                        style: theme.textTheme.bodyLarge
+                                            ?.copyWith(color: Colors.white70),
                                         textAlign: TextAlign.center,
                                       ),
                                     ],
@@ -215,15 +244,24 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                             const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(_onboardingPages.length, (i) {
+                              children: List.generate(_onboardingPages.length, (
+                                i,
+                              ) {
                                 return Container(
                                   width: 10,
                                   height: 10,
-                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: i == _currentPage ? Colors.white : Colors.white38,
-                                    border: Border.all(color: Colors.white70, width: 1),
+                                    color: i == _currentPage
+                                        ? Colors.white
+                                        : Colors.white38,
+                                    border: Border.all(
+                                      color: Colors.white70,
+                                      width: 1,
+                                    ),
                                   ),
                                 );
                               }),
@@ -237,19 +275,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                               _isLoading
                                   ? Column(
                                       children: [
-                                        const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                                        const CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
                                         const SizedBox(height: 8),
-                                        Text('Loading...', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                                        Text(
+                                          'Loading...',
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(color: Colors.white),
+                                        ),
                                       ],
                                     )
                                   : ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
                                         minimumSize: const Size.fromHeight(48),
-                                        backgroundColor: theme.colorScheme.primary,
+                                        backgroundColor:
+                                            theme.colorScheme.primary,
                                         foregroundColor: Colors.white,
                                         elevation: 4,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       icon: const Icon(Icons.arrow_forward),
@@ -263,7 +313,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                   onPressed: _isLoading
                                       ? null
                                       : () {
-                                          Navigator.pushNamed(context, '/login');
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/login',
+                                          );
                                         },
                                   child: const Text(
                                     'Already have an account? Log in',

@@ -3,7 +3,7 @@ import 'package:shimmer/shimmer.dart';
 // ...existing code...
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({Key? key}) : super(key: key);
+  const OrdersScreen({super.key});
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -40,8 +40,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
     // UI only: return mock orders
     await Future.delayed(const Duration(milliseconds: 300));
     return [
-      Order(id: '1', customerName: 'John Doe', date: DateTime.now(), total: 120.0, status: 'Delivered'),
-      Order(id: '2', customerName: 'Jane Smith', date: DateTime.now().subtract(const Duration(days: 1)), total: 80.0, status: 'Pending'),
+      Order(
+        id: '1',
+        customerName: 'John Doe',
+        date: DateTime.now(),
+        total: 120.0,
+        status: 'Delivered',
+      ),
+      Order(
+        id: '2',
+        customerName: 'Jane Smith',
+        date: DateTime.now().subtract(const Duration(days: 1)),
+        total: 80.0,
+        status: 'Pending',
+      ),
     ];
   }
 
@@ -85,35 +97,50 @@ class _OrdersScreenState extends State<OrdersScreen> {
           children: [
             Icon(Icons.receipt_long, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            const Text('No orders found.', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const Text(
+              'No orders found.',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
             const SizedBox(height: 8),
-            const Text('Try refreshing or check back later.', style: TextStyle(fontSize: 14, color: Colors.grey)),
+            const Text(
+              'Try refreshing or check back later.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
           ],
         ),
       );
     }
     return ListView.separated(
       itemCount: orders.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final order = orders[index];
         return Semantics(
           label: 'Order for ${order.customerName}, status ${order.status}',
           child: Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: ListTile(
-              leading: CircleAvatar(
-                child: Text(order.customerName[0]),
+              leading: CircleAvatar(child: Text(order.customerName[0])),
+              title: Text(
+                order.customerName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              title: Text(order.customerName, style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text(
                 'Order ID: ${order.id}\nDate: ${order.date.toLocal().toString().split(' ')[0]}',
               ),
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('R${order.total.toStringAsFixed(2)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  Text(
+                    'R${order.total.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Text(
                     order.status,
                     style: TextStyle(
@@ -179,7 +206,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
           }
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error loading orders: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+              child: Text(
+                'Error loading orders: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
+              ),
             );
           }
           final orders = snapshot.data ?? [];
@@ -194,22 +224,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
     );
   }
-
 }
 
 // Shimmer placeholder for orders list
 class ShimmerOrdersList extends StatelessWidget {
-  const ShimmerOrdersList({Key? key}) : super(key: key);
+  const ShimmerOrdersList({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       itemCount: 6,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: ListTile(
             leading: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
@@ -219,17 +250,29 @@ class ShimmerOrdersList extends StatelessWidget {
             title: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
               highlightColor: Colors.grey.shade100,
-              child: Container(height: 16, width: 80, color: Colors.grey.shade300),
+              child: Container(
+                height: 16,
+                width: 80,
+                color: Colors.grey.shade300,
+              ),
             ),
             subtitle: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
               highlightColor: Colors.grey.shade100,
-              child: Container(height: 12, width: 120, color: Colors.grey.shade300),
+              child: Container(
+                height: 12,
+                width: 120,
+                color: Colors.grey.shade300,
+              ),
             ),
             trailing: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
               highlightColor: Colors.grey.shade100,
-              child: Container(height: 14, width: 40, color: Colors.grey.shade300),
+              child: Container(
+                height: 14,
+                width: 40,
+                color: Colors.grey.shade300,
+              ),
             ),
           ),
         );

@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 class StickyAddToCartBar extends StatelessWidget {
   final double price;
   final VoidCallback onAddToCart;
-  const StickyAddToCartBar({Key? key, required this.price, required this.onAddToCart}) : super(key: key);
+  const StickyAddToCartBar({
+    super.key,
+    required this.price,
+    required this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,10 @@ class StickyAddToCartBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text('R${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              'R${price.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           ElevatedButton(
             onPressed: onAddToCart,

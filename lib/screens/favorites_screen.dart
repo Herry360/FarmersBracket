@@ -13,9 +13,9 @@ class FavoritesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final favorites = ref.watch(favoritesProvider).favorites;
-  final cartItems = ref.watch(cart_data.cartProvider).items;
-  // final isSignedIn = authProvider.currentUser != null;
+    final favorites = ref.watch(favoritesProvider).favorites;
+    final cartItems = ref.watch(cart_data.cartProvider).items;
+    // final isSignedIn = authProvider.currentUser != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,10 +30,9 @@ class FavoritesScreen extends ConsumerWidget {
           ),
         ],
       ),
-    body: (favorites.isEmpty
-        ? _buildEmptyState(context)
-        : _buildFavoritesGrid(
-          context, favorites, ref, cartItems)),
+      body: (favorites.isEmpty
+          ? _buildEmptyState(context)
+          : _buildFavoritesGrid(context, favorites, ref, cartItems)),
     );
   }
 
@@ -51,15 +50,15 @@ class FavoritesScreen extends ConsumerWidget {
           Text(
             'Your wishlist is empty',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).hintColor,
-                ),
+              color: Theme.of(context).hintColor,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Tap the heart icon to add products',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).hintColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -73,9 +72,9 @@ class FavoritesScreen extends ConsumerWidget {
 
   Widget _buildFavoritesGrid(
     BuildContext context,
-  List<Product> favorites,
-  WidgetRef ref,
-  List<cart_data.CartItem> cartItems,
+    List<Product> favorites,
+    WidgetRef ref,
+    List<cart_data.CartItem> cartItems,
   ) {
     return Column(
       children: [
@@ -86,17 +85,15 @@ class FavoritesScreen extends ConsumerWidget {
               Text(
                 '${favorites.length} ${favorites.length == 1 ? 'item' : 'items'}',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
+                  color: Theme.of(context).hintColor,
+                ),
               ),
               const Spacer(),
               TextButton(
                 onPressed: () => _showClearAllDialog(context, ref),
                 child: Text(
                   'Clear All',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
             ],
@@ -114,7 +111,9 @@ class FavoritesScreen extends ConsumerWidget {
             ),
             itemBuilder: (ctx, index) => ProductCard(
               product: favorites[index],
-              isInCart: cartItems.any((item) => item.productId == favorites[index].id),
+              isInCart: cartItems.any(
+                (item) => item.productId == favorites[index].id,
+              ),
               isFavorite: true,
               onFavoritePressed: () {
                 final favNotifier = ref.read(favoritesProvider.notifier);
@@ -154,7 +153,8 @@ class FavoritesScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('Clear all favorites?'),
         content: const Text(
-            'Are you sure you want to remove all items from your wishlist?'),
+          'Are you sure you want to remove all items from your wishlist?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -167,9 +167,7 @@ class FavoritesScreen extends ConsumerWidget {
             },
             child: Text(
               'Clear',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],

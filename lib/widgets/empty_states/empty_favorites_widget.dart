@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-
 class EmptyFavoritesWidget extends StatelessWidget {
   const EmptyFavoritesWidget({super.key});
 
@@ -17,7 +16,10 @@ class EmptyFavoritesWidget extends StatelessWidget {
             repeat: true,
           ),
           const SizedBox(height: 16),
-          Text('No Favorites Yet', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'No Favorites Yet',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           const Text(
             'You haven\'t added any favorites yet. Tap the heart icon on a product to save it here!',

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({Key? key}) : super(key: key);
+  const ChangePasswordScreen({super.key});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -23,12 +23,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _passwordStrengthLabel = 'Weak password';
     }
   }
+
   double _passwordStrength = 0.0;
   String _passwordStrengthLabel = '';
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   bool _isLoading = false;
   bool _showCurrentPassword = false;
@@ -66,30 +69,49 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error changing password: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error changing password: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   String? _validateCurrentPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please enter your current password';
+    if (value == null || value.isEmpty) {
+      return 'Please enter your current password';
+    }
     // Add more validation if needed
     return null;
   }
 
   String? _validateNewPassword(String? value) {
-  if (value == null || value.isEmpty) return 'Please enter a new password';
-  if (value.length < 8) return 'Password must be at least 8 characters';
-  if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Include at least one uppercase letter';
-  if (!RegExp(r'[0-9]').hasMatch(value)) return 'Include at least one number';
-  if (!RegExp(r'[!@#\$&*~]').hasMatch(value)) return 'Include at least one special character';
-  _updatePasswordStrength(value);
-  return null;
+    if (value == null || value.isEmpty) {
+      return 'Please enter a new password';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Include at least one uppercase letter';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Include at least one number';
+    }
+    if (!RegExp(r'[!@#\$&*~]').hasMatch(value)) {
+      return 'Include at least one special character';
+    }
+    _updatePasswordStrength(value);
+    return null;
   }
 
   String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please confirm your new password';
-    if (value != _newPasswordController.text) return 'Passwords do not match';
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your new password';
+    }
+    if (value != _newPasswordController.text) {
+      return 'Passwords do not match';
+    }
     return null;
   }
 
@@ -104,10 +126,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Change Password'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Change Password'), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -125,8 +144,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       labelText: 'Current Password',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        icon: Icon(_showCurrentPassword ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => _showCurrentPassword = !_showCurrentPassword),
+                        icon: Icon(
+                          _showCurrentPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _showCurrentPassword = !_showCurrentPassword,
+                        ),
                       ),
                     ),
                     validator: _validateCurrentPassword,
@@ -142,12 +167,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       labelText: 'New Password',
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
-                        icon: Icon(_showNewPassword ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => _showNewPassword = !_showNewPassword),
+                        icon: Icon(
+                          _showNewPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _showNewPassword = !_showNewPassword,
+                        ),
                       ),
                     ),
                     validator: _validateNewPassword,
-                    onChanged: (value) => setState(() => _updatePasswordStrength(value)),
+                    onChanged: (value) =>
+                        setState(() => _updatePasswordStrength(value)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -157,13 +189,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   color: _passwordStrength >= 0.7
                       ? Colors.green
                       : _passwordStrength >= 0.4
-                          ? Colors.orange
-                          : Colors.red,
+                      ? Colors.orange
+                      : Colors.red,
                   minHeight: 6,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 4.0, left: 2.0),
-                  child: Text(_passwordStrengthLabel, style: const TextStyle(fontSize: 12)),
+                  child: Text(
+                    _passwordStrengthLabel,
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Semantics(
@@ -175,8 +210,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       labelText: 'Confirm New Password',
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
-                        icon: Icon(_showConfirmPassword ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+                        icon: Icon(
+                          _showConfirmPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _showConfirmPassword = !_showConfirmPassword,
+                        ),
                       ),
                     ),
                     validator: _validateConfirmPassword,
@@ -187,7 +228,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -199,7 +243,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Change Password'),
                   ),

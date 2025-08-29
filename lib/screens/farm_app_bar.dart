@@ -6,7 +6,7 @@ import 'cart_screen.dart' as cart_screen;
 
 class FarmAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final Farm farm;
-  const FarmAppBar({Key? key, required this.farm}) : super(key: key);
+  const FarmAppBar({super.key, required this.farm});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,16 +16,11 @@ class FarmAppBar extends ConsumerWidget implements PreferredSizeWidget {
         label: 'Farm name: ${farm.name}',
         child: Text(
           farm.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
       centerTitle: false,
-      actions: [
-        CartIconWithBadge(cartItems: cart.items),
-      ],
+      actions: [CartIconWithBadge(cartItems: cart.items)],
     );
   }
 
@@ -35,7 +30,7 @@ class FarmAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
 class CartIconWithBadge extends StatelessWidget {
   final List<dynamic> cartItems; // Accepts List<Product> or List<CartItem>
-  const CartIconWithBadge({Key? key, required this.cartItems}) : super(key: key);
+  const CartIconWithBadge({super.key, required this.cartItems});
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +44,13 @@ class CartIconWithBadge extends StatelessWidget {
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => cart_screen.CartScreen()),
+                context,
+                MaterialPageRoute(builder: (_) => cart_screen.CartScreen()),
               );
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Opening cart with ${cartItems.length} items.')),
+                SnackBar(
+                  content: Text('Opening cart with ${cartItems.length} items.'),
+                ),
               );
             },
           ),
@@ -68,10 +65,7 @@ class CartIconWithBadge extends StatelessWidget {
                 color: Colors.red,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 20,
-                minHeight: 20,
-              ),
+              constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
               child: Center(
                 child: Text(
                   '${cartItems.length}',

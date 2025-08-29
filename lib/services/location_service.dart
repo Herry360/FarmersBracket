@@ -6,7 +6,8 @@ class LocationService {
   // Request location permission from the user
   Future<bool> requestPermission() async {
     LocationPermission permission = await Geolocator.requestPermission();
-    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
   }
 
   // Fetches the current device location

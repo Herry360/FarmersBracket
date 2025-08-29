@@ -1,4 +1,5 @@
 import 'package:image_picker/image_picker.dart';
+
 // Service to help with image picking for profile and reviews
 class ImagePickerService {
   // Uses image_picker to pick an image and returns its file path

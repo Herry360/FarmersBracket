@@ -23,15 +23,25 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.black),
     ),
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-      headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black),
+      headlineLarge: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: Colors.black,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
       bodyMedium: TextStyle(fontSize: 14, color: Colors.black87),
     ),
     cardTheme: const CardThemeData(
       elevation: 3,
       margin: EdgeInsets.all(8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(
@@ -47,14 +57,11 @@ class AppTheme {
         borderSide: BorderSide(color: Color(0xFF2E7D32)),
       ),
     ),
-  splashColor: Colors.greenAccent.withAlpha(25),
-  highlightColor: Colors.greenAccent.withAlpha(13),
+    splashColor: Colors.greenAccent.withAlpha(25),
+    highlightColor: Colors.greenAccent.withAlpha(13),
     shadowColor: Colors.black12,
     dividerColor: Colors.grey.shade300,
-    extensions: const <ThemeExtension<dynamic>>[
-      AppSpacing(),
-      AppGradients(),
-    ],
+    extensions: const <ThemeExtension<dynamic>>[AppSpacing(), AppGradients()],
   );
 
   // Dark theme
@@ -78,8 +85,16 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.white),
     ),
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-      headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
+      headlineLarge: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
       bodyMedium: TextStyle(fontSize: 14, color: Colors.white70),
     ),
@@ -87,7 +102,9 @@ class AppTheme {
       elevation: 3,
       color: Color(0xFF1E1E1E),
       margin: EdgeInsets.all(8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(
@@ -103,16 +120,12 @@ class AppTheme {
         borderSide: BorderSide(color: Color(0xFF4CAF50)),
       ),
     ),
-  splashColor: Colors.greenAccent.withAlpha(25),
-  highlightColor: Colors.greenAccent.withAlpha(13),
+    splashColor: Colors.greenAccent.withAlpha(25),
+    highlightColor: Colors.greenAccent.withAlpha(13),
     shadowColor: Colors.black26,
     dividerColor: Colors.grey.shade700,
-    extensions: const <ThemeExtension<dynamic>>[
-      AppSpacing(),
-      AppGradients(),
-    ],
+    extensions: const <ThemeExtension<dynamic>>[AppSpacing(), AppGradients()],
   );
-
 }
 
 @immutable
@@ -122,11 +135,12 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
   final double large;
   const AppSpacing({this.small = 8, this.medium = 16, this.large = 32});
   @override
-  AppSpacing copyWith({double? small, double? medium, double? large}) => AppSpacing(
-    small: small ?? this.small,
-    medium: medium ?? this.medium,
-    large: large ?? this.large,
-  );
+  AppSpacing copyWith({double? small, double? medium, double? large}) =>
+      AppSpacing(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        large: large ?? this.large,
+      );
   @override
   AppSpacing lerp(ThemeExtension<AppSpacing>? other, double t) => this;
 }
@@ -136,18 +150,21 @@ class AppGradients extends ThemeExtension<AppGradients> {
   final LinearGradient primaryGradient;
   final LinearGradient cardGradient;
   const AppGradients()
-      : primaryGradient = const LinearGradient(
-          colors: [Color(0xFF2E7D32), Color(0xFF81C784)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        cardGradient = const LinearGradient(
-          colors: [Color(0xFF4CAF50), Color(0xFF1B5E20)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        );
+    : primaryGradient = const LinearGradient(
+        colors: [Color(0xFF2E7D32), Color(0xFF81C784)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      cardGradient = const LinearGradient(
+        colors: [Color(0xFF4CAF50), Color(0xFF1B5E20)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      );
   @override
-  AppGradients copyWith({LinearGradient? primaryGradient, LinearGradient? cardGradient}) => const AppGradients();
+  AppGradients copyWith({
+    LinearGradient? primaryGradient,
+    LinearGradient? cardGradient,
+  }) => const AppGradients();
   @override
   AppGradients lerp(ThemeExtension<AppGradients>? other, double t) => this;
 }

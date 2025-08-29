@@ -1,7 +1,5 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:farm_bracket/providers/auth_provider.dart';
-
 
 void main() {
   group('AuthProvider UI-only tests', () {

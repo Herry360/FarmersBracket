@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final onboardingCompleteProvider = StateNotifierProvider<OnboardingCompleteNotifier, bool>((ref) {
-  return OnboardingCompleteNotifier();
-});
+final onboardingCompleteProvider =
+    StateNotifierProvider<OnboardingCompleteNotifier, bool>((ref) {
+      return OnboardingCompleteNotifier();
+    });
 
 class OnboardingCompleteNotifier extends StateNotifier<bool> {
   OnboardingCompleteNotifier() : super(_getInitialValue());

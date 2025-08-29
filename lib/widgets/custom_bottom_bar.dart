@@ -15,11 +15,7 @@ class _BottomBarItem {
   });
 }
 
-enum CustomBottomBarVariant {
-  standard,
-  floating,
-  minimal,
-}
+enum CustomBottomBarVariant { standard, floating, minimal }
 
 class CustomBottomBar extends ConsumerWidget {
   final int currentIndex;
@@ -111,7 +107,10 @@ class CustomBottomBar extends ConsumerWidget {
 
   // Minimal bottom bar: only shows icons, no labels, no badge
   Widget _buildMinimalBottomBar(
-      BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -163,7 +162,10 @@ class CustomBottomBar extends ConsumerWidget {
   }
 
   Widget _buildFloatingBottomBar(
-      BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
     return Container(
       margin: const EdgeInsets.all(16),
       child: ClipRRect(
@@ -174,7 +176,7 @@ class CustomBottomBar extends ConsumerWidget {
             borderRadius: BorderRadius.circular(24),
             boxShadow: const [
               BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.15),
+                color: Color.fromRGBO(0, 0, 0, 0.15),
                 offset: Offset(0, 4),
                 blurRadius: 12,
                 spreadRadius: 0,
@@ -208,8 +210,12 @@ class CustomBottomBar extends ConsumerWidget {
     );
   }
 
-  Widget _buildStandardBottomBar(BuildContext context, ThemeData theme,
-      ColorScheme colorScheme, WidgetRef ref) {
+  Widget _buildStandardBottomBar(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+    WidgetRef ref,
+  ) {
     // Example cart count, replace with your actual cart provider logic
     const cartCount = 2;
     return Container(
@@ -257,10 +263,7 @@ class CustomBottomBar extends ConsumerWidget {
                       ),
                       child: const Text(
                         '$cartCount',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 10),
                         textAlign: TextAlign.center,
                       ),
                     ),

@@ -1,55 +1,36 @@
-// import removed: flutter/foundation.dart
-// ...existing code...
-// ...existing code...
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/farm_model.dart';
+import 'package:flutter/material.dart';
 
-final favoritesProvider = StateNotifierProvider<FavoritesNotifier, FavoritesState>((ref) {
-  // Inject dependencies here if needed
-  return FavoritesNotifier();
-});
+class FavoritesProvider extends ChangeNotifier {
+  final Set<String> _favoriteIds = {};
 
-class FavoritesState {
-  final List<Product> favorites;
-  final bool isLoading;
-  final String? error;
-  FavoritesState({required this.favorites, required this.isLoading, this.error});
-}
+  Set<String> get favoriteIds => _favoriteIds;
 
-class FavoritesNotifier extends StateNotifier<FavoritesState> {
-  // ...existing code...
-  FavoritesNotifier() : super(FavoritesState(favorites: [], isLoading: false, error: null));
+  bool isFavorite(String id) => _favoriteIds.contains(id);
 
-  Future<void> loadFavorites() async {
-    state = FavoritesState(favorites: state.favorites, isLoading: true, error: null);
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      // UI only: mock favorites
-      state = FavoritesState(favorites: [], isLoading: false, error: null);
-    } catch (e) {
-      state = FavoritesState(favorites: state.favorites, isLoading: false, error: 'Error loading favorites: $e');
+  void addFavorite(String id) {
+    if (_favoriteIds.add(id)) {
+      notifyListeners();
     }
   }
 
-  // UI only: add/remove favorite locally
-  void addFavorite(Product product) {
-  final updatedFavorites = List<Product>.from(state.favorites)..add(product);
-  state = FavoritesState(favorites: updatedFavorites, isLoading: false, error: null);
+  void removeFavorite(String id) {
+    if (_favoriteIds.remove(id)) {
+      notifyListeners();
+    }
   }
 
-  void removeFavorite(String productId) {
-  final updatedFavorites = state.favorites.where((p) => p.id != productId).toList();
-  state = FavoritesState(favorites: updatedFavorites, isLoading: false, error: null);
+  void toggleFavorite(String id) {
+    if (isFavorite(id)) {
+      removeFavorite(id);
+    } else {
+      addFavorite(id);
+    }
   }
 
   void clearFavorites() {
-  state = FavoritesState(favorites: [], isLoading: false, error: null);
+    _favoriteIds.clear();
+    notifyListeners();
   }
 
-  bool isFavorite(String productId) {
-    return state.favorites.any((product) => product.id == productId);
-  }
+  Future<void> loadFavorites() async {}
 }
-  // UI only: local favorites implementation
-  // ...existing code...
-// End of FavoritesNotifier

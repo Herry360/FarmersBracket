@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 class ZipCodeEntryScreen extends StatelessWidget {
   final VoidCallback onNext;
-  const ZipCodeEntryScreen({Key? key, required this.onNext}) : super(key: key);
+  const ZipCodeEntryScreen({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) {

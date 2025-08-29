@@ -21,7 +21,9 @@ class PaymentMethodCard extends StatelessWidget {
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Card(
-      elevation: isSelected ? 2 : 0, // Reduced elevation for better Material 3 compliance
+      elevation: isSelected
+          ? 2
+          : 0, // Reduced elevation for better Material 3 compliance
       color: isSelected
           ? Color.alphaBlend(
               colorScheme.primary.withAlpha(20),
@@ -32,9 +34,9 @@ class PaymentMethodCard extends StatelessWidget {
         side: BorderSide(
           color: isSelected
               ? colorScheme.primary
-              : isDarkMode 
-                  ? colorScheme.outlineVariant 
-                  : colorScheme.outline,
+              : isDarkMode
+              ? colorScheme.outlineVariant
+              : colorScheme.outline,
           width: isSelected ? 1.5 : 1,
         ),
         borderRadius: BorderRadius.circular(12), // Increased border radius
@@ -51,10 +53,12 @@ class PaymentMethodCard extends StatelessWidget {
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
-                  isSelected 
-                      ? Icons.radio_button_checked 
+                  isSelected
+                      ? Icons.radio_button_checked
                       : Icons.radio_button_off,
-                  color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSurface.withValues(alpha: 0.6),
                   key: ValueKey<bool>(isSelected),
                 ),
               ),
@@ -63,8 +67,12 @@ class PaymentMethodCard extends StatelessWidget {
                 child: Text(
                   method,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface,
                   ),
                 ),
               ),

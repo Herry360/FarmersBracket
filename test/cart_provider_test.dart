@@ -1,3 +1,4 @@
+import 'package:farm_bracket/models/cart_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:farm_bracket/providers/cart_provider.dart';
 
@@ -72,7 +73,12 @@ void main() {
       );
       cartNotifier.state = CartState(items: [item1, item2]);
       expect(cartNotifier.state.subtotal, 10.0 * 2 + 5.0 * 3);
-      expect(cartNotifier.state.total, cartNotifier.state.subtotal + cartNotifier.state.deliveryFee + cartNotifier.state.serviceFee);
+      expect(
+        cartNotifier.state.total,
+        cartNotifier.state.subtotal +
+            cartNotifier.state.deliveryFee +
+            cartNotifier.state.serviceFee,
+      );
     });
 
     test('Clear cart removes all items', () async {
@@ -94,11 +100,18 @@ void main() {
 
     test('CartNotifier exposes loading and error states', () {
       cartNotifier.loadCart();
-      expect(cartNotifier.state.isLoading, isFalse); // loadCart is sync, so isLoading should be false
+      expect(
+        cartNotifier.state.isLoading,
+        isFalse,
+      ); // loadCart is sync, so isLoading should be false
       expect(cartNotifier.state.error, isNull);
 
       // Simulate error
-      cartNotifier.state = CartState(items: [], isLoading: false, error: 'Test error');
+      cartNotifier.state = CartState(
+        items: [],
+        isLoading: false,
+        error: 'Test error',
+      );
       expect(cartNotifier.state.error, 'Test error');
     });
   });

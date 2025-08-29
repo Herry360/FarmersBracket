@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeSettingsScreen extends StatefulWidget {
-  const ThemeSettingsScreen({Key? key}) : super(key: key);
+  const ThemeSettingsScreen({super.key});
 
   @override
   @override
@@ -58,7 +58,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
     });
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Dynamic color ${value ? 'enabled' : 'disabled'}')),
+      SnackBar(
+        content: Text('Dynamic color ${value ? 'enabled' : 'disabled'}'),
+      ),
     );
   }
 
@@ -81,7 +83,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Theme Settings'),
-                  content: const Text('Change the app appearance and enable dynamic color if supported by your device.'),
+                  content: const Text(
+                    'Change the app appearance and enable dynamic color if supported by your device.',
+                  ),
                   actions: [
                     TextButton(
                       child: const Text('OK'),
@@ -101,14 +105,18 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: IntrinsicHeight(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Choose Theme Mode',
-                            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Card(
@@ -124,7 +132,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                                     onChanged: (mode) {
                                       if (mode != null) _saveThemeMode(mode);
                                     },
-                                    secondary: const Icon(Icons.settings_suggest),
+                                    secondary: const Icon(
+                                      Icons.settings_suggest,
+                                    ),
                                   ),
                                 ),
                                 Semantics(
@@ -175,7 +185,10 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.primary,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: theme.colorScheme.onPrimary, width: 2),
+                                border: Border.all(
+                                  color: theme.colorScheme.onPrimary,
+                                  width: 2,
+                                ),
                               ),
                             ),
                           ),
@@ -196,7 +209,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                                 setState(() => _isLoading = false);
                                 if (!mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Settings reset to default')),
+                                  const SnackBar(
+                                    content: Text('Settings reset to default'),
+                                  ),
                                 );
                               },
                             ),

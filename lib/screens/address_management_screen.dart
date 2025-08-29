@@ -4,7 +4,7 @@ import 'map_picker_screen.dart';
 /// Screen for managing user shipping addresses.
 /// Usage: Navigator.push(context, MaterialPageRoute(builder: (_) => AddressManagementScreen()));
 class AddressManagementScreen extends StatelessWidget {
-  const AddressManagementScreen({Key? key}) : super(key: key);
+  const AddressManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +26,15 @@ class AddressManagementScreen extends StatelessWidget {
                 onPressed: () async {
                   final pickedLocation = await Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const MapPickerScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const MapPickerScreen()),
                   );
                   if (pickedLocation != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Picked location: ${pickedLocation.latitude}, ${pickedLocation.longitude}')),
+                      SnackBar(
+                        content: Text(
+                          'Picked location: ${pickedLocation.latitude}, ${pickedLocation.longitude}',
+                        ),
+                      ),
                     );
                   }
                 },
@@ -47,7 +49,10 @@ class AddressManagementScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.location_off, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('No addresses found', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                        Text(
+                          'No addresses found',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
                       ],
                     ),
                   )
@@ -105,7 +110,7 @@ class AddressManagementScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-  title: const Text('Edit Address'),
+        title: const Text('Edit Address'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(labelText: 'Address'),
@@ -119,9 +124,9 @@ class AddressManagementScreen extends StatelessWidget {
             onPressed: () {
               // Save logic here
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Address updated!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Address updated!')));
             },
             child: const Text('Save'),
           ),
@@ -134,7 +139,7 @@ class AddressManagementScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-  title: const Text('Delete Address'),
+        title: const Text('Delete Address'),
         content: const Text('Are you sure you want to delete this address?'),
         actions: [
           TextButton(
@@ -145,9 +150,9 @@ class AddressManagementScreen extends StatelessWidget {
             onPressed: () {
               // Delete logic here
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Address deleted!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Address deleted!')));
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -161,7 +166,7 @@ class AddressManagementScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-  title: const Text('Add New Address'),
+        title: const Text('Add New Address'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(labelText: 'Address'),
@@ -175,9 +180,9 @@ class AddressManagementScreen extends StatelessWidget {
             onPressed: () {
               // Add logic here
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Address added!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Address added!')));
             },
             child: const Text('Add'),
           ),

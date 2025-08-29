@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class RecentlyViewedProductsBar extends StatelessWidget {
   final List<String> productNames;
-  const RecentlyViewedProductsBar({Key? key, required this.productNames}) : super(key: key);
+  const RecentlyViewedProductsBar({super.key, required this.productNames});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,10 @@ class RecentlyViewedProductsBar extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Text('Recently Viewed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(
+            'Recently Viewed',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
         SizedBox(
           height: 120,

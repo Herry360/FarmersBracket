@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReviewsScreen extends StatefulWidget {
-  const ReviewsScreen({Key? key}) : super(key: key);
+  const ReviewsScreen({super.key});
 
   @override
   State<ReviewsScreen> createState() => _ReviewsScreenState();
@@ -26,10 +26,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   value: rating,
                   items: List.generate(
                     5,
-                    (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text('${i + 1}'),
-                    ),
+                    (i) =>
+                        DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
                   ),
                   onChanged: (val) {
                     if (val != null) rating = val;
@@ -61,9 +59,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 );
               });
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Review updated!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Review updated!')));
             },
             child: const Text('Save'),
           ),
@@ -76,10 +74,11 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
     setState(() {
       _reviews.removeAt(index);
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Review deleted!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Review deleted!')));
   }
+
   int _currentPage = 0;
   final int _reviewsPerPage = 5;
   final List<Review> _reviews = [
@@ -122,15 +121,16 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         _commentController.clear();
         _selectedRating = 5;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Review submitted!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Review submitted!')));
     }
   }
 
   double _averageRating() {
     if (_reviews.isEmpty) return 0;
-    return _reviews.map((r) => r.rating).reduce((a, b) => a + b) / _reviews.length;
+    return _reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+        _reviews.length;
   }
 
   @override
@@ -191,19 +191,20 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         Expanded(
           child: ListView.separated(
             itemCount: pageReviews.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (context, index) {
               final review = pageReviews[index];
               final isOwnReview = review.userName == 'You';
               return Semantics(
                 label: 'Review by ${review.userName}',
                 child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(review.userName[0]),
-                  ),
+                  leading: CircleAvatar(child: Text(review.userName[0])),
                   title: Row(
                     children: [
-                      Text(review.userName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        review.userName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(width: 8),
                       _buildStars(review.rating),
                     ],
@@ -214,7 +215,10 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                       Text(review.comment),
                       Text(
                         _formatDate(review.date),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -225,7 +229,11 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                             IconButton(
                               icon: const Icon(Icons.edit),
                               tooltip: 'Edit review',
-                              onPressed: () => _showEditReviewDialog(context, review, start + index),
+                              onPressed: () => _showEditReviewDialog(
+                                context,
+                                review,
+                                start + index,
+                              ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
@@ -252,7 +260,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                       ? () => setState(() => _currentPage--)
                       : null,
                 ),
-                Text('Page ${_currentPage + 1} of ${(_reviews.length / _reviewsPerPage).ceil()}'),
+                Text(
+                  'Page ${_currentPage + 1} of ${(_reviews.length / _reviewsPerPage).ceil()}',
+                ),
                 IconButton(
                   icon: const Icon(Icons.arrow_forward),
                   onPressed: end < _reviews.length
@@ -282,10 +292,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   value: _selectedRating,
                   items: List.generate(
                     5,
-                    (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text('${i + 1}'),
-                    ),
+                    (i) =>
+                        DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
                   ),
                   onChanged: (val) {
                     if (val != null) setState(() => _selectedRating = val);
@@ -313,7 +321,10 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

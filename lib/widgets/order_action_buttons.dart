@@ -26,15 +26,11 @@ class OrderActionButtons extends StatelessWidget {
               onPressed: onReorder,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                side: BorderSide(color: Theme.of(context).colorScheme.primary),
               ),
               child: Text(
                 'Reorder',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -46,15 +42,11 @@ class OrderActionButtons extends StatelessWidget {
                 onPressed: onCancel,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  side: BorderSide(color: Theme.of(context).colorScheme.error),
                 ),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
             ),
