@@ -1,5 +1,5 @@
+import 'package:farm_bracket/screens/home/main_navigation.dart';
 import 'package:flutter/material.dart';
-import '../main_navigation.dart';
 
 class OnboardingScreen3 extends StatelessWidget {
   const OnboardingScreen3({super.key});

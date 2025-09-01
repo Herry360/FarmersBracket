@@ -1,6 +1,6 @@
+import 'package:farm_bracket/screens/home/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../main_navigation.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({super.key, required Future<Null> Function() onComplete});

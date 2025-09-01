@@ -1,8 +1,8 @@
+import 'package:farm_bracket/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'order_action_buttons.dart';
-import '../screens/order_history_screen.dart' show Order, OrderStatus;
 
 class OrderCard extends StatelessWidget {
   final Order order;
@@ -27,7 +27,7 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusColor = _getStatusColor(order.status);
+    final statusColor = _getStatusColor(_parseOrderStatus(order.status));
     final dateFormat = DateFormat('MMM dd, yyyy');
     final timeFormat = DateFormat('hh:mm a');
 
@@ -37,7 +37,7 @@ class OrderCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+          color: theme.colorScheme.outline.withOpacity(0.5),
           width: 1,
         ),
       ),
@@ -49,7 +49,6 @@ class OrderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with order number and status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -66,11 +65,11 @@ class OrderCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
+                        color: statusColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        order.status.name.toUpperCase(),
+                        order.status.toUpperCase(),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: statusColor,
                           fontWeight: FontWeight.bold,
@@ -171,7 +170,7 @@ class OrderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                firstItem.name,
+                firstItem.name ?? '',
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -183,7 +182,7 @@ class OrderCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],
@@ -195,7 +194,7 @@ class OrderCard extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ).colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
       ],
@@ -208,7 +207,7 @@ class OrderCard extends StatelessWidget {
       children: [
         Text('Total', style: Theme.of(context).textTheme.bodyMedium),
         Text(
-          'R${order.total.toStringAsFixed(2)}',
+          'R${(order.total ?? 0).toStringAsFixed(2)}',
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -236,6 +235,44 @@ class OrderCard extends StatelessWidget {
       case OrderStatus.pending:
         return Colors.orange;
     }
-    // unreachable
+    return Colors.grey;
+  }
+
+  OrderStatus _parseOrderStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return OrderStatus.delivered;
+      case 'cancelled':
+        return OrderStatus.cancelled;
+      case 'pending':
+        return OrderStatus.pending;
+      default:
+        return OrderStatus.pending;
+    }
+  }
+}
+
+class OrderHistoryCard extends StatelessWidget {
+  final Order order;
+
+  const OrderHistoryCard({super.key, required this.order, required Null Function() onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Order #${order.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text('Status: ${order.status}'),
+            Text('Total: \$${order.totalAmount.toStringAsFixed(2)}'),
+            Text('Date: ${order.orderDate}'),
+          ],
+        ),
+      ),
+    );
   }
 }

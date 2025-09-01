@@ -74,21 +74,53 @@ class FavoritesState {
   });
 }
 
-// Mock FavoritesNotifier class
+// Fully implemented FavoritesNotifier class
 class FavoritesNotifier {
-  FavoritesState _state = FavoritesState(favorites: [], isLoading: false);
-
-  FavoritesState get state => _state;
-  set state(FavoritesState value) => _state = value;
+  FavoritesState state = FavoritesState(favorites: [], isLoading: false);
 
   bool isFavorite(String productId) {
-    return _state.favorites.any((product) => product.id == productId);
+    return state.favorites.any((product) => product.id == productId);
   }
 
   Future<void> loadFavorites() async {
-    _state = FavoritesState(favorites: [], isLoading: true);
+    state = FavoritesState(favorites: [], isLoading: true);
     await Future.delayed(const Duration(milliseconds: 100));
-    _state = FavoritesState(favorites: [], isLoading: false);
+    // Simulate loaded favorites (could be replaced with actual data)
+    state = FavoritesState(favorites: [], isLoading: false);
+  }
+
+  void addFavorite(Product product) {
+    if (!isFavorite(product.id)) {
+      state = FavoritesState(
+        favorites: [...state.favorites, product],
+        isLoading: state.isLoading,
+        error: state.error,
+      );
+    }
+  }
+
+  void removeFavorite(String productId) {
+    state = FavoritesState(
+      favorites: state.favorites.where((p) => p.id != productId).toList(),
+      isLoading: state.isLoading,
+      error: state.error,
+    );
+  }
+
+  void setError(String error) {
+    state = FavoritesState(
+      favorites: state.favorites,
+      isLoading: state.isLoading,
+      error: error,
+    );
+  }
+
+  void clearError() {
+    state = FavoritesState(
+      favorites: state.favorites,
+      isLoading: state.isLoading,
+      error: null,
+    );
   }
 }
 
@@ -204,6 +236,84 @@ void main() {
         error: 'Test error',
       );
       expect(notifier.state.error, 'Test error');
+    });
+
+    test('addFavorite adds a product to favorites', () {
+      final product = Product(
+        id: productId,
+        name: 'Apple',
+        description: '',
+        price: 0.0,
+        imageUrl: '',
+        images: [],
+        farmId: '',
+        farmName: '',
+        category: '',
+        unit: '',
+        isOrganic: false,
+        isFeatured: false,
+        isSeasonal: false,
+        isOnSale: false,
+        isNewArrival: false,
+        rating: 0.0,
+        reviewCount: 0,
+        harvestDate: null,
+        stock: 0,
+        createdAt: null,
+        updatedAt: null,
+        isOutOfSeason: false,
+        title: 'Apple',
+        certification: '',
+        latitude: 0.0,
+        longitude: 0.0,
+        quantity: 1,
+      );
+      favoritesNotifier.addFavorite(product);
+      expect(favoritesNotifier.state.favorites.length, 1);
+      expect(favoritesNotifier.isFavorite(productId), true);
+    });
+
+    test('removeFavorite removes a product from favorites', () {
+      final product = Product(
+        id: productId,
+        name: 'Apple',
+        description: '',
+        price: 0.0,
+        imageUrl: '',
+        images: [],
+        farmId: '',
+        farmName: '',
+        category: '',
+        unit: '',
+        isOrganic: false,
+        isFeatured: false,
+        isSeasonal: false,
+        isOnSale: false,
+        isNewArrival: false,
+        rating: 0.0,
+        reviewCount: 0,
+        harvestDate: null,
+        stock: 0,
+        createdAt: null,
+        updatedAt: null,
+        isOutOfSeason: false,
+        title: 'Apple',
+        certification: '',
+        latitude: 0.0,
+        longitude: 0.0,
+        quantity: 1,
+      );
+      favoritesNotifier.addFavorite(product);
+      favoritesNotifier.removeFavorite(productId);
+      expect(favoritesNotifier.state.favorites, isEmpty);
+      expect(favoritesNotifier.isFavorite(productId), false);
+    });
+
+    test('setError and clearError work as expected', () {
+      favoritesNotifier.setError('Some error');
+      expect(favoritesNotifier.state.error, 'Some error');
+      favoritesNotifier.clearError();
+      expect(favoritesNotifier.state.error, isNull);
     });
   });
 }

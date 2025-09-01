@@ -1,16 +1,11 @@
-import 'package:farm_bracket/models/product.dart';
+import 'package:farm_bracket/models/product_model.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
 
 final productsProvider = ChangeNotifierProvider<ProductsProvider>((ref) {
-  // final supabase = Supabase.instance.client;
-  // return ProductsProvider(supabase);
   return ProductsProvider();
 });
-
-// Product model is now unified in models/farm_model.dart
 
 class ProductsProvider with ChangeNotifier {
   String _selectedSort = 'Relevance';
@@ -21,14 +16,13 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Public getters for filter state
   bool? get organic => _organic;
   bool? get onlyAvailable => _onlyAvailable;
   bool? get onlyOnSale => _onlyOnSale;
   bool? get onlyNewArrival => _onlyNewArrival;
   double? get minPrice => _minPrice;
   double? get maxPrice => _maxPrice;
-  // final SupabaseClient _supabase;
+
   ProductsProvider();
   List<Product> _products = [];
   List<Product> _filteredProducts = [];
@@ -59,7 +53,6 @@ class ProductsProvider with ChangeNotifier {
   String get searchQuery => _searchQuery;
   String? get error => _error;
 
-  // South African produce categories
   static const Map<String, String> categories = {
     'all': 'All Products',
     'fruits': 'Fruits',
@@ -76,7 +69,6 @@ class ProductsProvider with ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      // Populate with 10 placeholder products for UI testing
       _products = List.generate(
         10,
         (i) => Product(
@@ -134,7 +126,8 @@ class ProductsProvider with ChangeNotifier {
     _filteredProducts = _products.where((product) {
       final matchesCategory =
           _selectedCategories.isEmpty ||
-          _selectedCategories.contains(product.category);
+          _selectedCategories.contains(product.category) ||
+          (_selectedCategory == 'all' || product.category == _selectedCategory);
       final matchesTags =
           _selectedTags.isEmpty ||
           (_selectedTags.any(
@@ -145,8 +138,7 @@ class ProductsProvider with ChangeNotifier {
       final matchesPickedToday =
           _pickedToday == null ||
           (_pickedToday == true
-              ? (product.harvestDate != null &&
-                    product.harvestDate!.difference(DateTime.now()).inDays == 0)
+              ? product.harvestDate.difference(DateTime.now()).inDays == 0
               : true);
       final matchesOrganic =
           _organic == null || (_organic == true ? product.isOrganic : true);
@@ -196,27 +188,22 @@ class ProductsProvider with ChangeNotifier {
           matchesRating &&
           matchesDistance;
     }).toList();
-    // Sort logic
-    switch (_selectedSort) {
+
+    switch (selectedSort) {
       case 'Price':
         _filteredProducts.sort((a, b) => a.price.compareTo(b.price));
         break;
       case 'Date':
-        _filteredProducts.sort((a, b) {
-          final aDate = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final bDate = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-          return bDate.compareTo(aDate);
-        });
+        _filteredProducts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
       case 'Relevance':
       default:
-        // No-op or custom relevance logic
         break;
     }
   }
 
   double _distanceKm(double lat1, double lon1, double lat2, double lon2) {
-    const double R = 6371; // Earth radius in km
+    const double R = 6371;
     final dLat = _deg2rad(lat2 - lat1);
     final dLon = _deg2rad(lon2 - lon1);
     final a =
@@ -228,9 +215,8 @@ class ProductsProvider with ChangeNotifier {
     return R * c;
   }
 
-  double _deg2rad(double deg) => deg * (3.141592653589793 / 180.0);
+  double _deg2rad(double deg) => deg * (pi / 180.0);
 
-  // Filter setters
   void setPriceRange(double? min, double? max) {
     _minPrice = min;
     _maxPrice = max;
@@ -327,8 +313,7 @@ class ProductsProvider with ChangeNotifier {
   List<Product> getSeasonalProducts() {
     final currentMonth = DateTime.now().month;
     return _products.where((product) {
-      if (product.harvestDate == null) return false;
-      final harvestMonth = product.harvestDate!.month;
+      final harvestMonth = product.harvestDate.month;
       return harvestMonth == currentMonth || harvestMonth == currentMonth + 1;
     }).toList();
   }

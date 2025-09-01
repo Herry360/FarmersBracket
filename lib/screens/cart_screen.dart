@@ -1,331 +1,105 @@
-import 'package:auto_route/auto_route.dart';
-import 'package:farm_bracket/models/product.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../widgets/cart_summary.dart';
-import '../services/notification_service.dart';
-import '../providers/cart_provider.dart'; // Ensure this import points to the file where cartProvider is defined
-import '../widgets/product_card.dart';
-import '../models/farm_model.dart';
-import 'main_navigation.dart';
 
-@RoutePage()
-class CartScreen extends ConsumerWidget {
-  final NotificationService _notificationService = NotificationService();
-  CartScreen({super.key});
+class CartItem {
+  final String name;
+  final int quantity;
+  final double price;
+
+  CartItem({required this.name, required this.quantity, required this.price});
+}
+
+class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cartState = ref.watch(cartProvider);
-    final cartItems = cartState.items;
-    final totalPrice = cartState.subtotal;
-    const double shippingFee = 5.00;
+  State<CartScreen> createState() => _CartScreenState();
+}
 
+class _CartScreenState extends State<CartScreen> {
+  List<CartItem> cartItems = [
+    CartItem(name: 'Tomatoes', quantity: 2, price: 3.5),
+    CartItem(name: 'Potatoes', quantity: 1, price: 2.0),
+    CartItem(name: 'Carrots', quantity: 3, price: 1.5),
+  ];
+
+  double get totalPrice {
+    return cartItems.fold(
+      0,
+      (sum, item) => sum + item.price * item.quantity,
+    );
+  }
+
+  void removeItem(int index) {
+    setState(() {
+      cartItems.removeAt(index);
+    });
+  }
+
+  void clearCart() {
+    setState(() {
+      cartItems.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Cart'),
-        centerTitle: true,
         actions: [
-          if (cartItems.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: 'Clear cart',
-              onPressed: () => _showClearCartDialog(context, ref),
-            ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: clearCart,
+            tooltip: 'Clear Cart',
+          ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(milliseconds: 500));
-          if (context.mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('Cart refreshed!')));
-          }
-        },
-        child: cartItems.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Your cart is empty',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (_) => const MainNavigation(),
-                              ),
-                              (route) => false,
-                            );
-                          },
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.shopping_bag_outlined),
-                              SizedBox(width: 8),
-                              Text('Continue Shopping'),
-                            ],
-                          ),
+      body: cartItems.isEmpty
+          ? const Center(child: Text('Your cart is empty.'))
+          : ListView.builder(
+              itemCount: cartItems.length,
+              itemBuilder: (context, index) {
+                final item = cartItems[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    title: Text(item.name),
+                    subtitle: Text('Quantity: ${item.quantity}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('\$${(item.price * item.quantity).toStringAsFixed(2)}'),
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          onPressed: () => removeItem(index),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : Column(
-                children: [
-                  Expanded(child: _buildCartItemsList(context, ref, cartItems)),
-                  CartSummary(subtotal: totalPrice, shippingFee: shippingFee),
-                  _buildCheckoutButton(context, ref, totalPrice + shippingFee),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (_) => const MainNavigation(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.shopping_bag_outlined),
-                            SizedBox(width: 8),
-                            Text('Continue Shopping'),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildCartItemsList(
-    BuildContext context,
-    WidgetRef ref,
-    List<CartItem> cartItems,
-  ) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: cartItems.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
-      itemBuilder: (ctx, index) {
-        final item = cartItems[index];
-        final product = Product(
-          id: item.id,
-          name: item.title,
-          description: '',
-          price: item.price,
-          imageUrl: item.imageUrl ?? '', // Use the correct property from CartItem for the image URL, fallback to empty string if null
-          images: [],
-          farmId: item.farmID ?? '', // Ensure farmId is always a String
-          farmName: item.farm ?? '', // Ensure farmName is always a String
-          category: '',
-          unit: item.unit ?? '', // Replace 'unit' with the correct property name if different, e.g., item.measurementUnit
-          isOrganic: false,
-          isFeatured: false,
-          isSeasonal: false,
-          isOnSale: false,
-          isNewArrival: false,
-          rating: 0.0,
-          reviewCount: 0,
-          harvestDate: null,
-          stock: item.quantity,
-          createdAt: null,
-          updatedAt: null,
-          isOutOfSeason: false,
-          title: item.title,
-          certification: '',
-          latitude: 0.0,
-          longitude: 0.0,
-          quantity: item.quantity, stockQuantity: 0, farmerId: '', isAvailable: false,
-        );
-        return Semantics(
-          label: 'Cart item for ${item.title}',
-          child: Dismissible(
-            key: Key('${item.id}_${item.quantity}'),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: const Icon(Icons.delete, color: Colors.white, size: 30),
+                );
+              },
             ),
-            confirmDismiss: (direction) async {
-              return await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Remove Item'),
-                  content: Text('Remove ${item.title} from your cart?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text(
-                        'Remove',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            onDismissed: (direction) {
-              ref.read(cartProvider.notifier).removeFromCart(item.id);
-              _showUndoSnackbar(context, ref, item);
-            },
-            child: ProductCard(
-              product: product,
-              isFavorite: false,
-              isInCart: true,
-              onFavoritePressed: () {},
-              onAddToCart: () => ref
-                  .read(cartProvider.notifier)
-                  .updateQuantity(item.id, item.quantity + 1),
-              onProductTap: null,
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Total: \$${totalPrice.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCheckoutButton(
-    BuildContext context,
-    WidgetRef ref,
-    double total,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () => _processCheckout(context, ref, total),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            ElevatedButton(
+              onPressed: cartItems.isEmpty ? null : () {
+                // Implement checkout logic here
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Checkout successful!')),
+                );
+                clearCart();
+              },
+              child: const Text('Checkout'),
             ),
-          ),
-          child: const Text(
-            'Proceed to Checkout',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _processCheckout(BuildContext context, WidgetRef ref, double total) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Order'),
-        content: Text('Total amount: R${total.toStringAsFixed(2)}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(cartProvider.notifier).clearCart();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Order placed successfully!')),
-              );
-              _notificationService.sendNotification(
-                'Order Confirmed',
-                'Your order has been placed!',
-              );
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClearCartDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Cart'),
-        content: const Text(
-          'Are you sure you want to remove all items from your cart?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(cartProvider.notifier).clearCart();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Cart cleared')));
-            },
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUndoSnackbar(BuildContext context, WidgetRef ref, CartItem item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${item.title} removed'),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'UNDO',
-          textColor: Theme.of(context).colorScheme.secondary,
-          onPressed: () {
-            ref.read(cartProvider.notifier).addToCart(item);
-          },
+          ],
         ),
       ),
     );

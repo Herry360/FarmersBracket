@@ -1,36 +1,37 @@
+import 'package:farm_bracket/models/product_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FavoritesProvider extends ChangeNotifier {
-  final Set<String> _favoriteIds = {};
+  final Map<String, Product> _favorites = {};
 
-  Set<String> get favoriteIds => _favoriteIds;
+  Map<String, Product> get favorites => {..._favorites};
+  List<Product> get favoritesList => _favorites.values.toList();
 
-  bool isFavorite(String id) => _favoriteIds.contains(id);
+  bool isFavorite(String id) => _favorites.containsKey(id);
 
-  void addFavorite(String id) {
-    if (_favoriteIds.add(id)) {
-      notifyListeners();
-    }
+  void addFavorite(Product product) {
+    _favorites[product.id] = product;
+    notifyListeners();
   }
 
   void removeFavorite(String id) {
-    if (_favoriteIds.remove(id)) {
-      notifyListeners();
-    }
+    _favorites.remove(id);
+    notifyListeners();
   }
 
-  void toggleFavorite(String id) {
-    if (isFavorite(id)) {
-      removeFavorite(id);
+  void toggleFavorite(Product product) {
+    if (isFavorite(product.id)) {
+      removeFavorite(product.id);
     } else {
-      addFavorite(id);
+      addFavorite(product);
     }
   }
 
   void clearFavorites() {
-    _favoriteIds.clear();
+    _favorites.clear();
     notifyListeners();
   }
-
-  Future<void> loadFavorites() async {}
 }
+
+final favoritesProvider = ChangeNotifierProvider<FavoritesProvider>((ref) => FavoritesProvider());

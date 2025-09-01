@@ -23,8 +23,15 @@ class CartState extends ChangeNotifier {
 
   int get itemCount => _items.length;
 
-  double get totalAmount =>
+  double get subtotal =>
       _items.values.fold(0, (sum, item) => sum + item.totalPrice);
+
+  double deliveryFee = 0;
+  double serviceFee = 0;
+  bool isLoading = false;
+  String? error;
+
+  double get total => subtotal + deliveryFee + serviceFee;
 
   void addItem({
     required String id,

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Order {
+class OrderProviderClass {
   final String id;
   final String product;
   final int quantity;
   final double price;
   final DateTime date;
 
-  Order({
+  OrderProviderClass({
     required this.id,
     required this.product,
     required this.quantity,
@@ -17,16 +17,16 @@ class Order {
 }
 
 class OrderProvider with ChangeNotifier {
-  final List<Order> _orders = [];
+  final List<OrderProviderClass> _orders = [];
 
-  List<Order> get orders => List.unmodifiable(_orders);
+  List<OrderProviderClass> get orders => List.unmodifiable(_orders);
 
   void addOrder({
     required String product,
     required int quantity,
     required double price,
   }) {
-    final order = Order(
+    final order = OrderProviderClass(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       product: product,
       quantity: quantity,

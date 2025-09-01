@@ -1,44 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:farm_bracket/models/cart_item.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CartItem {
-  final String id;
-  final String title;
-  final int quantity;
-  final double price;
-
-  CartItem({
-    required this.id,
-    required this.title,
-    required this.quantity,
-    required this.price,
-  });
-
-  Null get imageUrl => null;
-
-  Null get farmID => null;
-
-  Null get farm => null;
-
-  Null get unit => null;
-
-  num? get totalPrice => null;
-
-  CartItem copyWith({
-    String? id,
-    String? title,
-    int? quantity,
-    double? price,
-  }) {
-    return CartItem(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      quantity: quantity ?? this.quantity,
-      price: price ?? this.price,
-    );
-  }
-}
-
-class CartProvider with ChangeNotifier {
+class CartProvider extends ChangeNotifier {
   final Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items => {..._items};
@@ -53,35 +17,62 @@ class CartProvider with ChangeNotifier {
     return total;
   }
 
-  double get subtotal {
-    double subtotal = 0.0;
-    _items.forEach((key, cartItem) {
-      subtotal += cartItem.price * cartItem.quantity;
-    });
-    return subtotal;
-  }
+  double get subtotal => totalAmount;
 
+  // This method is for your tests
   void addItem({
     required String productId,
     required String title,
     required double price,
+    required int quantity,
+    String farmId = '',
+    String farmName = '',
+    String unit = '',
+    String imageUrl = '',
   }) {
     if (_items.containsKey(productId)) {
+      // Item already exists, update quantity
       _items.update(
         productId,
         (existingCartItem) => existingCartItem.copyWith(
-          quantity: existingCartItem.quantity + 1,
+          quantity: existingCartItem.quantity + quantity,
         ),
       );
     } else {
+      // Add new item
       _items.putIfAbsent(
         productId,
         () => CartItem(
           id: DateTime.now().toString(),
+          productId: productId,
           title: title,
-          quantity: 1,
           price: price,
+          quantity: quantity,
+          farmId: farmId,
+          farmName: farmName,
+          unit: unit,
+          imageUrl: imageUrl,
         ),
+      );
+    }
+    notifyListeners();
+  }
+
+  // This method is for your ProductsList widget
+  void addToCart(CartItem cartItem) {
+    if (_items.containsKey(cartItem.productId)) {
+      // Item already exists, update quantity
+      _items.update(
+        cartItem.productId,
+        (existingCartItem) => existingCartItem.copyWith(
+          quantity: existingCartItem.quantity + cartItem.quantity,
+        ),
+      );
+    } else {
+      // Add new item
+      _items.putIfAbsent(
+        cartItem.productId,
+        () => cartItem,
       );
     }
     notifyListeners();
@@ -94,6 +85,7 @@ class CartProvider with ChangeNotifier {
 
   void removeSingleItem(String productId) {
     if (!_items.containsKey(productId)) return;
+    
     if (_items[productId]!.quantity > 1) {
       _items.update(
         productId,
@@ -112,17 +104,22 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateItemQuantity(String itemId, int newQuantity) {
-    if (_items.containsKey(itemId) && newQuantity > 0) {
+  void updateItemQuantity(String productId, int newQuantity) {
+    if (_items.containsKey(productId) && newQuantity > 0) {
       _items.update(
-        itemId,
+        productId,
         (existingCartItem) => existingCartItem.copyWith(
           quantity: newQuantity,
         ),
       );
       notifyListeners();
-    } else if (_items.containsKey(itemId) && newQuantity <= 0) {
-      removeItem(itemId);
+    } else if (_items.containsKey(productId) && newQuantity <= 0) {
+      removeItem(productId);
     }
   }
+
+  void clear() {}
 }
+
+// Make sure this line is at the bottom of the file
+final cartProvider = ChangeNotifierProvider<CartProvider>((ref) => CartProvider());

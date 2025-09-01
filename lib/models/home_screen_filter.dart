@@ -1,170 +1,126 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/hive_service.dart';
+import 'package:flutter/material.dart';
 
-class HomeScreenFilter {
-  final bool showFavoritesOnly;
-  final bool openNow;
-  final bool organic;
-  final bool topRated;
-  final String category;
-  final String searchQuery;
-  final double minDistance;
-  final double maxDistance;
-  final double price;
+class HomeScreenFilterModel {
+  final String? category;
+  final double? maxPrice;
+  final double? minRating;
+  final String? sortBy;
+  final bool? showFavoritesOnly;
+  final bool? openNow;
+  final bool? organic;
+  final bool? topRated;
+  final String? searchQuery;
+  final double? minDistance;
+  final double? maxDistance;
+  final String? price;
 
-  HomeScreenFilter({
-    this.showFavoritesOnly = false,
-    this.openNow = false,
-    this.organic = false,
-    this.topRated = false,
-    this.category = 'All',
-    this.searchQuery = '',
-    this.minDistance = 0,
-    this.maxDistance = 50,
-    this.price = 100,
+  final List<String> selectedCategories;
+  final RangeValues? selectedPriceRange;
+  final String? selectedSortOption;
+
+  HomeScreenFilterModel({
+    this.category,
+    this.maxPrice,
+    this.minRating,
+    this.sortBy,
+    this.showFavoritesOnly,
+    this.openNow,
+    this.organic,
+    this.topRated,
+    this.searchQuery,
+    this.minDistance,
+    this.maxDistance,
+    this.price,
+    required this.selectedCategories,
+    required this.selectedPriceRange,
+    required this.selectedSortOption,
   });
-}
 
-class HomeScreenFilterNotifier extends StateNotifier<HomeScreenFilter> {
-  HomeScreenFilterNotifier() : super(HomeScreenFilter()) {
-    _restoreFilterState();
+  Map<String, dynamic> toJson() {
+    return {
+      'category': category,
+      'maxPrice': maxPrice,
+      'minRating': minRating,
+      'sortBy': sortBy,
+      'showFavoritesOnly': showFavoritesOnly,
+      'openNow': openNow,
+      'organic': organic,
+      'topRated': topRated,
+      'searchQuery': searchQuery,
+      'minDistance': minDistance,
+      'maxDistance': maxDistance,
+      'price': price,
+      'selectedCategories': selectedCategories,
+      'selectedPriceRange': selectedPriceRange == null
+          ? null
+          : {'start': selectedPriceRange!.start, 'end': selectedPriceRange!.end},
+      'selectedSortOption': selectedSortOption,
+    };
   }
 
-  Future<void> _restoreFilterState() async {
-    final hiveService = HiveService();
-    final saved = await hiveService.getHomeScreenFilter();
-    if (saved != null) {
-      state = saved;
-    }
-  }
-
-  Future<void> _persistFilterState() async {
-    final hiveService = HiveService();
-    await hiveService.saveHomeScreenFilter(state);
-  }
-
-  void toggleFavorites() {
-    state = HomeScreenFilter(
-      showFavoritesOnly: !state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
+  factory HomeScreenFilterModel.fromJson(Map<String, dynamic> json) {
+    return HomeScreenFilterModel(
+      category: json['category'],
+      maxPrice: json['maxPrice']?.toDouble(),
+      minRating: json['minRating']?.toDouble(),
+      sortBy: json['sortBy'],
+      showFavoritesOnly: json['showFavoritesOnly'],
+      openNow: json['openNow'],
+      organic: json['organic'],
+      topRated: json['topRated'],
+      searchQuery: json['searchQuery'],
+      minDistance: json['minDistance']?.toDouble(),
+      maxDistance: json['maxDistance']?.toDouble(),
+      price: json['price'],
+      selectedCategories: (json['selectedCategories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      selectedPriceRange: json['selectedPriceRange'] != null
+          ? RangeValues(
+              (json['selectedPriceRange']['start'] as num).toDouble(),
+              (json['selectedPriceRange']['end'] as num).toDouble(),
+            )
+          : null,
+      selectedSortOption: json['selectedSortOption'],
     );
-    _persistFilterState();
   }
 
-  void toggleOpenNow() {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: !state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
-    );
-    _persistFilterState();
-  }
+  Null get showOnlyFavorites => null;
 
-  void toggleOrganic() {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: !state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
+  HomeScreenFilterModel copyWith({
+    String? category,
+    double? maxPrice,
+    double? minRating,
+    String? sortBy,
+    bool? showFavoritesOnly,
+    bool? openNow,
+    bool? organic,
+    bool? topRated,
+    String? searchQuery,
+    double? minDistance,
+    double? maxDistance,
+    String? price,
+    List<String>? selectedCategories,
+    RangeValues? selectedPriceRange,
+    String? selectedSortOption, required bool showOnlyFavorites,
+  }) {
+    return HomeScreenFilterModel(
+      category: category ?? this.category,
+      maxPrice: maxPrice ?? this.maxPrice,
+      minRating: minRating ?? this.minRating,
+      sortBy: sortBy ?? this.sortBy,
+      showFavoritesOnly: showFavoritesOnly ?? this.showFavoritesOnly,
+      openNow: openNow ?? this.openNow,
+      organic: organic ?? this.organic,
+      topRated: topRated ?? this.topRated,
+      searchQuery: searchQuery ?? this.searchQuery,
+      minDistance: minDistance ?? this.minDistance,
+      maxDistance: maxDistance ?? this.maxDistance,
+      price: price ?? this.price,
+      selectedCategories: selectedCategories ?? this.selectedCategories,
+      selectedPriceRange: selectedPriceRange ?? this.selectedPriceRange,
+      selectedSortOption: selectedSortOption ?? this.selectedSortOption,
     );
-    _persistFilterState();
-  }
-
-  void toggleTopRated() {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: !state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
-    );
-    _persistFilterState();
-  }
-
-  void setCategory(String category) {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
-    );
-    _persistFilterState();
-  }
-
-  void setSearchQuery(String query) {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: query,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: state.price,
-    );
-    _persistFilterState();
-  }
-
-  void setDistanceRange(double min, double max) {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: min,
-      maxDistance: max,
-      price: state.price,
-    );
-    _persistFilterState();
-  }
-
-  void setPrice(double price) {
-    state = HomeScreenFilter(
-      showFavoritesOnly: state.showFavoritesOnly,
-      openNow: state.openNow,
-      organic: state.organic,
-      topRated: state.topRated,
-      category: state.category,
-      searchQuery: state.searchQuery,
-      minDistance: state.minDistance,
-      maxDistance: state.maxDistance,
-      price: price,
-    );
-    _persistFilterState();
   }
 }
-
-final homeScreenFilterProvider =
-    StateNotifierProvider<HomeScreenFilterNotifier, HomeScreenFilter>(
-      (ref) => HomeScreenFilterNotifier(),
-    );

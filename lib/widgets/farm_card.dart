@@ -3,7 +3,7 @@ import '../models/farm_model.dart';
 
 class FarmCard extends StatelessWidget {
   final VoidCallback onTap;
-  final Farm farm;
+  final FarmModel farm;
   final bool isLoading;
   final bool hasError;
   final VoidCallback? onRetry;

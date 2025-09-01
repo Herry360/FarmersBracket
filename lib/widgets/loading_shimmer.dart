@@ -30,9 +30,8 @@ class LoadingShimmer extends StatelessWidget {
         return _buildFarmListShimmer();
       case ShimmerType.productGrid:
         return _buildProductGridShimmer();
-      default:
-        return _buildDefaultShimmer();
     }
+    // No default shimmer used, so nothing returned for unknown type.
   }
 
   Widget _buildProductListShimmer() {
@@ -257,28 +256,6 @@ class LoadingShimmer extends StatelessWidget {
               const SizedBox(height: 4),
               Container(width: 100, height: 14, color: Colors.white),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildDefaultShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.builder(
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
           );
         },
       ),

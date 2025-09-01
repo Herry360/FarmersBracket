@@ -1,5 +1,5 @@
+import 'package:farm_bracket/screens/checkout_screen.dart';
 import 'package:flutter/material.dart';
-import '../screens/checkout_screen.dart';
 
 class CartSummary extends StatelessWidget {
   final double subtotal;

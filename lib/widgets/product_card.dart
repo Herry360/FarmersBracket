@@ -1,4 +1,4 @@
-import 'package:farm_bracket/models/product.dart';
+import 'package:farm_bracket/models/product_model.dart';
 
 import 'package:flutter/material.dart';
 import '../../services/haptic_feedback_service.dart';

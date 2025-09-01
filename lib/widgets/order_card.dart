@@ -1,19 +1,13 @@
+import 'package:farm_bracket/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'order_action_buttons.dart';
-import '../screens/order_history_screen.dart'
-    show Order, OrderStatus, OrderItem;
-// ...existing code...
 
 class OrderCard extends StatelessWidget {
   static const _cardMargin = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
   static const _cardPadding = EdgeInsets.all(16);
-  static const _statusPadding = EdgeInsets.symmetric(
-    horizontal: 12,
-    vertical: 4,
-  );
-  // ...existing code...
+  static const _statusPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 4);
   static const _imageSize = 40.0;
   static const _iconSize = 16.0;
   static const _productPreviewHeight = 40.0;
@@ -42,14 +36,14 @@ class OrderCard extends StatelessWidget {
   });
 
   bool get _canCancel {
-    return onCancel != null && (order.status == OrderStatus.pending);
+    return onCancel != null && order.status == OrderStatus.pending;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-    final statusColor = _getStatusColor(order.status);
+    final statusColor = _getStatusColor(order.status as OrderStatus);
 
     return Card(
       margin: _cardMargin,
@@ -103,9 +97,7 @@ class OrderCard extends StatelessWidget {
       children: [
         Text(
           'Order #${order.id.substring(0, 8)}',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         if (showStatus)
           Container(
@@ -115,7 +107,7 @@ class OrderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              order.status.name.toUpperCase(),
+              _orderStatusToString(order.status as OrderStatus),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: statusColor,
                 fontWeight: FontWeight.bold,
@@ -129,8 +121,7 @@ class OrderCard extends StatelessWidget {
   Widget _buildOrderDate(BuildContext context) {
     return _buildInfoRow(
       icon: Icons.calendar_today_outlined,
-      text:
-          '${_dateFormat.format(order.date)} • ${_timeFormat.format(order.date)}',
+      text: '${_dateFormat.format(order.date)} • ${_timeFormat.format(order.date)}',
       context: context,
     );
   }
@@ -138,8 +129,7 @@ class OrderCard extends StatelessWidget {
   Widget _buildItemCount(BuildContext context) {
     return _buildInfoRow(
       icon: Icons.shopping_bag_outlined,
-      text:
-          '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
+      text: '${order.items.length} ${order.items.length == 1 ? 'item' : 'items'}',
       context: context,
     );
   }
@@ -150,10 +140,8 @@ class OrderCard extends StatelessWidget {
       children: [
         Text('Total', style: Theme.of(context).textTheme.bodyMedium),
         Text(
-          'R${order.total.toStringAsFixed(2)}',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          'R${(order.total ?? 0).toStringAsFixed(2)}',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -185,7 +173,7 @@ class OrderCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CachedNetworkImage(
-              imageUrl: '', // No image in OrderItem, fallback to empty
+              imageUrl: item.imageUrl ?? '',
               width: _imageSize,
               height: _imageSize,
               fit: BoxFit.cover,
@@ -200,19 +188,15 @@ class OrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  item.name ?? '',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${item.quantity} × R${item.price.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha(154),
+                    color: Theme.of(context).colorScheme.onSurface.withAlpha(154),
                   ),
                 ),
               ],
@@ -261,8 +245,6 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  // ...existing code...
-
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.delivered:
@@ -272,6 +254,16 @@ class OrderCard extends StatelessWidget {
       case OrderStatus.pending:
         return Colors.orange;
     }
-    // unreachable
+  }
+
+  String _orderStatusToString(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.delivered:
+        return 'Delivered';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
+      case OrderStatus.pending:
+        return 'Pending';
+    }
   }
 }

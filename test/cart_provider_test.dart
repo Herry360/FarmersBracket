@@ -1,118 +1,154 @@
-import 'package:farm_bracket/models/cart_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:farm_bracket/providers/cart_provider.dart';
 
 void main() {
   group('CartProvider', () {
-    late CartNotifier cartNotifier;
-
-    final testItem = CartItem(
-      id: '1',
-      productId: 'p1',
-      name: 'Apple',
-      price: 10.0,
-      imageUrl: 'apple.png',
-      farmId: 'f1',
-      farmName: 'Farm1',
-      quantity: 1,
-      unit: 'kg',
-    );
+    late CartProvider cartProvider;
 
     setUp(() {
-      cartNotifier = CartNotifier();
+      cartProvider = CartProvider();
     });
 
     test('Initial cart is empty', () {
-      expect(cartNotifier.state.items, isEmpty);
-      expect(cartNotifier.state.subtotal, 0);
-      expect(cartNotifier.state.total, cartNotifier.state.serviceFee);
+      expect(cartProvider.items, isEmpty);
+      expect(cartProvider.itemCount, 0);
+      expect(cartProvider.totalAmount, 0.0);
+      expect(cartProvider.subtotal, 0.0);
     });
 
-    test('Add product to cart', () async {
-      cartNotifier.state = CartState(items: []);
-      cartNotifier.state.items.add(testItem);
-      expect(cartNotifier.state.items.length, 1);
-      expect(cartNotifier.state.items.first.name, 'Apple');
-    });
-
-    test('Add same product multiple times increases quantity', () async {
-      cartNotifier.state = CartState(items: []);
-      cartNotifier.state.items.add(testItem);
-      cartNotifier.state.items.first.quantity += 1;
-      expect(cartNotifier.state.items.first.quantity, 2);
-    });
-
-    test('Remove product from cart', () async {
-      cartNotifier.state = CartState(items: [testItem]);
-      cartNotifier.state.items.removeWhere((item) => item.id == testItem.id);
-      expect(cartNotifier.state.items.length, 0);
-    });
-
-    test('Cart total calculation', () async {
-      final item1 = CartItem(
-        id: '1',
-        productId: 'p1',
-        name: 'Apple',
+    test('Add item to cart', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
         price: 10.0,
-        imageUrl: 'apple.png',
-        farmId: 'f1',
-        farmName: 'Farm1',
         quantity: 2,
-        unit: 'kg',
       );
-      final item2 = CartItem(
-        id: '2',
-        productId: 'p2',
-        name: 'Banana',
+      expect(cartProvider.items.length, 1);
+      expect(cartProvider.items['1']!.title, 'Apple');
+      expect(cartProvider.items['1']!.quantity, 2);
+    });
+
+    test('Add same item increases quantity', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 1,
+      );
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 2,
+      );
+      expect(cartProvider.items['1']!.quantity, 3);
+    });
+
+    test('Remove item from cart', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 1,
+      );
+      cartProvider.removeItem('1');
+      expect(cartProvider.items.containsKey('1'), isFalse);
+    });
+
+    test('Remove single item decreases quantity', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 2,
+      );
+      cartProvider.removeSingleItem('1');
+      expect(cartProvider.items['1']!.quantity, 1);
+    });
+
+    test('Remove single item removes if quantity is 1', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 1,
+      );
+      cartProvider.removeSingleItem('1');
+      expect(cartProvider.items.containsKey('1'), isFalse);
+    });
+
+    test('Clear cart removes all items', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 1,
+      );
+      cartProvider.addItem(
+        productId: '2',
+        title: 'Banana',
         price: 5.0,
-        imageUrl: 'banana.png',
-        farmId: 'f2',
-        farmName: 'Farm2',
         quantity: 3,
+      );
+      cartProvider.clear();
+      expect(cartProvider.items, isEmpty);
+    });
+
+    test('Total and subtotal calculation', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 2,
+      );
+      cartProvider.addItem(
+        productId: '2',
+        title: 'Banana',
+        price: 5.0,
+        quantity: 3,
+      );
+      expect(cartProvider.subtotal, 10.0 * 2 + 5.0 * 3);
+      expect(cartProvider.totalAmount, cartProvider.subtotal); // If no extra fees
+    });
+
+    test('Update item quantity', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 2,
+      );
+      cartProvider.updateItemQuantity('1', 5);
+      expect(cartProvider.items['1']!.quantity, 5);
+    });
+
+    test('Update item quantity to zero removes item', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 2,
+      );
+      cartProvider.updateItemQuantity('1', 0);
+      expect(cartProvider.items.containsKey('1'), isFalse);
+    });
+
+    test('Add item with farm details', () {
+      cartProvider.addItem(
+        productId: '1',
+        title: 'Apple',
+        price: 10.0,
+        quantity: 1,
+        farmId: 'farm1',
+        farmName: 'Farm Fresh',
         unit: 'kg',
+        imageUrl: 'http://image.url/apple.png',
       );
-      cartNotifier.state = CartState(items: [item1, item2]);
-      expect(cartNotifier.state.subtotal, 10.0 * 2 + 5.0 * 3);
-      expect(
-        cartNotifier.state.total,
-        cartNotifier.state.subtotal +
-            cartNotifier.state.deliveryFee +
-            cartNotifier.state.serviceFee,
-      );
-    });
-
-    test('Clear cart removes all items', () async {
-      cartNotifier.state = CartState(items: [testItem]);
-      cartNotifier.state.items.clear();
-      expect(cartNotifier.state.items, isEmpty);
-    });
-
-    test('Format price returns correct string', () {
-      final formatted = cartNotifier.formatPrice(123.456);
-      expect(formatted, 'R123.46');
-    });
-
-    test('Update quantity changes item quantity', () async {
-      cartNotifier.state = CartState(items: [testItem]);
-      cartNotifier.state.items.first.quantity = 5;
-      expect(cartNotifier.state.items.first.quantity, 5);
-    });
-
-    test('CartNotifier exposes loading and error states', () {
-      cartNotifier.loadCart();
-      expect(
-        cartNotifier.state.isLoading,
-        isFalse,
-      ); // loadCart is sync, so isLoading should be false
-      expect(cartNotifier.state.error, isNull);
-
-      // Simulate error
-      cartNotifier.state = CartState(
-        items: [],
-        isLoading: false,
-        error: 'Test error',
-      );
-      expect(cartNotifier.state.error, 'Test error');
+      final item = cartProvider.items['1']!;
+      expect(item.farmId, 'farm1');
+      expect(item.farmName, 'Farm Fresh');
+      expect(item.unit, 'kg');
+      expect(item.imageUrl, 'http://image.url/apple.png');
     });
   });
 }

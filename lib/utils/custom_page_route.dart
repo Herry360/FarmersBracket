@@ -42,8 +42,7 @@ class CustomSlideRoute extends PageRouteBuilder {
       case AxisDirection.left:
         return const Offset(1, 0);
       case AxisDirection.right:
-      default:
-        return const Offset(-1, 0);
+      return const Offset(-1, 0);
     }
   }
 }

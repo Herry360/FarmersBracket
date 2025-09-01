@@ -29,6 +29,10 @@ class Order {
     );
   }
 
+  Null get total => null;
+
+  Null get orderDate => null;
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -60,6 +64,10 @@ class OrderItem {
     );
   }
 
+  String? get name => null;
+
+  Null get imageUrl => null;
+
   Map<String, dynamic> toJson() {
     return {
       'productId': productId,
@@ -67,4 +75,9 @@ class OrderItem {
       'price': price,
     };
   }
+}
+enum OrderStatus {
+  pending,
+  delivered,
+  cancelled,
 }

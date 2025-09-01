@@ -41,7 +41,6 @@ class SupportChatProvider extends ChangeNotifier {
     }
   }
 
-  // For demo: load mock tickets
   void loadMockTickets(List<SupportTicket> tickets) {
     for (var ticket in tickets) {
       _tickets[ticket.id] = ticket;
@@ -49,3 +48,4 @@ class SupportChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+

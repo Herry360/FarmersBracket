@@ -1,3 +1,4 @@
+import 'package:farm_bracket/models/product_model.dart';
 import 'package:flutter/material.dart';
 
 class StickyAddToCartBar extends StatelessWidget {
@@ -6,7 +7,7 @@ class StickyAddToCartBar extends StatelessWidget {
   const StickyAddToCartBar({
     super.key,
     required this.price,
-    required this.onAddToCart,
+    required this.onAddToCart, required Product product,
   });
 
   @override

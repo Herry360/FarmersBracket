@@ -1,3 +1,5 @@
+import 'package:farm_bracket/screens/home/welcome_screen.dart';
+import 'package:farm_bracket/screens/profile/help_center_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -14,8 +16,6 @@ import 'routes/app_routes.dart';
 import 'routes/navigation_analytics_observer.dart';
 
 // Screens
-import 'screens/welcome_screen.dart';
-import 'screens/help_center_screen.dart';
 import 'screens/onboarding/onboarding_flow.dart';
 
 void main() async {

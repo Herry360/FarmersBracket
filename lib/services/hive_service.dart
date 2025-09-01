@@ -1,5 +1,6 @@
+import 'package:farm_bracket/screens/home/home_screen.dart';
 import 'package:hive/hive.dart';
-import '../screens/home_screen.dart';
+import '../models/home_screen_filter.dart';
 
 class HiveService {
   static Future<void> addRecentlyViewedProduct(String productId) async {
@@ -18,12 +19,12 @@ class HiveService {
     return List<String>.from(box.get('recent_products', defaultValue: []));
   }
 
-  Future<HomeScreenFilter?> getHomeScreenFilter() async {
+  Future<HomeScreenFilterModel?> getHomeScreenFilterModel() async {
     var box = await Hive.openBox('home_screen_filter');
     final data = box.get('filter');
     if (data == null) return null;
     // Assuming data is a Map<String, dynamic>
-    return HomeScreenFilter(
+    return HomeScreenFilterModel(
       showFavoritesOnly: data['showFavoritesOnly'] ?? false,
       openNow: data['openNow'] ?? false,
       organic: data['organic'] ?? false,
@@ -32,11 +33,11 @@ class HiveService {
       searchQuery: data['searchQuery'] ?? '',
       minDistance: (data['minDistance'] ?? 0).toDouble(),
       maxDistance: (data['maxDistance'] ?? 50).toDouble(),
-      price: (data['price'] ?? 100).toDouble(),
+      price: (data['price'] ?? 100).toDouble(), selectedCategories: [], selectedPriceRange: null, selectedSortOption: '',
     );
   }
 
-  Future<void> saveHomeScreenFilter(HomeScreenFilter filter) async {
+  Future<void> saveHomeScreenFilterModel(HomeScreenFilterModel filter) async {
     var box = await Hive.openBox('home_screen_filter');
     await box.put('filter', {
       'showFavoritesOnly': filter.showFavoritesOnly,
@@ -50,4 +51,8 @@ class HiveService {
       'price': filter.price,
     });
   }
+
+  Future getHomeScreenFilter() async {}
+
+  Future<void> saveHomeScreenFilter(HomeScreenFilter state) async {}
 }

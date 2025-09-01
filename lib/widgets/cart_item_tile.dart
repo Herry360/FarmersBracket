@@ -1,5 +1,5 @@
+import 'package:farm_bracket/models/cart_item.dart';
 import 'package:flutter/material.dart';
-import '../providers/cart_provider.dart';
 
 class CartItemTile extends StatelessWidget {
   final CartItem item;
@@ -18,7 +18,7 @@ class CartItemTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        leading: item.imageUrl.isNotEmpty
+        leading: (item.imageUrl.isNotEmpty == true)
             ? Image.network(
                 item.imageUrl,
                 width: 50,
